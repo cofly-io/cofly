@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "declaration": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@/*": ["./src/*", "./app/*"],
+      "@repo/*": ["../packages/*"]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

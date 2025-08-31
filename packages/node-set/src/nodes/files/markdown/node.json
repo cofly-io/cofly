@@ -1,0 +1,9 @@
+{
+	"node": "cofly.merge",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"category": "triggerNode",
+	"subcategories": {
+		"Core Nodes": ["Flow", "Data Transformation"]
+	}
+}

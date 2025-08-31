@@ -1,0 +1,35 @@
+{
+  "name": "test",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {},
+  "workspaces": [
+    "../../packages/*"
+  ],
+  "dependencies": {
+    "@cofly-ai/interfaces": "workspace:*",
+    "@prisma/client": "^6.12.0",
+    "@repo/common": "workspace:*",
+    "@repo/database": "workspace:*",
+    "@repo/services": "workspace:*",
+    "@repo/engine": "workspace:*",
+    "@repo/knowledge-base": "workspace:*",
+    "@repo/mcp-workflow-tools": "workspace:*",
+    "@repo/node-set": "workspace:*",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "bcryptjs": "^3.0.2",
+    "buffer": "^6.0.3",
+    "sharp": "workspace:*",
+    "util": "^0.12.5"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.16.5",
+    "eslint": "^9.31.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "5.8.3"
+  }
+}

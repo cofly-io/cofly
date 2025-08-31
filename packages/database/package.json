@@ -1,0 +1,53 @@
+{
+  "name": "@repo/database",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./prisma": {
+      "import": "./dist/prisma.js",
+      "types": "./dist/prisma.d.ts"
+    },
+    "./prisma/client": {
+      "import": "./dist/prisma-client.js",
+      "types": "./dist/prisma-client.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "clean": "powershell -Command \"Remove-Item -Path '.turbo', 'node_modules', 'dist' -Recurse -Force -ErrorAction SilentlyContinue\"",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push --skip-generate",
+    "db:migrate": "prisma migrate dev",
+    "db:reset": "prisma migrate reset --force",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.12.0",
+    "@prisma/extension-accelerate": "^2.0.2",
+    "@cofly-ai/interfaces": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.16.5",
+    "eslint": "^9.31.0",
+    "prisma": "^6.12.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
+  }
+}

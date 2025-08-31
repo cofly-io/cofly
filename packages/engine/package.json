@@ -1,0 +1,57 @@
+{
+  "name": "@repo/engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./dist/*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.mjs"
+    }
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "generate:component": "turbo gen react-component",
+    "check-types": "tsc --noEmit",
+    "clean": "powershell -Command \"Remove-Item -Path '.turbo', 'node_modules' -Recurse -Force -ErrorAction SilentlyContinue\"",
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.5",
+    "@types/mustache": "^4.2.6",
+    "@types/xxhashjs": "^0.2.4",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@turbo/gen": "^2.5.5",
+    "eslint": "^9.31.0",
+    "tsup": "^8.5.0",
+    "typescript": "5.8.3"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^1.1.5",
+    "@dmitryrechkin/json-schema-to-zod": "^1.0.1",
+    "@astronautlabs/jsonpath": "^1.1.2",
+    "@inngest/realtime": "^0.3.1",
+    "@modelcontextprotocol/sdk": "^1.17.0",
+    "@repo/common": "workspace:*",
+    "@sinclair/typebox": "^0.34.38",
+    "@smithery/sdk": "^1.5.4",
+    "buffer": "^6.0.3",
+    "dayjs": "^1.11.13",
+    "graphology": "^0.26.0",
+    "graphology-dag": "^0.4.1",
+    "iconv-lite": "^0.6.3",
+    "inngest": "^3.40.1",
+    "lru-cache": "^11.1.0",
+    "mustache": "^4.2.0",
+    "xxhashjs": "^0.2.2",
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.24.6"
+  }
+}

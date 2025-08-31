@@ -1,0 +1,7 @@
+{
+  "id": "workflow-trigger",
+  "name": "workflow-trigger",
+  "event": "workflow/trigger",
+  "displayName": "工作流触发器",
+  "description": "工作流触发器"
+}

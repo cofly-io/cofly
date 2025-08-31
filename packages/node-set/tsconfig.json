@@ -1,0 +1,26 @@
+{
+  "extends": "../typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*", "./app/*"],
+      "@repo/*": ["../*"]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/nodes/oracle/node.ts",
+    "src/nodes/postgresql/node.ts",
+    "src/nodes/sqlserver/node.ts"
+  ]
+}

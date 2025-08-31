@@ -1,0 +1,117 @@
+{
+  "name": "@repo/node-set",
+  "version": "1.0.0",
+  "description": "Node definitions, connection configurations for database, API, LLM connections, and workflow nodes",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.mjs"
+    },
+    "./connects/database": {
+      "types": "./dist/connects/database/index.d.ts",
+      "import": "./dist/connects/database/index.mjs",
+      "require": "./dist/connects/database/index.mjs"
+    },
+    "./connects/llm": {
+      "types": "./dist/connects/llm/index.d.ts",
+      "import": "./dist/connects/llm/index.mjs",
+      "require": "./dist/connects/llm/index.mjs"
+    },
+    "./connects/llm/utils/llm-tester": {
+      "types": "./dist/connects/llm/utils/llm-tester.d.ts",
+      "import": "./dist/connects/llm/utils/llm-tester.mjs",
+      "require": "./dist/connects/llm/utils/llm-tester.mjs"
+    },
+    "./connects/database/utils/database-tester": {
+      "types": "./dist/connects/database/utils/database-tester.d.ts",
+      "import": "./dist/connects/database/utils/database-tester.mjs",
+      "require": "./dist/connects/database/utils/database-tester.mjs"
+    },
+    "./connects/*": {
+      "types": "./dist/connects/*.d.ts",
+      "import": "./dist/connects/*.mjs",
+      "require": "./dist/connects/*.mjs"
+    },
+    "./client": {
+      "import": "./dist/client/index.mjs",
+      "types": "./dist/client/index.d.ts"
+    },
+    "./dist/*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.mjs"
+    }
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "clean": "powershell -Command \"Remove-Item -Path '.turbo', 'node_modules' -Recurse -Force -ErrorAction SilentlyContinue\"",
+    "build": "tsup && pnpm run copy-files",
+    "copy-files": "copyfiles -u 1 \"src/nodes/**/*.{json,svg,png}\" dist && copyfiles -u 1 \"src/connects/**/*.{json,svg,png}\" dist",
+    "refactor:connects": "node ../../scripts/refactor-connects.js",
+    "validate:connects": "node ../../scripts/validate-connects.js"
+  },
+  "dependencies": {
+    "@astronautlabs/jsonpath": "^1.1.2",
+    "@aws-sdk/client-s3": "^3.705.0",
+    "@aws-sdk/s3-request-presigner": "^3.705.0",
+    "@repo/common": "workspace:*",
+    "@repo/engine": "workspace:*",
+    "@wecom/crypto": "^1.0.1",
+    "axios": "1.11.0",
+    "coa-error": "^1.5.2",
+    "coa-helper": "^1.2.1",
+    "coa-xml": "^1.1.1",
+    "dmdb": "^1.0.38220",
+    "fast-glob": "^3.3.3",
+    "fast-xml-parser": "^5.2.5",
+    "ioredis": "^5.6.1",
+    "mongodb": "^6.18.0",
+    "mysql2": "^3.14.2",
+    "nodemailer": "^7.0.5",
+    "pg": "^8.11.0",
+    "promise-ftp": "^1.3.5",
+    "redis": "^4.0.0",
+    "ssh2-sftp-client": "^10.0.3",
+    "stream-to-promise": "^3.0.0"
+  },
+  "peerDependencies": {
+    "kb": "*",
+    "mssql": "^11.0.0",
+    "oracledb": "^6.7.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "peerDependenciesMeta": {
+    "mysql": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    },
+    "oracledb": {
+      "optional": true
+    },
+    "mssql": {
+      "optional": true
+    },
+    "kb": {
+      "optional": true
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/mssql": "^9.1.7",
+    "@types/node": "^22.16.5",
+    "@types/nodemailer": "^6.4.17",
+    "@types/oracledb": "^6.5.1",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/ssh2-sftp-client": "^9.0.3",
+    "copyfiles": "^2.4.1",
+    "tsup": "^8.5.0"
+  }
+}

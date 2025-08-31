@@ -1,0 +1,30 @@
+{
+  "name": "@cofly-ai/interfaces",
+  "version": "1.0.9",
+  "type": "module",
+  "description": "cofly interfaces",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "build": "tsup"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.5",
+    "tsup": "^8.5.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

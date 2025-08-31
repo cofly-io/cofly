@@ -1,0 +1,14 @@
+{
+  "kind": "emailsend",
+  "name": "邮件发送",
+  "icon": "emailsend.svg",
+  "catalog": "general",
+  "version": 1,
+  "group": [
+    "input",
+    "output"
+  ],
+  "displayName": "发送邮件",
+  "description": "通过SMTP发送邮件",
+  "subtitle": ""
+}

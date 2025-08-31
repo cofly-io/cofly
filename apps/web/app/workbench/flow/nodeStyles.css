@@ -1,0 +1,56 @@
+/* ReactFlow 节点样式覆盖 */
+
+/* 普通动作节点样式 */
+.react-flow__node-actionNode {
+    width: 120px !important;
+    /* 移除固定高度，让节点标题能正常显示 */
+}
+
+/* 触发器节点样式 */
+.react-flow__node-triggerNode {
+    width: 120px !important;
+    /* 移除固定高度，让节点标题能正常显示 */
+}
+
+/* 智能体节点样式 - 注释掉以保持原有样式和McpList显示 */
+/* .react-flow__node-agentNode {
+    width: 220px !important;
+    height: 90px !important;
+} */
+
+/* 条件节点样式（如果有的话） */
+.react-flow__node-conditionNode {
+    width: 120px !important;
+    height: 80px !important;
+}
+
+/* 通用节点样式优化 */
+.react-flow__node {
+    /* 允许内容溢出，确保节点标题和McpList能正常显示 */
+    overflow: visible;
+
+    /* 优化节点的边框和阴影 */
+    border-radius: 6px;
+
+    /* 确保节点可以正确响应鼠标事件 */
+    pointer-events: all;
+}
+
+/* 选中状态的节点样式 */
+/* .react-flow__node.selected {
+    box-shadow: 0 0 0 2px #3b82f6 !important;
+} */
+
+/* 节点悬停状态 */
+/* .react-flow__node:hover {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease;
+} */
+
+/* 确保节点标题能正常显示 */
+.react-flow__node .custom-nodes__NodeTitle-sc-8e09c1c9-12 {
+    width: 100%;
+    text-align: center;
+    word-wrap: break-word;
+    /* 移除 overflow: hidden，让文字能完整显示 */
+}

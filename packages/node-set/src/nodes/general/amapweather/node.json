@@ -1,0 +1,14 @@
+{
+  "kind": "amapweather",
+  "name": "高德地图",
+  "icon": "amapweather.svg",
+  "catalog": "general",
+  "version": 1,
+  "group": [
+    "input",
+    "output"
+  ],
+  "displayName": "高德天气",
+  "description": "通过高德天气API查询城市天气情况",
+  "subtitle": ""
+}

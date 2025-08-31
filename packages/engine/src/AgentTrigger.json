@@ -1,0 +1,7 @@
+{
+  "id": "agent-trigger",
+  "name": "agent-trigger",
+  "event": "agent/trigger",
+  "displayName": "智能体触发器",
+  "description": "智能体触发器"
+}

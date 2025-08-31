@@ -1,0 +1,7 @@
+{
+  "id": "workflow-scheduler",
+  "name": "workflow-scheduler",
+  "event": "workflow/scheduler",
+  "displayName": "工作流排程器",
+  "description": "工作流排程器"
+}

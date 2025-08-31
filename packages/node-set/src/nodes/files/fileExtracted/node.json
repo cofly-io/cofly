@@ -1,0 +1,155 @@
+{
+	"detail": {
+		"displayName": "File Extracted",
+		"name": "fileExtracted",
+		"icon": "file:fileExtracted.svg",
+		"group": ["files"],
+		"version": 1,
+		"description": "Extract data from various file formats",
+		"defaults": {
+			"name": "File Extracted"
+		},
+		"inputs": ["main"],
+		"outputs": ["main"],
+		"fields": [
+			{
+				"displayName": "Operation",
+				"name": "operation",
+				"type": "string",
+				"controlType": "selectwithdesc",
+				"options": [
+					{
+						"name": "Extract from JSON",
+						"value": "fromJson",
+						"description": "Extract data from JSON file"
+					},
+					{
+						"name": "Extract from Text",
+						"value": "fromText",
+						"description": "Extract content from text file"
+					},
+					{
+						"name": "Extract from CSV",
+						"value": "fromCsv",
+						"description": "Extract data from CSV file"
+					},
+					{
+						"name": "File to Base64",
+						"value": "fileToBase64",
+						"description": "Convert file to base64 string"
+					}
+				],
+				"default": "fromJson"
+			},
+			{
+				"displayName": "Input Binary Property",
+				"name": "binaryPropertyName",
+				"type": "string",
+				"controlType": "input",
+				"default": "data",
+				"required": true,
+				"description": "Name of the binary property containing the file data"
+			},
+			{
+				"displayName": "Output Property",
+				"name": "outputProperty",
+				"type": "string",
+				"controlType": "input",
+				"default": "data",
+				"required": true,
+				"description": "Name of the output property to store extracted data",
+				"displayOptions": {
+					"show": {
+						"operation": ["fromJson", "fromText", "fromCsv"]
+					}
+				}
+			},
+			{
+				"displayName": "Base64 Output Property",
+				"name": "base64OutputProperty",
+				"type": "string",
+				"controlType": "input",
+				"default": "base64",
+				"required": true,
+				"description": "Name of the output property to store base64 string",
+				"displayOptions": {
+					"show": {
+						"operation": ["fileToBase64"]
+					}
+				}
+			},
+			{
+				"displayName": "Encoding",
+				"name": "encoding",
+				"type": "string",
+				"controlType": "select",
+				"options": [
+					{ "name": "UTF-8", "value": "utf8" },
+					{ "name": "ASCII", "value": "ascii" },
+					{ "name": "Latin1", "value": "latin1" },
+					{ "name": "UTF-16LE", "value": "utf16le" }
+				],
+				"default": "utf8",
+				"description": "Text encoding of the input file",
+				"displayOptions": {
+					"show": {
+						"operation": ["fromJson", "fromText", "fromCsv"]
+					}
+				}
+			},
+			{
+				"displayName": "CSV Delimiter",
+				"name": "csvDelimiter",
+				"type": "string",
+				"controlType": "input",
+				"default": ",",
+				"description": "Character used to separate CSV fields",
+				"displayOptions": {
+					"show": {
+						"operation": ["fromCsv"]
+					}
+				}
+			},
+			{
+				"displayName": "CSV Has Header",
+				"name": "csvHasHeader",
+				"type": "boolean",
+				"controlType": "checkbox",
+				"default": true,
+				"description": "Whether the first row contains column headers",
+				"displayOptions": {
+					"show": {
+						"operation": ["fromCsv"]
+					}
+				}
+			},
+			{
+				"displayName": "CSV Quote Character",
+				"name": "csvQuote",
+				"type": "string",
+				"controlType": "input",
+				"default": "\"",
+				"description": "Character used to quote CSV fields",
+				"displayOptions": {
+					"show": {
+						"operation": ["fromCsv"]
+					}
+				}
+			},
+			{
+				"displayName": "Keep Source Data",
+				"name": "keepSource",
+				"type": "string",
+				"controlType": "select",
+				"options": [
+					{ "name": "JSON Only", "value": "json" },
+					{ "name": "Binary Only", "value": "binary" },
+					{ "name": "Both", "value": "both" },
+					{ "name": "None", "value": "none" }
+				],
+				"default": "json",
+				"description": "What source data to keep in the output"
+			}
+		]
+	}
+}

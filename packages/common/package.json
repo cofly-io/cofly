@@ -1,0 +1,34 @@
+{
+  "name": "@repo/common",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "clean": "powershell -Command \"Remove-Item -Path '.turbo', 'node_modules', 'dist' -Recurse -Force -ErrorAction SilentlyContinue\"",
+    "build": "tsup"
+  },
+  "dependencies": {
+    "inversify": "^7.6.1",
+    "reflect-metadata": "^0.2.2",
+    "@cofly-ai/interfaces": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.5",
+    "tsup": "^8.5.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

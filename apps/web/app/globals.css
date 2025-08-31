@@ -1,0 +1,77 @@
+/* :root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-geist-sans: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", 
+    "WenQuanYi Micro Hei", "Noto Sans CJK SC", "Source Han Sans CN",
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  --font-geist-mono: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", 
+    "WenQuanYi Micro Hei", "Noto Sans CJK SC", "Source Han Sans CN",
+    Consolas, Monaco, "Courier New", monospace;
+} */
+
+/* 注释掉自动主题切换，使用手动主题控制 */
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --font-geist-sans: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", 
+      "WenQuanYi Micro Hei", "Noto Sans CJK SC", "Source Han Sans CN",
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    --font-geist-mono: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", 
+      "WenQuanYi Micro Hei", "Noto Sans CJK SC", "Source Han Sans CN",
+      Consolas, Monaco, "Courier New", monospace;
+  }
+} */
+
+html {
+  max-width: 100vw;
+}
+
+/* body样式完全由styled-components主题系统控制，避免冲突 */
+
+/* body 样式由 styled-components 主题系统控制 */
+/* body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 
+    "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", 
+    "WenQuanYi Micro Hei", "Noto Sans CJK SC", "Source Han Sans CN",
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif !important;
+} */
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+/* html字体样式由styled-components主题系统中的body控制，避免重复定义 */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.imgDark {
+  display: none;
+}
+
+/* 图片主题切换由 styled-components 主题系统控制 */
+/* @media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+
+  .imgLight {
+    display: none;
+  }
+  .imgDark {
+    display: unset;
+  }
+} */
