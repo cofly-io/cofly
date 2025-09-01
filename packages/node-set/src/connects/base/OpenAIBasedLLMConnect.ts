@@ -48,7 +48,7 @@ export abstract class OpenAIBasedLLMConnect extends BaseLLMConnect {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${opts.connectInfo?.apiKey}`
             },
-            body: opts.input
+            body: typeof opts.input === 'string' ? opts.input : JSON.stringify(opts.input)
         })).json();
         return {
             success: true,

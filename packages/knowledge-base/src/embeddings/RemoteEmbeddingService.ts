@@ -140,7 +140,11 @@ export class RemoteEmbeddingService implements EmbeddingService {
                 }
             });
 
-            const data : number[] = result.data.data[0];
+            if(!result || !result.data || !result.data.data || !result.data.data.length || !result.data.data[0].embedding) {
+                throw new Error(`Invalid embedding; input: ${text} result: ${JSON.stringify(result || {})}`);
+            }
+
+            const data : number[] = result.data.data[0].embedding;
             embeddings.push(data);
         }
 
