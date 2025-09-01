@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { LoginPageComponent } from '@repo/ui';
-import { GlobalThemeProvider } from '@repo/ui/main';
 import { useAuth } from '../../src/hooks/useAuth';
 
 export default function LoginPage() {
@@ -22,15 +21,13 @@ export default function LoginPage() {
   };
 
   return (
-    <GlobalThemeProvider defaultTheme="dark">
-      <LoginPageComponent
-        logoSrc="/logo.png"
-        onLogin={handleLogin}
-        loading={loading}
-        error={error || ""}
-        registerUrl="/register"
-        onRegisterClick={handleRegisterClick}
-      />
-    </GlobalThemeProvider>
+    <LoginPageComponent
+      logoSrc="/logo.png"
+      onLogin={handleLogin}
+      loading={loading}
+      error={error || ""}
+      registerUrl="/register"
+      onRegisterClick={handleRegisterClick}
+    />
   );
 }

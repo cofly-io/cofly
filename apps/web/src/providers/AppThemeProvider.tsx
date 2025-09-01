@@ -17,16 +17,16 @@ export const AppThemeProvider: React.FC<AppThemeProviderProps> = ({ children }) 
     const userId = status === 'authenticated' && session?.user?.id ? session.user.id : undefined;
 
     return (
-        <GlobalThemeProvider>
-            <ThemeProvider
-                userId={userId}
-                settingsService={settingsApi}
-            >
-                <GlobalConfirmProvider>
-                    {children}
-                </GlobalConfirmProvider>
-            </ThemeProvider>
-        </GlobalThemeProvider>
+        <ThemeProvider
+            userId={userId}
+            settingsService={settingsApi}
+            defaultTheme="dark"
+            lightweight={!userId} // Use lightweight mode when no user is authenticated
+        >
+            <GlobalConfirmProvider>
+                {children}
+            </GlobalConfirmProvider>
+        </ThemeProvider>
     );
 };
 
