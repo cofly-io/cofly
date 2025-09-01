@@ -211,7 +211,7 @@ export class SQLServerConnect extends BaseDatabaseConnect {
     /**
      * 构建连接配置
      */
-    private buildConnectionConfig(configData: any): sql.config {
+    private buildConnectionConfig(configData: any) {
         return {
             server: configData.host,
             port: configData.port || 1433,
@@ -245,7 +245,7 @@ export class SQLServerConnect extends BaseDatabaseConnect {
 
         try {
             // 获取连接配置
-            const connectConfig = await credentialManager.mediator.get(datasourceId);
+            const connectConfig = await credentialManager.mediator?.get(datasourceId);
             if (!connectConfig) {
                 return {
                     success: false,
@@ -327,7 +327,7 @@ export class SQLServerConnect extends BaseDatabaseConnect {
 
         try {
             // 获取连接配置
-            const connectConfig = await credentialManager.mediator.get(datasourceId);
+            const connectConfig = await credentialManager.mediator?.get(datasourceId);
             if (!connectConfig) {
                 return {
                     success: false,
@@ -404,7 +404,7 @@ export class SQLServerConnect extends BaseDatabaseConnect {
 
         try {
             // 获取连接配置
-            const connectConfig = await credentialManager.mediator.get(datasourceId);
+            const connectConfig = await credentialManager.mediator?.get(datasourceId);
             if (!connectConfig) {
                 return {
                     success: false,

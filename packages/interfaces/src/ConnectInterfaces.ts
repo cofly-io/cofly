@@ -5,7 +5,7 @@ import {
     NodeParameterValueType,
     INodePropertyModeTypeOptions
 } from './NodeInterfaces';
-import { ApiResponse } from "@/SystemInterfaces";
+import { ApiResponse } from "./SystemInterfaces";
 
 // 临时的ModelInfo类型定义，实际定义已迁移到@repo/common
 export interface ModelInfo {

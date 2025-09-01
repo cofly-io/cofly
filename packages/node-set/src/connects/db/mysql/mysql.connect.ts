@@ -2,7 +2,7 @@ import { credentialManager, Icon, IDatabaseMetadataOptions, IDatabaseMetadataRes
 import { ConnectTestResult } from '@repo/common';
 import { BaseDatabaseConnect } from '../../base/BaseDatabaseConnect';
 import mysql from "mysql2/promise";
-import { IDatabaseExecutionOptions, IDatabaseExecutionResult } from "@repo/interfaces/src";
+import { IDatabaseExecutionOptions, IDatabaseExecutionResult } from "@repo/common";
 
 /**
  * 连接操作回调函数类型

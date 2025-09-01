@@ -1,4 +1,4 @@
-import { IExecuteOptions, INode, INodeBasic, INodeDetail, IMetadataOptions, IMetadataResult } from '@repo/common';
+import { IExecuteOptions, INode, INodeBasic, INodeDetail } from '@repo/common';
 import { NodeLink } from '@repo/common';
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import * as https from 'https';
@@ -439,14 +439,6 @@ export class HttpRequest implements INode {
             },
         ],
     };
-
-    async metadata(opts: IMetadataOptions): Promise<IMetadataResult> {
-        // HTTP请求节点通常不需要元数据查询
-        return {
-            success: false,
-            error: 'HTTP请求节点不支持元数据查询'
-        };
-    }
 
     async execute(opts: IExecuteOptions): Promise<any> {
         console.log('🌐 [HttpRequest Node] 开始执行HTTP请求:', opts.inputs);

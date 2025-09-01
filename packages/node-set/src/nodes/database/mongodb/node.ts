@@ -337,7 +337,7 @@ export class MongoDB implements INode {
             const { MongoClient } = await import('mongodb');
             
             // 获取连接配置
-            const connectConfig = await credentialManager.mediator.get(datasourceId);
+            const connectConfig = await credentialManager.mediator?.get(datasourceId);
             if (!connectConfig) {
                 throw new Error(`连接配置不存在: ${datasourceId}`);
             }

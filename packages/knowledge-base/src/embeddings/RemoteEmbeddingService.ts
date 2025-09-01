@@ -1,4 +1,4 @@
-import { ErrorType, AppError } from '@repo/common';
+import { ErrorType, AppError, getConnectRegistry, ILLMConnect } from '@repo/common';
 import { EmbeddingService } from "../types";
 import { KnowledgeBaseInstance } from "../KnowledgeBaseManager";
 
@@ -7,76 +7,8 @@ import { KnowledgeBaseInstance } from "../KnowledgeBaseManager";
  * 使用远程API（如OpenAI）进行向量化
  */
 export class RemoteEmbeddingService implements EmbeddingService {
-    private isConnected = false;
-    private connectionPromise: Promise<void> | null = null;
 
     constructor(private kb: KnowledgeBaseInstance) {
-    }
-
-    /**
-     * 建立连接
-     */
-    async connect(): Promise<void> {
-        if (this.isConnected) {
-            return;
-        }
-
-        if (this.connectionPromise) {
-            return this.connectionPromise;
-        }
-
-        this.connectionPromise = this._establishConnection();
-        return this.connectionPromise;
-    }
-
-    /**
-     * 实际建立连接的私有方法
-     */
-    private async _establishConnection(): Promise<void> {
-        try {
-            // 验证配置
-            if (!this.kb.config.embedding.apiKey) {
-                throw new Error('API key is required for remote embedding service');
-            }
-
-            if (!this.kb.config.embedding.baseUrl) {
-                throw new Error('API URL is required for remote embedding service');
-            }
-
-            // 测试连接
-            await this.testConnection();
-            this.isConnected = true;
-            console.log('Remote embedding service connected successfully');
-        } catch (error) {
-            this.isConnected = false;
-            this.connectionPromise = null;
-            throw new Error(`Remote embedding service connection failed: ${error instanceof Error ? error.message : String(error)}`);
-        }
-    }
-
-    /**
-     * 测试连接
-     */
-    private async testConnection(): Promise<void> {
-        try {
-            // 发送一个简单的测试请求
-            await this.makeApiRequest(['test'], 1);
-        } catch (error) {
-            // 如果是因为测试文本导致的错误，可能连接是正常的
-            if (error instanceof Error && error.message.includes('test')) {
-                return;
-            }
-            throw error;
-        }
-    }
-
-    /**
-     * 确保连接可用
-     */
-    private async ensureConnection(): Promise<void> {
-        if (!this.isConnected) {
-            await this.connect();
-        }
     }
 
     /**
@@ -92,12 +24,10 @@ export class RemoteEmbeddingService implements EmbeddingService {
             throw error;
         }
 
-        await this.ensureConnection();
-
         let retries = 0;
         while (retries < this.kb.config.embedding.maxRetries) {
             try {
-                const embeddings = await this.makeApiRequest([text], 1);
+                const embeddings = await this.makeApiRequest([text]);
                 
                 if (!embeddings || embeddings.length === 0) {
                     throw new Error('No embedding returned from API');
@@ -152,8 +82,6 @@ export class RemoteEmbeddingService implements EmbeddingService {
             return [];
         }
 
-        await this.ensureConnection();
-
         const results: number[][] = [];
         const batchSize = this.kb.config.embedding.batchSize;
 
@@ -163,7 +91,7 @@ export class RemoteEmbeddingService implements EmbeddingService {
             console.log(`Processing remote batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(validTexts.length / batchSize)}`);
 
             try {
-                const batchResults = await this.makeApiRequest(batch, batch.length);
+                const batchResults = await this.makeApiRequest(batch);
                 results.push(...batchResults);
             } catch (error) {
                 console.error(`Failed to process remote batch starting at index ${i}:`, error);
@@ -187,87 +115,35 @@ export class RemoteEmbeddingService implements EmbeddingService {
     /**
      * 发送API请求
      */
-    private async makeApiRequest(texts: string[], expectedCount: number): Promise<number[][]> {
-        const requestBody = {
-            input: texts,
-            model: this.kb.config.embedding.model,
-            encoding_format: 'float'
-        };
-
-        const response = await fetch(this.kb.config.embedding.baseUrl!, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.kb.config.embedding.apiKey}`,
-                'User-Agent': 'Cofly-KnowledgeBase/1.0'
-            },
-            body: JSON.stringify(requestBody),
-            signal: AbortSignal.timeout(this.kb.config.embedding.timeout)
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`);
+    private async makeApiRequest(texts: string[]): Promise<number[][]> {
+        const registry = getConnectRegistry();
+        const connect = registry.getConnectsByProvider(this.kb.config.embedding.series?.toString() || "openai").at(0) as ILLMConnect;
+        if(!connect || !connect.execute) {
+            throw new Error('Invalid Connection format');
         }
 
-        const data = await response.json();
+        const embeddings: number[][] = [];
+        for(const text of texts) {
 
-        if (!data.data || !Array.isArray(data.data)) {
-            throw new Error('Invalid API response format');
-        }
+            const requestBody = {
+                input: text,
+                model: this.kb.config.embedding.model
+            };
 
-        const embeddings: number[][] = data.data.map((item: any) => {
-            if (!item.embedding || !Array.isArray(item.embedding)) {
-                throw new Error('Invalid embedding format in API response');
-            }
-            return item.embedding;
-        });
+            const result = await connect.execute({
+                input: requestBody,
+                model: this.kb.config.embedding.series?.toString() || "openai",
+                modelType: 'embedding',
+                connectInfo: {
+                    apiKey: this.kb.config.embedding.apiKey,
+                    baseUrl: this.kb.config.embedding.baseUrl,
+                }
+            });
 
-        if (embeddings.length !== expectedCount) {
-            throw new Error(`Expected ${expectedCount} embeddings, got ${embeddings.length}`);
+            const data : number[] = result.data.data[0];
+            embeddings.push(data);
         }
 
         return embeddings;
-    }
-
-    /**
-     * 断开连接
-     */
-    async disconnect(): Promise<void> {
-        this.isConnected = false;
-        this.connectionPromise = null;
-        console.log('Remote embedding service disconnected');
-    }
-
-    /**
-     * 重新连接
-     */
-    async reconnect(): Promise<void> {
-        await this.disconnect();
-        await this.connect();
-    }
-
-    /**
-     * 检查服务是否就绪
-     */
-    isReady(): boolean {
-        return this.isConnected;
-    }
-
-    /**
-     * 获取模型信息
-     */
-    getModelInfo(): { model: string; dimension: number } {
-        return {
-            model: this.kb.config.embedding.model,
-            dimension: this.kb.config.embedding.dimension,
-        };
-    }
-
-    /**
-     * 清理资源
-     */
-    async dispose(): Promise<void> {
-        await this.disconnect();
     }
 }

@@ -1,4 +1,4 @@
-import { createDecipheriv, pseudoRandomBytes, createCipheriv } from 'crypto';
+import { createDecipheriv, randomBytes, createCipheriv } from 'crypto';
 import { WxWork as WxWorkNS, WxWorkBin, WxWorkMessageService } from './wxbin';
 import { sign, x2o, o2x, tryThrow } from "./tools";
 
@@ -153,7 +153,7 @@ class WXBizMsgCrypt {
         nonce: string
     ) {
         // 生成随机字符串[16字节]
-        const random16 = pseudoRandomBytes(16);
+        const random16 = randomBytes(16);
 
         // 消息明文
         const msgDecrypt = Buffer.from(replyMsg);

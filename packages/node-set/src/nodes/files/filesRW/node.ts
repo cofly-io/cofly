@@ -9,7 +9,7 @@ export class FilesRW implements INode {
 		kind: 'filesRW',
 		name: '文件读写',
 		event: "filesRW",
-		categories: ['files'],
+		catalog: 'files',
 		version: 1,
 		description: "读取或写入本机上的文件",
 		icon: 'filesRW.svg',

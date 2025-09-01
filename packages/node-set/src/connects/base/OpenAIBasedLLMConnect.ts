@@ -1,5 +1,5 @@
 import { BaseLLMConnect } from "./BaseLLMConnect";
-import { ILLMExecuteOptions, ILLMExecuteResult } from "@repo/interfaces/src";
+import { ILLMExecuteOptions, ILLMExecuteResult } from "@repo/common";
 import { urlJoin } from "../../utils/url-join";
 
 export abstract class OpenAIBasedLLMConnect extends BaseLLMConnect {
@@ -42,13 +42,17 @@ export abstract class OpenAIBasedLLMConnect extends BaseLLMConnect {
     private async fetchData(opts: ILLMExecuteOptions, api: string) {
 
         const apiUrl = urlJoin(opts.connectInfo?.baseUrl ?? this.overview.api.url, api);
-        return fetch(apiUrl, {
+        const data = await (await fetch(apiUrl, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${opts.connectInfo?.apiKey}`
             },
-            body: opts.input,
-        })
+            body: opts.input
+        })).json();
+        return {
+            success: true,
+            data
+        }
     }
 }

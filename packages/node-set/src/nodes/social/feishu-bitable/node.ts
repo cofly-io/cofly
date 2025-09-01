@@ -274,7 +274,7 @@ export class FeishuBitable implements INode {
      * 获取连接配置
      */
     private async getConnectionConfig(credentialId: string): Promise<Record<string, any>> {
-        const connectConfig = await credentialManager.mediator.get(credentialId);
+        const connectConfig = await credentialManager.mediator?.get(credentialId);
         if (!connectConfig) {
             throw new Error('未找到飞书多维表格连接配置');
         }

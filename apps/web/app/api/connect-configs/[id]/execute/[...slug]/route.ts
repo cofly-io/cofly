@@ -144,7 +144,8 @@ export async function POST(
             }
 
             // 调用节点的metadata方法
-            return connectInstance.execute(executeOptions);
+            const result = await connectInstance.execute(executeOptions);
+            return Response.json(result.data);
         }
 
         return NextResponse.json(

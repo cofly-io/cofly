@@ -1,5 +1,5 @@
 // 错误类型枚举
-import { DocumentStatus, SupportedFileType } from "@/KnowledgeBaseInterfaces";
+import { DocumentStatus, SupportedFileType } from "./KnowledgeBaseInterfaces";
 
 export enum ErrorType {
     FILE_TOO_LARGE = 'FILE_TOO_LARGE',

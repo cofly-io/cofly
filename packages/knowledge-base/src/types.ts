@@ -45,8 +45,6 @@ export interface VectorRecord {
 export interface EmbeddingService {
     generateEmbedding(text: string): Promise<number[]>;
     generateBatchEmbeddings(texts: string[]): Promise<number[][]>;
-    isReady(): boolean;
-    getModelInfo(): { model: string; dimension: number };
 }
 
 /**

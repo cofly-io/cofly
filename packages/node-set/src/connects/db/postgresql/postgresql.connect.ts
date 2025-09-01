@@ -194,7 +194,7 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
 
         try {
             // 获取连接配置
-            const connectConfig = await credentialManager.mediator.get(datasourceId);
+            const connectConfig = await credentialManager.mediator?.get(datasourceId);
             if (!connectConfig) {
                 return {
                     success: false,
@@ -277,7 +277,7 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
 
         try {
             // 获取连接配置
-            const connectConfig = await credentialManager.mediator.get(datasourceId);
+            const connectConfig = await credentialManager.mediator?.get(datasourceId);
             if (!connectConfig) {
                 return {
                     success: false,
@@ -362,7 +362,7 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
 
         try {
             // 获取连接配置
-            const connectConfig = await credentialManager.mediator.get(datasourceId);
+            const connectConfig = await credentialManager.mediator?.get(datasourceId);
             if (!connectConfig) {
                 return {
                     success: false,

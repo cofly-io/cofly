@@ -1,5 +1,4 @@
-import { AppError, ErrorType } from "@/SystemInterfaces";
-import { ModelSeries } from "@/AgentInterfaces";
+import { AppError, ErrorType } from "./SystemInterfaces";
 
 // 文档状态枚举
 export enum DocumentStatus {

@@ -3,46 +3,14 @@
   "version": "1.0.0",
   "description": "Node definitions, connection configurations for database, API, LLM connections, and workflow nodes",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.mjs"
-    },
-    "./connects/database": {
-      "types": "./dist/connects/database/index.d.ts",
-      "import": "./dist/connects/database/index.mjs",
-      "require": "./dist/connects/database/index.mjs"
-    },
-    "./connects/llm": {
-      "types": "./dist/connects/llm/index.d.ts",
-      "import": "./dist/connects/llm/index.mjs",
-      "require": "./dist/connects/llm/index.mjs"
-    },
-    "./connects/llm/utils/llm-tester": {
-      "types": "./dist/connects/llm/utils/llm-tester.d.ts",
-      "import": "./dist/connects/llm/utils/llm-tester.mjs",
-      "require": "./dist/connects/llm/utils/llm-tester.mjs"
-    },
-    "./connects/database/utils/database-tester": {
-      "types": "./dist/connects/database/utils/database-tester.d.ts",
-      "import": "./dist/connects/database/utils/database-tester.mjs",
-      "require": "./dist/connects/database/utils/database-tester.mjs"
-    },
-    "./connects/*": {
-      "types": "./dist/connects/*.d.ts",
-      "import": "./dist/connects/*.mjs",
-      "require": "./dist/connects/*.mjs"
-    },
-    "./client": {
-      "import": "./dist/client/index.mjs",
-      "types": "./dist/client/index.d.ts"
-    },
-    "./dist/*": {
-      "types": "./dist/*.d.ts",
-      "default": "./dist/*.mjs"
     }
   },
   "scripts": {

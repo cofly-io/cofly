@@ -1,16 +1,16 @@
 import { Icon } from '@repo/common';
 import { ILLMOverview, ConnectTestResult } from '@repo/common';
-import { BaseLLMConnect } from '../../base/BaseLLMConnect';
 import {
     createApiKeyField,
     createBaseUrlField,
     testLLMConnection
 } from '../../../utils/llm-fields';
+import { OpenAIBasedLLMConnect } from "../../base/OpenAIBasedLLMConnect";
 
 /**
  * OpenAI LLM 连接器类
  */
-export class OpenAIConnect extends BaseLLMConnect {
+export class OpenAIConnect extends OpenAIBasedLLMConnect {
     override overview: ILLMOverview = {
         id: 'openai',
         name: 'OpenAI',
