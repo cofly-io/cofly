@@ -1,6 +1,5 @@
 import { Icon, IDatabaseMetadataOptions, IDatabaseMetadataResult } from '@repo/common';
 import { ConnectTestResult, ILLMOverview } from '@repo/common';
-import { BaseLLMConnect } from '../../base/BaseLLMConnect';
 import {
     createApiKeyField,
     createBaseUrlField,
@@ -12,11 +11,12 @@ import {
     isSiliconFlowValidModel,
     transformSiliconFlowModelData
 } from '../../../utils/llm-models';
+import { OpenAIBasedLLMConnect } from "../../base/OpenAIBasedLLMConnect";
 
 /**
  * 硅基流动 LLM 连接器类
  */
-export class SiliconFlowConnect extends BaseLLMConnect {
+export class SiliconFlowConnect extends OpenAIBasedLLMConnect {
     override overview: ILLMOverview = {
         id: 'siliconflow',
         name: '硅基流动',

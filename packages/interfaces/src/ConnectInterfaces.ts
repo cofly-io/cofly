@@ -5,6 +5,7 @@ import {
     NodeParameterValueType,
     INodePropertyModeTypeOptions
 } from './NodeInterfaces';
+import { ApiResponse } from "@/SystemInterfaces";
 
 // 临时的ModelInfo类型定义，实际定义已迁移到@repo/common
 export interface ModelInfo {
@@ -360,7 +361,7 @@ export type LLMProvider =
 /**
  * LLM 模型类型
  */
-export type LLMModelType = 'chat' | 'completion' | 'embedding' | 'image' | 'audio';
+export type LLMModelType = 'chat' | 'embeddings' | 'embedding' | 'image' | 'audio' | 'video' | 'reranker' | 'rerank';
 
 /**
  * LLM 连接配置
@@ -395,7 +396,7 @@ type LLMDriver = 'openai' | 'gemini' | 'grok' | 'anthropic';
 export interface ILLMOverview extends IConnectBasic {
     type: 'llm';
     provider: LLMProvider;
-    api: { url: string, suffix?: string };//对话地址
+    api: { url: string, suffix?: string, chat?: string, embedding?: string, reranker?: string };//对话地址
     driver?: LLMDriver;//驱动类型
     tags?: ConnectTags[];
     about?: {
@@ -421,6 +422,17 @@ export interface ILLMMetadataOptions {
     };
 }
 
+export interface ILLMExecuteOptions {
+    // 新增：LLM模型相关的配置信息
+    connectInfo?: {
+        apiKey?: string;
+        baseUrl?: string;
+    };
+    model?: string;
+    modelType?: LLMModelType;
+    input?: any;
+}
+
 export interface ILLMMetadataResult {
     success: boolean;
     data?: Array<{
@@ -431,6 +443,10 @@ export interface ILLMMetadataResult {
     error?: string;
 }
 
+export interface ILLMExecuteResult<T = any> extends ApiResponse {
+
+}
+
 export interface ILLMConnect extends IConnect {
     overview: ILLMOverview & {
     };
@@ -438,6 +454,7 @@ export interface ILLMConnect extends IConnect {
     };
     test(config: Record<string, any>, message?: string): Promise<ConnectTestResult>;
     metadata?(opts: ILLMMetadataOptions): Promise<ILLMMetadataResult>;
+    execute?(opts: ILLMExecuteOptions): Promise<ILLMExecuteResult>;
     //chat?(config: Record<string, any>, message: string): Promise<ConnectTestResult>;
     //streamChat?(config: Record<string, any>, message: string, onChunk?: (chunk: string) => void): Promise<ConnectTestResult>;
 }

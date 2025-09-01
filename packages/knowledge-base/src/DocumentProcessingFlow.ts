@@ -28,7 +28,7 @@ export class DocumentProcessingFlow {
         this.vecotorService = kb.vector;
 
         this.documentProcessor = new DocumentProcessor({
-            storageDir: kb.getStoragePath(),
+            storageDir: kb.storagePath,
             chunkSize: kb.config.embedding.chunkSize,
             chunkOverlap: kb.config.embedding.chunkOverlap
         });

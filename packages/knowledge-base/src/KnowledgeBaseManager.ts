@@ -42,6 +42,10 @@ export class KnowledgeBaseInstance implements IKnowledgeBaseInstance {
         return this.config.metadata.id;
     }
 
+    get storagePath() {
+        return path.join(process.env.STORAGE_DIR_BASE || this.config.processor.storageDir, "knowledge-base", this.id)
+    }
+
     constructor(public config: KnowledgeBase) {
         this.embedding = getEmbeddingService(this);
         this.vector = getVectorService(this);
@@ -82,8 +86,23 @@ export class KnowledgeBaseInstance implements IKnowledgeBaseInstance {
         return this.search.search(searchQuery);
     }
 
-    getStoragePath() {
-        return path.join(process.env.STORAGE_DIR_BASE || this.config.processor.storageDir, "knowledge-base", this.id)
+    async deleteDocument(docId: string): Promise<boolean> {
+
+        try {
+            return prisma.$transaction(async (tx) => {
+
+                await tx.kbDocumentChunk.deleteChunksByDocumentId(docId);
+                await tx.kbProcessingStatus.deleteProcessingStatusesByDocumentId(docId);
+                await tx.kbDocument.deleteDocument(docId);
+
+                await this.vector.deleteDocumentVectors(this.config.vector.collectionName, docId);
+
+                return true;
+            })
+        } catch(error) {
+            console.error(error);
+            return false;
+        }
     }
 }
 

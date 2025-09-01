@@ -152,6 +152,8 @@ export type {
     // LLM 相关类型
     ILLMMetadataOptions,
     ILLMMetadataResult,
+    ILLMExecuteOptions,
+    ILLMExecuteResult,
     ILLMConnect,
     ILLMConnectConfig,
     ILLMOverview,

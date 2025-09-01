@@ -11,8 +11,8 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@repo/common": ["../common/dist"],
-      "@repo/common/*": ["../common/dist/*"]
+      "@/*": ["./src/*"],
+      "@repo/*": ["../packages/*"]
     }
   },
   "include": ["src"],

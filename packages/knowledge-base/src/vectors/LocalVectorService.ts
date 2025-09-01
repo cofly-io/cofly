@@ -23,7 +23,7 @@ export class LocalVectorService implements VectorService {
 
     constructor(private kb: KnowledgeBaseInstance) {
         // 设置本地数据存储目录
-        this.dataDir = path.join(process.cwd(), kb.getStoragePath());
+        this.dataDir = path.join(process.cwd(), kb.storagePath);
     }
 
     /**
@@ -176,12 +176,12 @@ export class LocalVectorService implements VectorService {
                         id: v.id,
                         vector: v.vector,
                         metadata: {
-                            document_id: v.metadata.id,
-                            chunk_index: v.chunkIndex || 0,
-                            file_name: v.metadata.fileName,
-                            file_type: v.metadata.fileType,
-                            upload_time: v.metadata.uploadTime.getTime(),
-                            content_preview: v.metadata.textPreview || ''
+                            documentId: v.metadata.id,
+                            chunkIndex: v.chunkIndex || 0,
+                            fileName: v.metadata.fileName,
+                            fileType: v.metadata.fileType,
+                            uploadTime: v.metadata.uploadTime.getTime(),
+                            contentPreview: v.metadata.textPreview || ''
                         }
                     };
 
@@ -233,22 +233,22 @@ export class LocalVectorService implements VectorService {
             // 转换搜索结果
             const searchResults: DocumentSearchResult[] = results.map(result => {
                 const metadata: ProcessedDocumentMetadata = {
-                    id: result.item.metadata.document_id,
-                    fileName: result.item.metadata.file_name,
-                    originalName: result.item.metadata.file_name,
+                    id: result.item.metadata.documentId,
+                    fileName: result.item.metadata.fileName,
+                    originalName: result.item.metadata.fileName,
                     fileType: result.item.metadata.file_type as SupportedFileType,
                     fileSize: 0,
-                    uploadTime: new Date(result.item.metadata.upload_time),
+                    uploadTime: new Date(result.item.metadata.uploadTime),
                     status: DocumentStatus.COMPLETED,
                     chunkCount: 0,
                     filePath: '',
-                    textPreview: result.item.metadata.content_preview,
+                    textPreview: result.item.metadata.contentPreview,
                 };
 
                 return {
                     id: result.item.id,
                     score: result.score,
-                    chunkIndex: result.item.metadata.chunk_index,
+                    chunkIndex: result.item.metadata.chunkIndex,
                     metadata,
                 };
             });

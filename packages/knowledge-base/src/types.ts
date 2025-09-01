@@ -195,5 +195,5 @@ export interface IKnowledgeBaseInstance {
 
     searchDocuments(searchQuery: DocumentSearchQuery): Promise<DocumentSearchResponse>;
 
-    getStoragePath(): string;
+    deleteDocument(docId: string): Promise<boolean>
 }
