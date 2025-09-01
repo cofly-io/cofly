@@ -32,7 +32,7 @@ export const glassBase = css`
           rgba(59, 130, 246, 0.04) 0%,
           rgba(123, 24, 216, 0.05) 50%,
           rgba(14, 233, 193, 0.08) 100%)`
-  };
+    };
   }
   &:hover::before {
     opacity: 1;
@@ -59,7 +59,7 @@ export const GlassContainer = styled.div`
   position: relative;
   background: ${({ theme }) => theme.mode === 'dark'
     ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%)'
-    : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 25%, #e2e8f0 50%, #cbd5e1 75%, #94a3b8 100%)'
+    : 'linear-gradient(135deg, #ffffff 0%, #ffffff 50%, #ffffff 70%,#E5F2DC60 100%)'
   };
 `;
 

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ConnectSettings } from './ConnectSettings';
-import { ILLMConnect } from '@repo/common';
+import { ILLMConnect, IConnect } from '@repo/common';
 
 // 连接详情内容容器 - 适合在模态框内部使用
 const DetailsContent = styled.div`
@@ -44,7 +44,7 @@ const CloseButton = styled.button`
 `;
 
 interface ConnectDetailsViewProps {
-  connect: ILLMConnect;
+  connect: IConnect | ILLMConnect; // 支持通用连接和 LLM 连接类型
   savedValues?: Record<string, any>;
   onClose: () => void; // 回退功能
   onSave: (connectData: any) => void;
@@ -76,7 +76,7 @@ export const ConnectDetailsView: React.FC<ConnectDetailsViewProps> = ({
     // 添加连接类型信息到保存数据中
     const saveData = {
       ...connectData,
-      mtype: connect.overview.type // 如果 connectType 不存在，使用 connect.type 作为后备
+      mtype: connect.overview.type
     };
     await onSave(saveData);
     onClose();
@@ -106,16 +106,20 @@ export const ConnectDetailsView: React.FC<ConnectDetailsViewProps> = ({
     }
   };
 
+  // 使用 connect.editInfo 而不是 editData
+  const actualEditData = (connect as any).editInfo || editData;
+  const actualSavedValues = editMode && actualEditData ? actualEditData.config : savedValues;
+
   return (
     <DetailsContent>
       <ConnectSettings
         connect={connect}
-        savedValues={editMode && editData ? editData.config : savedValues}
+        savedValues={actualSavedValues}
         onClose={onClose}
         onSave={handleSave}
         onTest={handleTest}
         editMode={editMode}
-        editData={editData}
+        editData={actualEditData}
         showBackButton={showBackButton}
         onBack={onClose}
       />

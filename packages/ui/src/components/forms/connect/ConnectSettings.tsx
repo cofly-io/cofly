@@ -105,7 +105,7 @@ const BackButton = styled.button`
   background: none;
   border: none;
   font-size: 18px;
-  color: ${({ theme }) => theme.mode === 'dark' ? '#94a3b8' : '#64748b'};
+  color: ${({ theme }) => theme.mode === 'dark' ? '#94a3b8' : '#ffffff'};
   cursor: pointer;
   padding: 4px 12px;
   border-radius: 4px;
@@ -113,7 +113,7 @@ const BackButton = styled.button`
 
   &:hover {
     background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
-    color: ${({ theme }) => theme.mode === 'dark' ? '#ffffff' : '#000000'};
+    color: ${({ theme }) => theme.mode === 'dark' ? '#ffffff' : '#bfbfbf'};
   }
 `;
 
@@ -136,7 +136,6 @@ const AboutSection = styled.div`
     : '0 2px 8px rgba(0, 0, 0, 0.05)'
   };
 `;
-
 
 const AboutLinks = styled.div`
   display: flex;
@@ -238,6 +237,7 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
   showBackButton = false,
   onBack
 }) => {
+
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   const [configName, setConfigName] = useState<string>('');
   const [testStatus, setTestStatus] = useState<{
@@ -275,22 +275,20 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
 
   // 在编辑模式下，从 editData.config 初始化表单值
   useEffect(() => {
-    if (editMode && editData?.config && connect?.detail?.fields) {
-      console.log('🔄 编辑模式：从 editData.config 初始化表单值:', editData.config);
-      
+    if (editMode && editData?.config !== undefined && connect?.detail?.fields) {
+      console.log('初始化编辑表单，配置数据:', editData.config);
+
       const editValues: Record<string, any> = {};
-      
+
       // 遍历连接字段定义，从 editData.config 中提取对应的值
       connect.detail.fields.forEach((field: IConnectField) => {
         if (editData.config[field.name] !== undefined) {
           editValues[field.name] = editData.config[field.name];
-          console.log(`✅ 字段 ${field.name} 值:`, editData.config[field.name]);
         } else if (field.default !== undefined) {
           editValues[field.name] = field.default;
         }
       });
-      
-      console.log('📝 设置编辑表单值:', editValues);
+
       setFormValues(editValues);
     }
   }, [editMode, editData?.config, connect?.detail?.fields]);

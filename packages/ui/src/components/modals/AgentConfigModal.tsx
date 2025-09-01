@@ -255,7 +255,7 @@ export const AgentConfigModal: React.FC<AgentConfigModalProps> = ({
 
   // 获取默认头像颜色的函数
   const getDefaultAvatarColor = () => {
-    return theme.mode === 'dark' ? '#FFFFFF' : '#1f2937';
+    return theme.mode === 'dark' ? '#FFFFFF' : '#29c18d';
   };
 
   // 状态声明

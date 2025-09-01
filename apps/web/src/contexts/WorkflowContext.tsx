@@ -209,9 +209,7 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
                   nodeDefinition = nodeDetails.node;
                   linkInfo = linkInfo || nodeDefinition.link || null;
                 }
-              } else {
-                console.log(`🔗 使用数据库中的link信息: ${nodeInfo.kind}`);
-              }
+              } 
 
               // 创建ReactFlow节点
               const reactFlowNode: Node = {

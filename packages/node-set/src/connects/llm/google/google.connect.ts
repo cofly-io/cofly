@@ -12,7 +12,7 @@ const ConnectConfig: ILLMOverview = {
     name: 'Gemini',
     type: 'llm' as const,
     provider: 'google',
-    icon: 'Gemini.svg' as Icon,
+    icon: 'Genini.svg' as Icon,
     tags: ["international"],
     description: 'Google Gemini/PaLM AI模型连接',
     version: '1.0.0',

@@ -10,8 +10,8 @@ const CheckboxContainer = styled.div`
 `;
 
 const CheckboxInput = styled.input`
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   cursor: pointer;
   accent-color: #33C2EE;
   
@@ -22,8 +22,8 @@ const CheckboxInput = styled.input`
 `;
 
 const CheckboxLabel = styled.label`
-  font-size: 14px;
-  color: ${({ theme }) => theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
+  font-size: 12px;
+  color: ${({ theme }) => theme.mode === 'dark' ? '#f8fafc' : '#ffffff'};
   cursor: pointer;
   user-select: none;
   

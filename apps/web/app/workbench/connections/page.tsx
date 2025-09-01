@@ -53,8 +53,7 @@ export default function AgentPageContainer() {
   // 获取连接配置数据
   const fetchConnectConfigs = async (): Promise<ConnectConfig[]> => {
     try {
-      const result = await ConnectConfigService.getConnectConfigs();     
-       console.log('获取连接配置数据...',result);
+      const result = await ConnectConfigService.getConnectConfigs();
       if (result.success) {
         // 转换数据结构以匹配 ConnectConfig 接口
         const transformedData = result.data.map((item: any) => ({
@@ -117,7 +116,6 @@ export default function AgentPageContainer() {
   const handleFetchConnectDetails = async (connectId: string) => {
     try {
       const result = await ConnectService.getConnectDetail(connectId);
-
       if (result.success) {
         // 将平面数据结构转换为嵌套结构，以匹配 ConnectSettings 的期望
         const transformedData = {
@@ -132,11 +130,12 @@ export default function AgentPageContainer() {
           },
           detail: {
             fields: result.data.fields || [],
-            supportedModels: result.data.supportedModels || [],
+            // supportedModels: result.data.supportedModels || [],
             validateConnection: result.data.validateConnection ?? true,
             connectionTimeout: result.data.connectionTimeout
           }
         };
+        console.log("transformedData", transformedData);
         return transformedData;
       } else {
         throw new Error('获取连接详情失败');
@@ -164,26 +163,18 @@ export default function AgentPageContainer() {
 
   // 连接保存的回调函数
   const handleConnectSave = async (data: any) => {
-    console.log('💾 AgentPageContainer.handleConnectSave 开始:', data);
-    console.log('📊 接收到的数据:', data);
-
     try {
       // 检查是否为编辑模式（有id字段表示是更新）
       if (data.id) {
-        console.log('✏️ 编辑模式：更新连接配置 ID:', data.id);
-
         // 编辑模式：调用更新API
         const updatePayload = {
           name: data.name,
           config: data.config || {},
         };
-        console.log('📤 更新载荷:', updatePayload);
 
         const result = await ConnectConfigService.updateConnectConfig(data.id, updatePayload);
-        console.log('📥 更新响应:', result);
 
         if (result.success) {
-          console.log('✅ 连接配置更新成功');
           // 重新获取连接配置列表
           await fetchConnectConfigs();
           return true;
@@ -192,11 +183,9 @@ export default function AgentPageContainer() {
           return false;
         }
       } else {
-        console.log('➕ 创建模式：保存新连接配置');
 
         // 创建模式：调用创建API
         const result = await ConnectConfigService.saveConnectConfig(data);
-        console.log('✅ 连接配置保存成功:', result);
 
         if (result.success) {
           // 重新获取连接配置列表
@@ -216,11 +205,9 @@ export default function AgentPageContainer() {
   // 删除连接配置的回调函数
   const handleDeleteConnect = async (connectId: string): Promise<DeleteResult> => {
     try {
-      console.log('🗑️ 开始删除连接配置:', connectId);
       const result = await ConnectConfigService.deleteConnectConfig(connectId);
 
       if (result.success) {
-        console.log('✅ 连接配置删除成功');
         // 重新获取连接配置列表
         await fetchConnectConfigs();
         return {
@@ -248,9 +235,63 @@ export default function AgentPageContainer() {
   };
 
   // 编辑连接配置的回调函数
-  const handleEditConnect = (connect: ConnectConfig) => {
-    console.log('编辑连接配置:', connect);
-    // 可以在这里进行一些编辑前的处理
+  const handleEditConnect = async (connect: ConnectConfig): Promise<any> => {
+    try {
+      // 1. 直接从数据库获取最新的连接配置数据
+      const connectConfigResult = await ConnectConfigService.getConnectConfig(connect.id);
+      if (!connectConfigResult.success) {
+        console.error('获取连接配置失败:', connectConfigResult.error);
+        return null;
+      }
+
+      // 2. 获取连接类型的详细定义
+      const connectDetails = await ConnectService.getConnectDetail(connect.ctype);
+      if (!connectDetails.success) {
+        console.error('获取连接详情失败:', connectDetails.error);
+        return null;
+      }
+
+      // 3. 解析配置信息
+      let savedConfig = {};
+      try {
+        if (connectConfigResult.data?.config) {
+          // 如果 API 返回的是对象，直接使用
+          savedConfig = typeof connectConfigResult.data.config === 'string' 
+            ? JSON.parse(connectConfigResult.data.config)
+            : connectConfigResult.data.config;
+        }
+      } catch (e) {
+        console.warn('解析配置信息失败:', e);
+      }
+
+      // 4. 构造编辑数据
+      const editData = {
+        id: connect.id,
+        name: connectConfigResult.data?.name || connect.name,
+        ctype: connect.ctype,
+        mtype: connect.mtype,
+        connectDefinition: {
+          overview: {
+            ...connectDetails.data,
+            fields: undefined,
+            supportedModels: undefined,
+            validateConnection: undefined,
+            connectionTimeout: undefined
+          },
+          detail: {
+            fields: connectDetails.data.fields || [],
+            validateConnection: connectDetails.data.validateConnection ?? true,
+            connectionTimeout: connectDetails.data.connectionTimeout
+          }
+        },
+        config: savedConfig
+      };
+      
+      return editData;
+    } catch (error) {
+      console.error('准备编辑数据失败:', error);
+      return null;
+    }
   };
 
   return (

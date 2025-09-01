@@ -101,9 +101,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
   const { addedFields, setAddedFields } = useGlobalFieldState();
 
   // AddBy 字段管理
-  console.log(`🔍 [UnifiedParameterInput] 组件初始化，字段: ${field.name}`);
   const { isAddedByField, handleDeleteField } = useAddByField(field, formValues, addedFields, setAddedFields);
-  console.log(`🔍 [UnifiedParameterInput] useAddByField 返回，字段: ${field.name}, isAddedByField: ${isAddedByField}`);
 
   // 字段显示逻辑
   const { shouldShow, shouldEnable } = useFieldVisibility(field, formValues, addedFields);
@@ -308,7 +306,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
       }
     }
   };
-  
+
   // 渲染标签（带或不带删除按钮）
   const renderLabel = () => {
     // AIhelp控件渲染逻辑

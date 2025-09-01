@@ -246,7 +246,7 @@ export const ConnectConfigModal: React.FC<ConnectConfigModalProps> = ({
                 <span style={{
                   fontSize: '12px',
                   fontWeight: 'normal',
-                  color: '#bfbfbf',
+                  color: '#666',
                   marginLeft: '8px'
                 }}>
                   ({typeConnects.length})
@@ -303,57 +303,23 @@ export const ConnectConfigModal: React.FC<ConnectConfigModalProps> = ({
 
   // Search and filter is now handled by EnhancedTabNav
 
-  // 在编辑模式下获取连接定义数据
+  // 在编辑模式下处理传入的编辑数据
   useEffect(() => {
-    const fetchConnectForEdit = async () => {
-      if (!editMode || !editData || !onFetchConnectDetails || !editData.ctype) return;
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        console.log('📝 编辑模式：获取连接定义', editData.ctype);
-        const connectDef = await onFetchConnectDetails(editData.ctype);
-        console.log('✅ 获取连接定义成功:', connectDef);
-
-        // 解析 configinfo 
-        let config = {};
-        try {
-          if (editData.configinfo && typeof editData.configinfo === 'string') {
-            config = JSON.parse(editData.configinfo);
-          }
-        } catch (e) {
-          console.warn('解析配置信息失败:', e);
+    if (editMode && editData && editData.connectDefinition) {
+      // 构造符合 ConnectDetailsView 期望的数据结构
+      const transformedEditData = {
+        ...editData.connectDefinition,
+        // 编辑相关信息
+        editInfo: {
+          id: editData.id,
+          connectId: editData.ctype,
+          name: editData.name,
+          config: editData.config || {}
         }
-
-        // 构造符合 LLMCntDetailsView 期望的数据结构
-        const transformedEditData = {
-          ...connectDef,
-          // 将用户保存的配置信息合并到连接定义中
-          detail: {
-            ...connectDef.detail,
-            fields: connectDef.detail?.fields || []
-          },
-          // 编辑相关信息
-          editInfo: {
-            id: editData.id,
-            connectId: editData.ctype,
-            name: editData.name,
-            config: config
-          }
-        };
-
-        console.log('🔄 转换后的编辑数据:', transformedEditData);
-        setSelectedConnect(transformedEditData);
-      } catch (error) {
-        console.error('❌ 获取编辑连接定义失败:', error);
-        setError('获取连接定义失败');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchConnectForEdit();
+      };
+      
+      setSelectedConnect(transformedEditData);
+    }
   }, [editMode, editData]);
 
   // 渲染主要内容

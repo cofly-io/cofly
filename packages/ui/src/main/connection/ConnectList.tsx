@@ -72,7 +72,7 @@ interface ConnectListProps {
   }>;
   onConnectClick?: (connectId: string) => void;
   onDeleteConnect?: (connectId: string) => Promise<DeleteResult | boolean>;
-  onEditConnect?: (connect: ConnectConfig) => void;
+  onEditConnect?: (connect: ConnectConfig) => Promise<any> | any;
   onDebugConnect?: (connect: ConnectConfig) => void;
 }
 
@@ -173,7 +173,7 @@ interface ConnectCardProps {
   }>;
   //onConnectClick?: (connectId: string) => void;
   onDeleteConnect?: (connectId: string) => void;
-  onEditConnect?: (connect: ConnectConfig) => void;
+  onEditConnect?: (connect: ConnectConfig) => Promise<any> | any;
   onDebugConnect?: (connect: ConnectConfig) => void;
 }
 
@@ -192,11 +192,7 @@ const ConnectCard: React.FC<ConnectCardProps> = ({
 
   // 获取图标路径
   const getIconPath = (ctype: string, mtype?: string) => {
-    // 根据 mtype 确定分类目录
-    const category = mtype === 'llm' ? 'llm' :
-      mtype === 'db' ? 'db' :
-        'other'; // 默认分类
-    return `/connects/${category}/${ctype}/${ctype}.svg`;
+    return `/connects/${mtype}/${ctype}/${ctype}.svg`;
   };
 
 
@@ -216,9 +212,9 @@ const ConnectCard: React.FC<ConnectCardProps> = ({
                   // 如果图标加载失败，显示默认图标
                   const img = e.target as HTMLImageElement;
                   const container = img.parentElement;
-                  if (container) {
-                    container.innerHTML = '<span style="fontSize: 24px; color: rgba(255, 255, 255, 0.7)">🔗</span>';
-                  }
+                  // if (container) {
+                  //   container.innerHTML = '<span style="fontSize: 24px; color: rgba(255, 255, 255, 0.7)">🔗</span>';
+                  // }
                 }}
               />
             </ListCardIcons>
@@ -289,9 +285,11 @@ const ConnectCard: React.FC<ConnectCardProps> = ({
           >
             <RiLoader2Line /> 调试
           </button> */}
-            <ListCardButtons onClick={(e) => {
+            <ListCardButtons onClick={async (e) => {
               e.stopPropagation();
-              onEditConnect?.(connect);
+              if (onEditConnect) {
+                await onEditConnect(connect);
+              }
             }}>
               ✏️ 编辑
             </ListCardButtons>

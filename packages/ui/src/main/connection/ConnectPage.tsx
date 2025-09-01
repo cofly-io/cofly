@@ -69,7 +69,7 @@ interface ConnectPageProps {
   onFetchConnectDetails?: (connectId: string) => Promise<any>;
   onFetchConnectConfigs?: () => Promise<ConnectConfig[]>;
   onDeleteConnect?: (connectId: string) => Promise<DeleteResult | boolean>;
-  onEditConnect?: (connect: ConnectConfig) => void;
+  onEditConnect?: (connect: ConnectConfig) => Promise<any> | any;
   onTest?: (config: Record<string, any>, message?: string) => Promise<any>;
   onStreamTest?: (config: Record<string, any>, message: string, onChunk: (chunk: string) => void) => Promise<any>;
 }
@@ -141,11 +141,19 @@ export const ConnectPage: React.FC<ConnectPageProps> = ({
     };
   };
 
-  const handleEditConnectFromList = (connect: ConnectConfig) => {
-    setEditingConnect(connect);
-    setIsConnectModalOpen(true);
+  const handleEditConnectFromList = async (connect: ConnectConfig) => {
     if (onEditConnect) {
-      onEditConnect(connect);
+      // 调用父组件的编辑处理函数，获取准备好的编辑数据
+      const editData = await onEditConnect(connect);
+      if (editData) {
+        // 设置编辑数据并打开弹窗
+        setEditingConnect(editData);
+        setIsConnectModalOpen(true);
+      }
+    } else {
+      // 如果没有提供编辑处理函数，使用默认行为
+      setEditingConnect(connect);
+      setIsConnectModalOpen(true);
     }
   };
 
