@@ -1313,7 +1313,6 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                 label: opt.name || opt.value,
                 description: opt.description
               }))}
-              value={value}
               onChange={handleSelectChange}
               placeholder={field.placeholder || field.description}
               label={field.displayName}
@@ -1327,12 +1326,10 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             {renderLabel()}
             <SelectAdd
               options={filteredOptions.map((opt: any) => ({
-
                 value: opt.value,
                 label: opt.name || opt.value,
                 description: opt.description
               }))}
-              value={value}
               onChange={handleSelectChange}
               placeholder={field.placeholder || field.description}
               label={field.displayName}

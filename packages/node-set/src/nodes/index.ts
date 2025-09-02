@@ -4,6 +4,7 @@
 export * from "./AI/agent-custom/node";
 export * from "./AI/agent-system/node";
 export * from "./AI/agent-router/node";
+export * from "./AI/knowledge-base/node";
 
 // ==========================================
 // Database - 数据库相关节点
