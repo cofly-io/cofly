@@ -2,10 +2,8 @@ import {
   DocumentChunk,
   AppError,
   ErrorType,
-  SupportedFileType
 } from '@repo/common';
 import { prisma } from '@repo/database';
-import { DefaultConfig } from './Constants'
 import { validateSearchQuery } from "./Validation";
 import {
     DocumentSearchQuery,
@@ -259,8 +257,7 @@ export class SearchFlow {
                 // 获取文档块信息
                 let chunk: DocumentChunk | undefined;
                 if (vectorResult.chunkIndex !== undefined) {
-                    const chunks = await this.prisma.kbDocumentChunk.getChunksByDocumentId(document.id);
-                    chunk = chunks.find(c => c.chunkIndex === vectorResult.chunkIndex);
+                    chunk = (await this.prisma.kbDocumentChunk.getChunkByVectorId(vectorResult.id)) || undefined;
                 }
 
                 // 生成高亮内容

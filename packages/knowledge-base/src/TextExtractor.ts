@@ -125,12 +125,57 @@ export class TextExtractor {
 
             let fullText = "";
 
-            // 遍历每一页
             for (let i = 1; i <= pdfDoc.numPages; i++) {
                 const page = await pdfDoc.getPage(i);
                 const content = await page.getTextContent();
+                const viewport = page.getViewport({scale: 1});
 
-                fullText += content.items.map((item : any) => item.str).join(" ");
+                // 智能过滤规则
+                const filteredItems = content.items.filter((item: any) => {
+                    const y = item.transform[5];
+                    const pageHeight = viewport.height;
+                    const relativeY = y / pageHeight;
+                    const text = item.str.trim();
+
+                    // 跳过空文本
+                    if (!text) return false;
+
+                    // 页眉页脚区域检测
+                    const isInHeaderRegion = relativeY > 0.9;
+                    const isInFooterRegion = relativeY < 0.1;
+
+                    // 如果在页眉页脚区域，进行额外检查
+                    if (isInHeaderRegion || isInFooterRegion) {
+                        // 跳过短文本（可能是页码）
+                        if (text.length < 3) return false;
+
+                        // 跳过纯数字（页码）
+                        if (/^\d+$/.test(text)) return false;
+
+                        // 跳过常见的页眉页脚模式
+                        const commonPatterns = [
+                            /第\s*\d+\s*页/,
+                            /page\s*\d+/i,
+                            /\d+\s*\/\s*\d+/,
+                            /^[第]?[0-9一二三四五六七八九十]+[页]?$/,
+                            /©.*copyright/i,
+                            /confidential/i,
+                            /机密/,
+                            /版权所有/
+                        ];
+
+                        if (commonPatterns.some(pattern => pattern.test(text))) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                });
+
+                const pageText = filteredItems.map((item: any) => item.str).join(" ");
+                if (pageText.trim()) {
+                    fullText += pageText + "\n\n";
+                }
             }
 
             return this.cleanText(fullText);

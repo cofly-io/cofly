@@ -3,7 +3,7 @@ import path from 'path';
 import { ErrorType, AppError } from '@repo/common';
 import { EmbeddingService } from "../types";
 import { KnowledgeBaseInstance } from "../KnowledgeBaseManager";
-import { DefaultConfig } from "@/Constants";
+import { DefaultConfig } from "../Constants";
 
 // 允许本地模型
 env.allowLocalModels = true;

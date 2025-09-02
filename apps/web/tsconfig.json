@@ -17,7 +17,6 @@
         "./app/*"
       ],
       "@repo/engine": ["../../packages/engine/src"],
-
       "@repo/ui": ["../../packages/ui/src"],
       "@repo/common": ["../../packages/common/src"],
       "@repo/node-set": ["../../packages/node-set/src"]

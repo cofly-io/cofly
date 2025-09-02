@@ -18,7 +18,7 @@ export async function GET(
         const { searchParams } = new URL(request.url);
         const includeMembers = searchParams.get('includeMembers') === 'true';
 
-        const team = await teamManager.mediator.get(id, {
+        const team = await teamManager.mediator?.get(id, {
             includeMembers
         });
 
@@ -78,7 +78,7 @@ export async function PUT(
         }
 
         const { id } = await params;
-        const team = await teamManager.mediator.update(id, input);
+        const team = await teamManager.mediator?.update(id, input);
 
         return NextResponse.json({
             success: true,
@@ -111,13 +111,13 @@ export async function DELETE(
         await initializeServer();
 
         const { id } = await params;
-        const result = await teamManager.mediator.delete(id);
+        const result = await teamManager.mediator?.delete(id);
 
-        if (!result.success) {
+        if (!result || !result.success) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: result.message || '删除团队失败'
+                    error: result?.message || '删除团队失败'
                 },
                 { status: 404 }
             );

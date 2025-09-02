@@ -12,9 +12,8 @@ export default defineConfig({
             skipLibCheck: true,
             baseUrl: '.',
             paths: {
-                "@/*": ["./src/*", "../interfaces/src/*", "../interfaces/app/*"],
+                "@/*": ["./src/*"],
                 "@repo/*": ["../packages/*"],
-                "@interfaces/*": ["../interfaces/src/*", "../interfaces/app/*"]
             }
         }
     },
@@ -41,7 +40,19 @@ export default defineConfig({
         'mysql2',
         'oracledb',
         'pg',
-        'mssql'
+        'mssql',
+        '@xenova/transformers',
+        '@zilliz/milvus2-sdk-node',
+        'xlsx',
+        'mammoth',
+        'mime-types',
+        'pdf-parse',
+        'pdf-parser',
+        'pdfjs-dist',
+        'pptx2json',
+        'node-pptx-parser',
+        'vectra',
+        'gpt-3-encoder'
     ],
     esbuildOptions(options) {
         options.platform = 'node';

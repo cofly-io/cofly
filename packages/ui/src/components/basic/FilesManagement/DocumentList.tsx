@@ -307,7 +307,7 @@ const DocumentListItem: React.FC<DocumentListItemProps> = ({
         <HeaderCell>
           <DocumentInfo>
             <DocumentName>
-              {document.fileName}
+              {document.originalName}
             </DocumentName>
             <DocumentMeta>
               <span>{document.fileType.toUpperCase()} • {document.chunkCount} 个块</span>

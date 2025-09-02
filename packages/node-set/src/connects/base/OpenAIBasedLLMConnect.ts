@@ -1,6 +1,7 @@
 import { BaseLLMConnect } from "./BaseLLMConnect";
 import { ILLMExecuteOptions, ILLMExecuteResult } from "@repo/common";
 import { urlJoin } from "../../utils/url-join";
+import { fetch } from "../../utils/fetchUtils"
 
 export abstract class OpenAIBasedLLMConnect extends BaseLLMConnect {
 

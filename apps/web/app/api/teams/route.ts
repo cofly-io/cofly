@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const includeMembers = searchParams.get('includeMembers') === 'true';
 
-        const teams = await teamManager.mediator.list({
+        const teams = await teamManager.mediator?.list({
             includeMembers
         });
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const team = await teamManager.mediator.create(input);
+        const team = await teamManager.mediator?.create(input);
 
         return NextResponse.json({
             success: true,

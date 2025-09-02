@@ -194,4 +194,6 @@ export interface IKnowledgeBaseInstance {
     searchDocuments(searchQuery: DocumentSearchQuery): Promise<DocumentSearchResponse>;
 
     deleteDocument(docId: string): Promise<boolean>
+
+    deleteDocumentChunk(chunkId: string): Promise<boolean>
 }

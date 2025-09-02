@@ -15,7 +15,7 @@ export async function GET(
         await initializeServer();
 
         const { id } = await params;
-        const members = await teamManager.mediator.getMembers(id);
+        const members = await teamManager.mediator?.getMembers(id);
 
         return NextResponse.json({
             success: true,
@@ -70,12 +70,12 @@ export async function POST(
             }
 
             const { id } = await params;
-            const members = await teamManager.mediator.addMembers(id, inputs);
+            const members = await teamManager.mediator?.addMembers(id, inputs);
 
             return NextResponse.json({
                 success: true,
                 data: members,
-                message: `成功添加 ${members.length} 个成员`
+                message: `成功添加 ${members?.length} 个成员`
             }, { status: 201 });
         } else {
             // 单个添加
@@ -96,7 +96,7 @@ export async function POST(
             }
 
             const { id } = await params;
-            const member = await teamManager.mediator.addMember(id, input);
+            const member = await teamManager.mediator?.addMember(id, input);
 
             return NextResponse.json({
                 success: true,

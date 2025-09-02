@@ -26,6 +26,8 @@ import { DocumentProcessingFlow } from "./DocumentProcessingFlow";
 import { getEmbeddingService } from "./Embedding";
 import { getVectorService } from "./Vector";
 import { SearchFlow } from "./SearchFlow";
+import * as process from "node:process";
+import * as console from "node:console";
 
 export class KnowledgeBaseInstance implements IKnowledgeBaseInstance {
 
@@ -96,6 +98,29 @@ export class KnowledgeBaseInstance implements IKnowledgeBaseInstance {
                 await tx.kbDocument.deleteDocument(docId);
 
                 await this.vector.deleteDocumentVectors(this.config.vector.collectionName, docId);
+
+                return true;
+            })
+        } catch(error) {
+            console.error(error);
+            return false;
+        }
+    }
+
+    async deleteDocumentChunk(chunkId: string): Promise<boolean> {
+        try {
+            return prisma.$transaction(async (tx) => {
+
+                const chunk = await tx.kbDocumentChunk.getChunkById(chunkId);
+                if(!chunk) {
+                    return false;
+                }
+
+                await tx.kbDocumentChunk.deleteChunk(chunkId);
+
+                if(chunk.vectorId) {
+                    await this.vector.deleteVector(this.config.vector.collectionName, chunk.vectorId);
+                }
 
                 return true;
             })
@@ -187,6 +212,7 @@ export class KnowledgeBaseManager {
                 defaultThreshold: DefaultConfig.DEFAULT_THRESHOLD,
                 topK: DefaultConfig.DEFAULT_TOPK,
                 threshold: DefaultConfig.DEFAULT_THRESHOLD,
+                highlightEnabled: DefaultConfig.HIGHLIGHT_ENABLED
             } as VectorConfig,
             reranker: {
                 kind: 'internal',

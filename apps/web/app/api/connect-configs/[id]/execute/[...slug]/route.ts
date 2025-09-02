@@ -105,17 +105,17 @@ export async function POST(
             //
             // return NextResponse.json(result);
         } else if (mtype === 'llm') {
-            const provider = connectConfig.ctype;
+            const typeId = connectConfig.ctype;
 
             // 获取节点实例 - 先尝试通过ID获取，如果没有则通过provider获取
             const connectRegistry = await initializeConnects();
-            let connectInstance = connectRegistry.getConnectById(provider) as ILLMConnect;
+            let connectInstance = connectRegistry.getConnectById(typeId) as ILLMConnect;
             
             if (!connectInstance) {
                 return NextResponse.json(
                     {
                         success: false,
-                        error:  `该连接未获取在线模型列表[${provider}]`
+                        error:  `该连接未获取在线模型列表[${typeId}]`
                     },
                     { status: 404 }
                 );
@@ -126,7 +126,7 @@ export async function POST(
                 return NextResponse.json(
                     {
                         success: false,
-                        error: `该连接没有可执行的方法[${provider}]`
+                        error: `该连接没有可执行的方法[${typeId}]`
                     },
                     { status: 400 }
                 );

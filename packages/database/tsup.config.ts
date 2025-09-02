@@ -3,8 +3,6 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: [
     "src/index.ts",
-    "src/prisma.ts",
-    "src/prisma-client.ts"
   ],
   format: ["esm"],
   dts: true,

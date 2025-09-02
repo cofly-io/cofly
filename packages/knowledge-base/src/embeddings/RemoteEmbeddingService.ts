@@ -127,7 +127,9 @@ export class RemoteEmbeddingService implements EmbeddingService {
 
             const requestBody = {
                 input: text,
-                model: this.kb.config.embedding.model
+                model: this.kb.config.embedding.model,
+                encoding_format: 'float',
+                dimensions: this.kb.config.embedding.dimension
             };
 
             const result = await connect.execute({
@@ -144,8 +146,13 @@ export class RemoteEmbeddingService implements EmbeddingService {
                 throw new Error(`Invalid embedding; input: ${text} result: ${JSON.stringify(result || {})}`);
             }
 
-            const data : number[] = result.data.data[0].embedding;
-            embeddings.push(data);
+            const embedding : number[] = result.data.data[0].embedding;
+
+            if(embedding.length > this.kb.config.embedding.dimension) {
+                throw new Error(`Expected dimension ${this.kb.config.embedding.dimension}, got ${embedding.length}`);
+            }
+
+            embeddings.push(embedding);
         }
 
         return embeddings;
