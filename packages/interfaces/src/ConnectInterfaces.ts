@@ -420,6 +420,7 @@ export interface ILLMMetadataOptions {
         apiKey?: string;
         baseUrl?: string;
     };
+    search?:string;
 }
 
 export interface ILLMExecuteOptions {

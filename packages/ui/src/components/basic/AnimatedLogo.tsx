@@ -39,15 +39,13 @@ const Letter = styled.span.attrs<{
     animationDelay: `${props.$delay}s`
   }
 }))`
-  font-size: 26px;
+  font-size: 23px;
   padding:0px 2px;
   border-radius: 2px;
-  // background-clip: text;
-  // -webkit-background-clip: text;
-  // -webkit-text-fill-color: transparent;
-   display: inline-block;
-  // transition: transform 0.3s ease;
-  // font-weight: 900;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-clip: text;
+  display: inline-block;
+  color:white;
   
   /* 为不支持background-clip的浏览器提供备用方案 */
   @supports not (-webkit-background-clip: text) {

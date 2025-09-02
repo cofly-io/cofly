@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ConnectCategoryType } from '@repo/common';
 
 import {
   ModalBackdrop,
@@ -132,11 +131,9 @@ export const ConnectConfigModal: React.FC<ConnectConfigModalProps> = ({
 
     setLoading(true);
     setError(null);
-    console.log('🔄 开始调用onFetchConnects...');
 
     try {
       const connectsData = await onFetchConnects();
-      console.log('成功获取连接数据:', connectsData);
       setConnects(connectsData || []);
     } catch (err) {
       console.error('获取连接列表失败:', err);

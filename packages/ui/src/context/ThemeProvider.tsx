@@ -22,16 +22,17 @@ const UnifiedThemeContext = createContext<UnifiedThemeContextType | undefined>(u
 
 // 初始化主题函数，支持从 localStorage 读取
 const getInitialTheme = (defaultTheme: ThemeMode): ThemeMode => {
+  // Always return defaultTheme during SSR to ensure consistency
   if (typeof window === 'undefined') {
     return defaultTheme;
   }
-  
+
   try {
     // 查找所有用户设置
-    const userSettingsKeys = Object.keys(localStorage).filter(key => 
+    const userSettingsKeys = Object.keys(localStorage).filter(key =>
       key.startsWith('user_settings_')
     );
-    
+
     // 如果有用户设置，优先查找最新的设置
     if (userSettingsKeys.length > 0) {
       for (const key of userSettingsKeys) {
@@ -50,7 +51,7 @@ const getInitialTheme = (defaultTheme: ThemeMode): ThemeMode => {
         }
       }
     }
-    
+
     // 如果没有找到用户设置，尝试查找guest设置
     const guestSettings = localStorage.getItem('user_settings_guest');
     if (guestSettings) {
@@ -63,7 +64,7 @@ const getInitialTheme = (defaultTheme: ThemeMode): ThemeMode => {
   } catch (error) {
     console.warn('Failed to parse user settings:', error);
   }
-  
+
   return defaultTheme;
 };
 
@@ -73,53 +74,61 @@ interface LightweightThemeWrapperProps {
   defaultTheme: ThemeMode;
 }
 
-const LightweightThemeWrapper: React.FC<LightweightThemeWrapperProps> = ({ 
-  children, 
-  defaultTheme 
+const LightweightThemeWrapper: React.FC<LightweightThemeWrapperProps> = ({
+  children,
+  defaultTheme
 }) => {
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => getInitialTheme(defaultTheme));
+  const [themeMode, setThemeMode] = useState<ThemeMode>(defaultTheme);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  // 监听主题变化事件
+  // Handle hydration and initial theme loading
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const handleThemeChange = (event: CustomEvent) => {
-        if (event.detail?.theme && event.detail.theme !== themeMode) {
-          setThemeMode(event.detail.theme);
-        }
-      };
-      
-      const handleStorageChange = () => {
-        const newTheme = getInitialTheme(defaultTheme);
-        if (newTheme !== themeMode) {
-          setThemeMode(newTheme);
-        }
-      };
-      
-      // 监听自定义主题变化事件
-      window.addEventListener('themechange', handleThemeChange as EventListener);
-      // 监听storage事件（跨标签页变化）
-      window.addEventListener('storage', handleStorageChange);
-      
-      // 定期检查localStorage变化（兜底机制）
-      const intervalId = setInterval(() => {
-        const newTheme = getInitialTheme(defaultTheme);
-        if (newTheme !== themeMode) {
-          setThemeMode(newTheme);
-        }
-      }, 1000);
-      
-      return () => {
-        window.removeEventListener('themechange', handleThemeChange as EventListener);
-        window.removeEventListener('storage', handleStorageChange);
-        clearInterval(intervalId);
-      };
-    }
-  }, [themeMode, defaultTheme]);
+    const savedTheme = getInitialTheme(defaultTheme);
+    setThemeMode(savedTheme);
+    setIsHydrated(true);
+  }, [defaultTheme]);
+
+  // 监听主题变化事件 - only after hydration
+  useEffect(() => {
+    if (!isHydrated || typeof window === 'undefined') return;
+
+    const handleThemeChange = (event: CustomEvent) => {
+      if (event.detail?.theme && event.detail.theme !== themeMode) {
+        setThemeMode(event.detail.theme);
+      }
+    };
+
+    const handleStorageChange = () => {
+      const newTheme = getInitialTheme(defaultTheme);
+      if (newTheme !== themeMode) {
+        setThemeMode(newTheme);
+      }
+    };
+
+    // 监听自定义主题变化事件
+    window.addEventListener('themechange', handleThemeChange as EventListener);
+    // 监听storage事件（跨标签页变化）
+    window.addEventListener('storage', handleStorageChange);
+
+    // 定期检查localStorage变化（兜底机制）
+    const intervalId = setInterval(() => {
+      const newTheme = getInitialTheme(defaultTheme);
+      if (newTheme !== themeMode) {
+        setThemeMode(newTheme);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('themechange', handleThemeChange as EventListener);
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(intervalId);
+    };
+  }, [isHydrated, themeMode, defaultTheme]);
 
   const toggleTheme = () => {
     const newTheme = themeMode === THEME_MODES.LIGHT ? THEME_MODES.DARK : THEME_MODES.LIGHT;
     setThemeMode(newTheme);
-    
+
     // 更新 localStorage
     if (typeof window !== 'undefined') {
       try {
@@ -127,7 +136,7 @@ const LightweightThemeWrapper: React.FC<LightweightThemeWrapperProps> = ({
         const settings = guestSettings ? JSON.parse(guestSettings) : {};
         settings.theme = newTheme;
         localStorage.setItem('user_settings_guest', JSON.stringify(settings));
-        
+
         // 触发自定义事件
         const event = new CustomEvent('themechange', { detail: { theme: newTheme } });
         window.dispatchEvent(event);
@@ -139,7 +148,7 @@ const LightweightThemeWrapper: React.FC<LightweightThemeWrapperProps> = ({
 
   const setTheme = (mode: ThemeMode) => {
     setThemeMode(mode);
-    
+
     // 更新 localStorage
     if (typeof window !== 'undefined') {
       try {
@@ -147,7 +156,7 @@ const LightweightThemeWrapper: React.FC<LightweightThemeWrapperProps> = ({
         const settings = guestSettings ? JSON.parse(guestSettings) : {};
         settings.theme = mode;
         localStorage.setItem('user_settings_guest', JSON.stringify(settings));
-        
+
         // 触发自定义事件
         const event = new CustomEvent('themechange', { detail: { theme: mode } });
         window.dispatchEvent(event);
@@ -218,11 +227,11 @@ const FullFeatureThemeWrapper: React.FC<FullFeatureThemeWrapperProps> = ({ child
 
   return (
     <UnifiedThemeContext.Provider value={value}>
-        <StyledThemeProvider theme={currentTheme}>
-          <GlobalThemeStyles theme={currentTheme} />
-          {children}
-        </StyledThemeProvider>
-      </UnifiedThemeContext.Provider>
+      <StyledThemeProvider theme={currentTheme}>
+        <GlobalThemeStyles theme={currentTheme} />
+        {children}
+      </StyledThemeProvider>
+    </UnifiedThemeContext.Provider>
   );
 };
 

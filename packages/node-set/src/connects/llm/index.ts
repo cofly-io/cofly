@@ -2,7 +2,7 @@
 import { OpenAIConnect } from './openai/openai.connect';
 import { SiliconFlowConnect } from './siliconFlow/siliconflow.connect';
 import { AnthropicConnect } from './anthropic/anthropic.connect';
-import { GoogleConnect } from './google/google.connect';
+import { GoogleConnect } from './Genini/google.connect';
 import { MistralConnect } from './mistral/mistral.connect';
 import { DeepSeekConnect } from './deepseek/deepseek.connect';
 import { XAIConnect } from './xai/xai.connect';

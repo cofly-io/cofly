@@ -4,19 +4,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 interface SelectAddOption {
-    value: string | number;
-    label: string;
-    description?: string;
+  value: string | number;
+  label: string;
+  description?: string;
 }
 
 interface SelectAddProps {
-    options: SelectAddOption[];
-    value?: string | number;
-    onChange?: (value: string | number) => void;
-    placeholder?: string;
-    label?: string;
-    style?: React.CSSProperties;
-    default?: string;
+  options: SelectAddOption[];
+  onChange?: (value: string | number) => void;
+  placeholder?: string;
+  label?: string;
+  style?: React.CSSProperties;
+  default?: string;
 }
 
 const SelectAddContainer = styled.div`
@@ -35,20 +34,20 @@ const LabelDisplay = styled.div`
   border-radius: 3px;
   padding: 0 12px;
   font-size: 12px;
-  background:${({ theme }) => theme.mode === 'dark' ? '#133251' : '#bfbfbf'};
+  background:${({ theme }) => theme.mode === 'dark' ? '#133251' : '#ededed'};
   color: ${({ theme }) => theme.mode === 'dark' ? '#64748b' : '#94a3b8'};
   cursor: pointer;
   
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.mode === 'dark'
-        ? 'rgba(59, 130, 246, 0.6)'
-        : 'rgba(59, 130, 246, 0.5)'
-    };
+    ? 'rgba(59, 130, 246, 0.6)'
+    : 'rgba(59, 130, 246, 0.5)'
+  };
     box-shadow: ${({ theme }) => theme.mode === 'dark'
-        ? '0 0 20px rgba(59, 130, 246, 0.3)'
-        : '0 0 20px rgba(59, 130, 246, 0.2)'
-    };
+    ? '0 0 20px rgba(59, 130, 246, 0.3)'
+    : '0 0 20px rgba(59, 130, 246, 0.2)'
+  };
   }
 `;
 
@@ -136,79 +135,78 @@ const OptionDescription = styled.div`
 `;
 
 export const SelectAdd: React.FC<SelectAddProps> = ({
-    options,
-    value,
-    onChange,
-    placeholder = "选择选项",
-    label,
-    style,
-    default: defaultText
+  options,
+  onChange,
+  placeholder = "选择选项",
+  label,
+  style,
+  default: defaultText
 }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-    // 始终显示 default 值或 placeholder，不显示选中的值
-    const displayText = defaultText || label || placeholder;
+  // 始终显示 default 值或 placeholder，不显示选中的值
+  const displayText = defaultText || label || placeholder;
 
-    // 处理选项选择
-    const handleSelect = (option: SelectAddOption) => {
-        onChange?.(option.value);
+  // 处理选项选择
+  const handleSelect = (option: SelectAddOption) => {
+    onChange?.(option.value);
+    setIsOpen(false);
+  };
+
+  // 处理点击外部关闭
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+      }
     };
 
-    // 处理点击外部关闭
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
 
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isOpen]);
-
-    // 处理键盘事件
-    const handleKeyDown = (event: React.KeyboardEvent) => {
-        if (event.key === 'Escape') {
-            setIsOpen(false);
-        }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, [isOpen]);
 
-    return (
-        <SelectAddContainer ref={containerRef} style={style} onKeyDown={handleKeyDown}>
-            <LabelDisplay onClick={() => setIsOpen(!isOpen)}>
-                <LabelText>
-                    {displayText}
-                </LabelText>
-                <DropdownArrow $isOpen={isOpen}>▼</DropdownArrow>
-            </LabelDisplay>
+  // 处理键盘事件
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsOpen(false);
+    }
+  };
 
-            <DropdownContainer $isOpen={isOpen}>
-                {options.map(option => (
-                    <Option
-                        key={option.value}
-                        onClick={() => handleSelect(option)}
-                    >
-                        <OptionLabel>{option.label}</OptionLabel>
-                        {option.description && (
-                            <OptionDescription>{option.description}</OptionDescription>
-                        )}
-                    </Option>
-                ))}
-                {options.length === 0 && (
-                    <Option style={{ cursor: 'default', opacity: 0.6,fontSize:'12px' }}>
-                        没有可选项
-                    </Option>
-                )}
-            </DropdownContainer>
-        </SelectAddContainer>
-    );
+  return (
+    <SelectAddContainer ref={containerRef} style={style} onKeyDown={handleKeyDown}>
+      <LabelDisplay onClick={() => setIsOpen(!isOpen)}>
+        <LabelText>
+          {displayText}
+        </LabelText>
+        <DropdownArrow $isOpen={isOpen}>▼</DropdownArrow>
+      </LabelDisplay>
+
+      <DropdownContainer $isOpen={isOpen}>
+        {options.map(option => (
+          <Option
+            key={option.value}
+            onClick={() => handleSelect(option)}
+          >
+            <OptionLabel>{option.label}</OptionLabel>
+            {option.description && (
+              <OptionDescription>{option.description}</OptionDescription>
+            )}
+          </Option>
+        ))}
+        {options.length === 0 && (
+          <Option style={{ cursor: 'default', opacity: 0.6, fontSize: '12px' }}>
+            没有可选项
+          </Option>
+        )}
+      </DropdownContainer>
+    </SelectAddContainer>
+  );
 };
 
 export default SelectAdd;

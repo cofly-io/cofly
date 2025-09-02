@@ -22,7 +22,6 @@ export default function LoginPage() {
 
   return (
     <LoginPageComponent
-      logoSrc="/logo.png"
       onLogin={handleLogin}
       loading={loading}
       error={error || ""}

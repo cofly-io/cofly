@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { PiCopyDuotone } from 'react-icons/pi';
+import { useTheme } from '../../../context/ThemeProvider';
 
 // JSON tree 容器样式
 const JsonTreeContainer = styled.div`
@@ -21,14 +22,15 @@ const JsonTreeContainer = styled.div`
     padding: 1px 0;
     
     &:hover {
-      background-color: rgba(255, 255, 255, 0.02);
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(0, 0, 0, 0.05)'
+        : 'rgba(255, 255, 255, 0.02)'
+      };
       
       .copy-icon {
         opacity: 1;
         width: 20px;
         height: 20px;
-
-
         visibility: visible;
       }
     }
@@ -43,18 +45,27 @@ const JsonTreeContainer = styled.div`
     visibility: hidden;
     transition: all 0.2s ease;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.6);
+    color: ${({ theme }) => theme.mode === 'light' 
+      ? 'rgba(0, 0, 0, 0.6)'
+      : 'rgba(255, 255, 255, 0.6)'
+    };
     font-size: 16px;
     padding: 4px;
     border-radius: 3px;
-    background: rgba(0, 0, 0, 0.3);
+    background: ${({ theme }) => theme.mode === 'light' 
+      ? 'rgba(255, 255, 255, 0.8)'
+      : 'rgba(0, 0, 0, 0.3)'
+    };
     display: flex;
     align-items: center;
     justify-content: center;
     
     &:hover {
-      color: #7bb3f0;
-      background: rgba(86, 156, 214, 0.3);
+      color: ${({ theme }) => theme.colors.accent};
+      background: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(36, 194, 140, 0.2)'
+        : 'rgba(86, 156, 214, 0.3)'
+      };
       transform: translateY(-50%) scale(1.1);
     }
     
@@ -77,7 +88,7 @@ const JsonTreeContainer = styled.div`
     align-items: flex-start;
     min-height: 20px;
     
-    /* 使用单一颜色避免重叠时的透明度叠加问题 */
+    /* 使用主题颜色的缩进线 */
     &::before {
       content: '';
       position: absolute;
@@ -85,7 +96,10 @@ const JsonTreeContainer = styled.div`
       top: 0;
       bottom: -10px;
       width: 1px;
-      background: #6B6B6B;
+      background: ${({ theme }) => theme.mode === 'light' 
+        ? '#CCCCCC'
+        : '#6B6B6B'
+      };
       z-index: 1;
     }
     
@@ -96,7 +110,10 @@ const JsonTreeContainer = styled.div`
       top: 10px;
       width: 10px;
       height: 1px;
-      background: #6B6B6B;
+      background: ${({ theme }) => theme.mode === 'light' 
+        ? '#CCCCCC'
+        : '#6B6B6B'
+      };
       z-index: 2;
     }
     
@@ -118,30 +135,48 @@ const JsonTreeContainer = styled.div`
   }
   .vjs-icon-toggle {
     cursor: pointer;
-    color: rgb(102, 217, 239);
+    color: ${({ theme }) => theme.mode === 'light' 
+      ? '#2196F3'
+      : 'rgb(102, 217, 239)'
+    };
     transition: all 0.2s ease;
     
     &:hover {
-      color: rgb(109, 155, 192);
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#1976D2'
+        : 'rgb(109, 155, 192)'
+      };
       transform: scale(1.2);
     }
     
     &.expanded {
-      color: #569cd6;
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#1565C0'
+        : '#569cd6'
+      };
       font-size: 16px;
     }
     
     &.collapsed {
-      color: rgb(174, 129, 255);
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#7B1FA2'
+        : 'rgb(174, 129, 255)'
+      };
       font-size: 18px;
     }
   }
   .vjs-icon-leaf {
-    color: rgba(255, 255, 255, 0.3);
+    color: ${({ theme }) => theme.mode === 'light' 
+      ? 'rgba(0, 0, 0, 0.3)'
+      : 'rgba(255, 255, 255, 0.3)'
+    };
     font-size: 10px;
   }
   .vjs-key {
-    color: #fff;
+    color: ${({ theme }) => theme.mode === 'light' 
+      ? '#0b574d'
+      : '#fff'
+    };
     font-weight: 500;
     cursor: pointer;
     user-select: none;
@@ -151,12 +186,21 @@ const JsonTreeContainer = styled.div`
     white-space: nowrap;
     
     &:hover {
-      background-color: rgba(86, 156, 214, 0.3);
-      color: #7bb3f0;
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(25, 118, 210, 0.1)'
+        : 'rgba(86, 156, 214, 0.3)'
+      };
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#0D47A1'
+        : '#7bb3f0'
+      };
     }
     
     &:active {
-      background-color: rgba(86, 156, 214, 0.5);
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(25, 118, 210, 0.2)'
+        : 'rgba(86, 156, 214, 0.5)'
+      };
     }
   }
   .vjs-colon {
@@ -176,16 +220,28 @@ const JsonTreeContainer = styled.div`
     line-height: 1.4;
     
     &:hover {
-      background-color: rgba(86, 156, 214, 0.2);
-      color: #7bb3f0;
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(25, 118, 210, 0.1)'
+        : 'rgba(86, 156, 214, 0.2)'
+      };
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#0D47A1'
+        : '#7bb3f0'
+      };
     }
     
     &:active {
-      background-color: rgba(86, 156, 214, 0.4);
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(25, 118, 210, 0.2)'
+        : 'rgba(86, 156, 214, 0.4)'
+      };
     }
   }
   .vjs-value-string {
-    color: #f39c12;
+    color: ${({ theme }) => theme.mode === 'light' 
+      ? '#E65100'
+      : '#f39c12'
+    };
     cursor: pointer;
     user-select: none;
     transition: all 0.2s ease;
@@ -196,16 +252,28 @@ const JsonTreeContainer = styled.div`
     word-break: break-word;
     
     &:hover {
-      background-color: rgba(243, 156, 18, 0.2);
-      color: #f5c842;
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(230, 81, 0, 0.1)'
+        : 'rgba(243, 156, 18, 0.2)'
+      };
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#BF360C'
+        : '#f5c842'
+      };
     }
     
     &:active {
-      background-color: rgba(243, 156, 18, 0.3);
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(230, 81, 0, 0.2)'
+        : 'rgba(243, 156, 18, 0.3)'
+      };
     }
   }
   .vjs-value-number {
-    color: rgb(166, 226, 46);
+    color: ${({ theme }) => theme.mode === 'light' 
+      ? '#2E7D32'
+      : 'rgb(166, 226, 46)'
+    };
     cursor: pointer;
     user-select: none;
     transition: all 0.2s ease;
@@ -213,16 +281,28 @@ const JsonTreeContainer = styled.div`
     border-radius: 3px;
     
     &:hover {
-      background-color: rgba(166, 226, 46, 0.2);
-      color: rgb(186, 246, 66);
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(46, 125, 50, 0.1)'
+        : 'rgba(166, 226, 46, 0.2)'
+      };
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#1B5E20'
+        : 'rgb(186, 246, 66)'
+      };
     }
     
     &:active {
-      background-color: rgba(166, 226, 46, 0.3);
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(46, 125, 50, 0.2)'
+        : 'rgba(166, 226, 46, 0.3)'
+      };
     }
   }
   .vjs-value-boolean {
-    color: #3498db;
+    color: ${({ theme }) => theme.mode === 'light' 
+      ? '#1976D2'
+      : '#3498db'
+    };
     cursor: pointer;
     user-select: none;
     transition: all 0.2s ease;
@@ -230,16 +310,28 @@ const JsonTreeContainer = styled.div`
     border-radius: 3px;
     
     &:hover {
-      background-color: rgba(52, 152, 219, 0.2);
-      color: #5dade2;
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(25, 118, 210, 0.1)'
+        : 'rgba(52, 152, 219, 0.2)'
+      };
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#0D47A1'
+        : '#5dade2'
+      };
     }
     
     &:active {
-      background-color: rgba(52, 152, 219, 0.3);
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(25, 118, 210, 0.2)'
+        : 'rgba(52, 152, 219, 0.3)'
+      };
     }
   }
   .vjs-value-null {
-    color: #95a5a6;
+    color: ${({ theme }) => theme.mode === 'light' 
+      ? '#757575'
+      : '#95a5a6'
+    };
     cursor: pointer;
     user-select: none;
     transition: all 0.2s ease;
@@ -247,16 +339,28 @@ const JsonTreeContainer = styled.div`
     border-radius: 3px;
     
     &:hover {
-      background-color: rgba(149, 165, 166, 0.2);
-      color: #bdc3c7;
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(117, 117, 117, 0.1)'
+        : 'rgba(149, 165, 166, 0.2)'
+      };
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#424242'
+        : '#bdc3c7'
+      };
     }
     
     &:active {
-      background-color: rgba(149, 165, 166, 0.3);
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(117, 117, 117, 0.2)'
+        : 'rgba(149, 165, 166, 0.3)'
+      };
     }
   }
   .vjs-value-object {
-    color: #e74c3c;
+    color: ${({ theme }) => theme.mode === 'light' 
+      ? '#D32F2F'
+      : '#e74c3c'
+    };
     cursor: pointer;
     user-select: none;
     transition: all 0.2s ease;
@@ -264,16 +368,28 @@ const JsonTreeContainer = styled.div`
     border-radius: 3px;
     
     &:hover {
-      background-color: rgba(231, 76, 60, 0.2);
-      color: #ec7063;
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(211, 47, 47, 0.1)'
+        : 'rgba(231, 76, 60, 0.2)'
+      };
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#B71C1C'
+        : '#ec7063'
+      };
     }
     
     &:active {
-      background-color: rgba(231, 76, 60, 0.3);
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(211, 47, 47, 0.2)'
+        : 'rgba(231, 76, 60, 0.3)'
+      };
     }
   }
   .vjs-expandable {
-    color: #e74c3c;
+    color: ${({ theme }) => theme.mode === 'light' 
+      ? '#D32F2F'
+      : '#e74c3c'
+    };
     cursor: pointer;
     user-select: none;
     transition: all 0.2s ease;
@@ -281,12 +397,21 @@ const JsonTreeContainer = styled.div`
     border-radius: 3px;
     
     &:hover {
-      background-color: rgba(231, 76, 60, 0.2);
-      color: #ec7063;
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(211, 47, 47, 0.1)'
+        : 'rgba(231, 76, 60, 0.2)'
+      };
+      color: ${({ theme }) => theme.mode === 'light' 
+        ? '#B71C1C'
+        : '#ec7063'
+      };
     }
     
     &:active {
-      background-color: rgba(231, 76, 60, 0.3);
+      background-color: ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(211, 47, 47, 0.2)'
+        : 'rgba(231, 76, 60, 0.3)'
+      };
     }
   }
   .vjs-bracket {
@@ -689,6 +814,7 @@ export const JsonTree = React.memo<JsonTreeProps>(({
   initialExpandDepth = 2,
   draggable = true
 }) => {
+  const { theme } = useTheme();
   const getInitialExpandedKeys = useCallback(() => {
     const keys = new Set<string>();
     const addKeys = (obj: any, path: string, depth: number) => {

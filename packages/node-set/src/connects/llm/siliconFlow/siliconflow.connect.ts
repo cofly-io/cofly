@@ -1,4 +1,4 @@
-import { Icon, IDatabaseMetadataOptions, IDatabaseMetadataResult } from '@repo/common';
+import { Icon, ILLMMetadataOptions, ILLMMetadataResult } from '@repo/common';
 import { ConnectTestResult, ILLMOverview } from '@repo/common';
 import {
     createApiKeyField,
@@ -65,18 +65,22 @@ export class SiliconFlowConnect extends OpenAIBasedLLMConnect {
         );
     }
 
-    async metadata(opts: IDatabaseMetadataOptions): Promise<IDatabaseMetadataResult> {
+    async metadata(opts: ILLMMetadataOptions): Promise<ILLMMetadataResult> {
         try {
-            switch (opts.type) {
-                case 'models':
-                    return await this.getModels(opts.datasourceId, opts.search);
-                default:
-                    return {
-                        success: false,
-                        error: `不支持的元数据类型: ${opts.type}`
-                    };
-            }
-        } catch (error: any) {
+            return getLLMModels(
+                opts.connectInfo?.apiKey,
+                opts.search,
+                'SiliconFlow',
+                opts.connectInfo?.baseUrl ? opts.connectInfo.baseUrl : this.overview.api.url,
+                this.detail.supportedModels,
+                {
+                    buildApiUrl: buildSiliconFlowApiUrl,
+                    isValidModel: isSiliconFlowValidModel,
+                    transformModel: transformSiliconFlowModelData
+                }
+            );
+        }
+        catch (error: any) {
             console.error('❌ [SiliconFlow Connect] metadata 执行错误:', error.message);
             return {
                 success: false,
@@ -84,23 +88,4 @@ export class SiliconFlowConnect extends OpenAIBasedLLMConnect {
             };
         }
     }
-
-    /**
-     * 获取LLM模型列表
-     */
-    private async getModels(datasourceId?: string, search?: string): Promise<IDatabaseMetadataResult> {
-        return getLLMModels(
-            datasourceId,
-            search,
-            'SiliconFlow',
-            this.overview.api.url,
-            this.detail.supportedModels,
-            {
-                buildApiUrl: buildSiliconFlowApiUrl,
-                isValidModel: isSiliconFlowValidModel,
-                transformModel: transformSiliconFlowModelData
-            }
-        );
-    }
-
 }

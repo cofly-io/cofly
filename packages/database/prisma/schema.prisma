@@ -38,26 +38,20 @@ model WorkflowConfig {
 }
 
 model ConnectConfig {
-  id          String   @id @default(cuid())
-  name        String
-  ctype       String
-  mtype       String?
-  configinfo  String
-  createdtime DateTime @default(now())
-  updatedtime DateTime @updatedAt
-  creator     String?
-
-  // agent 连接 引用
-  agentRefs AgentConnect[]
-
-  // agent 关联
-  agents AiAgent[]
-
-  // Kb 嵌入模型关联
-  KbProcessors AiKb[] @relation("KbProcessors")
-  KbEmbeddings AiKb[] @relation("KbEmbeddings")
-  KbVectors    AiKb[] @relation("KbVectors")
-  KbRerankers  AiKb[] @relation("KbRerankers")
+  id           String         @id @default(cuid())
+  name         String
+  ctype        String
+  mtype        String?
+  configinfo   String
+  createdtime  DateTime       @default(now())
+  updatedtime  DateTime       @updatedAt
+  creator      String?
+  agentRefs    AgentConnect[]
+  agents       AiAgent[]
+  KbRerankers  AiKb[]         @relation("KbRerankers")
+  KbVectors    AiKb[]         @relation("KbVectors")
+  KbEmbeddings AiKb[]         @relation("KbEmbeddings")
+  KbProcessors AiKb[]         @relation("KbProcessors")
 
   @@map("connect_config")
 }
@@ -75,20 +69,18 @@ model AiMcp {
 }
 
 model AiAgent {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  prompt      String?
-  avatar      String?  @default("user")
-  modelId     String
-  modelName   String?
-  connectid   String
-  agentinfo   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createUser  String
-
-  // 关联关系
+  id             String          @id @default(cuid())
+  name           String
+  description    String
+  prompt         String?
+  avatar         String?         @default("user")
+  modelId        String
+  modelName      String?
+  connectid      String
+  agentinfo      String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  createUser     String
   agentConnects  AgentConnect[]
   agentMcps      AgentMcp[]
   threads        AgentThread[]
@@ -99,29 +91,26 @@ model AiAgent {
 }
 
 model AiKb {
-  id                 String  @id @default(cuid()) // 知识库id
-  name               String // 知识库名称
-  processorConnectId String? // 文档处理模型连接Id
-  processorModelId   String? // 文档处理模型Id
-  embeddingConnectId String? // 嵌入模型连接Id
-  embeddingModelId   String? // 嵌入模型Id
-  embeddingDimension Int? // 维度大小，留空自动获取
-  vectorConnectId    String? // 向量库连接
-  rerankerConnectId  String? // 排序模型连接Id
-  rerankerModelId    String? // 排序模型Id
-  documentCount      Int? // 搜索结果数量
-  chunkSize          Int? // chunk大小
-  chunkOverlap       Int? // chunk重叠大小
-  matchingThreshold  Float? // 匹配度阈值
-
-  createdAt DateTime @default(now()) // 创建事件
-  updatedAt DateTime @updatedAt // 更新事件
-
-  // 关联
-  processorConnectConfig ConnectConfig? @relation("KbProcessors", fields: [processorConnectId], references: [id])
-  embeddingConnectConfig ConnectConfig? @relation("KbEmbeddings", fields: [embeddingConnectId], references: [id])
-  vectorConnectConfig    ConnectConfig? @relation("KbVectors", fields: [vectorConnectId], references: [id])
+  id                     String         @id @default(cuid())
+  name                   String
+  processorConnectId     String?
+  processorModelId       String?
+  embeddingConnectId     String?
+  embeddingModelId       String?
+  embeddingDimension     Int?
+  vectorConnectId        String?
+  rerankerConnectId      String?
+  rerankerModelId        String?
+  documentCount          Int?
+  chunkSize              Int?
+  chunkOverlap           Int?
+  matchingThreshold      Float?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
   rerankConnectConfig    ConnectConfig? @relation("KbRerankers", fields: [rerankerConnectId], references: [id])
+  vectorConnectConfig    ConnectConfig? @relation("KbVectors", fields: [vectorConnectId], references: [id])
+  embeddingConnectConfig ConnectConfig? @relation("KbEmbeddings", fields: [embeddingConnectId], references: [id])
+  processorConnectConfig ConnectConfig? @relation("KbProcessors", fields: [processorConnectId], references: [id])
   documents              KbDocument[]
 
   @@map("ai_kb")
@@ -132,8 +121,8 @@ model AgentMcp {
   agentId   String
   mcpId     String
   createdAt DateTime @default(now())
-  agent     AiAgent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
   mcp       AiMcp    @relation(fields: [mcpId], references: [id], onDelete: Cascade)
+  agent     AiAgent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
 
   @@unique([agentId, mcpId])
   @@map("agent_mcp")
@@ -144,8 +133,8 @@ model AgentWorkflow {
   agentId    String
   workflowId String
   createdAt  DateTime       @default(now())
-  agent      AiAgent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
   workflow   WorkflowConfig @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  agent      AiAgent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
 
   @@unique([agentId, workflowId])
   @@map("agent_workflow")
@@ -156,8 +145,8 @@ model AgentConnect {
   agentId   String
   connectId String
   createdAt DateTime      @default(now())
-  agent     AiAgent       @relation(fields: [agentId], references: [id], onDelete: Cascade)
   connect   ConnectConfig @relation(fields: [connectId], references: [id], onDelete: Cascade)
+  agent     AiAgent       @relation(fields: [agentId], references: [id], onDelete: Cascade)
 
   @@unique([agentId, connectId])
   @@map("agent_connect")
@@ -248,31 +237,27 @@ model SystemModelSetting {
   @@map("system_model_setting")
 }
 
-// RAG相关数据模型
 model KbDocument {
-  id            String    @id @default(uuid())
-  kbId          String
-  fileName      String
-  originalName  String
-  fileType      String
-  fileSize      Int
-  uploadTime    DateTime
-  processedTime DateTime?
-  status        String
-  chunkCount    Int
-  filePath      String
-  textPreview   String?
-  mimeType      String?
-  checksum      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now())
-
-  // Relations
-  Kb               AiKb                 @relation(fields: [kbId], references: [id], onDelete: Cascade)
+  id               String               @id @default(uuid())
+  kbId             String
+  fileName         String
+  originalName     String
+  fileType         String
+  fileSize         Int
+  uploadTime       DateTime
+  processedTime    DateTime?
+  status           String
+  chunkCount       Int
+  filePath         String
+  textPreview      String?
+  mimeType         String?
+  checksum         String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @default(now())
   chunks           KbDocumentChunk[]
+  Kb               AiKb                 @relation(fields: [kbId], references: [id], onDelete: Cascade)
   processingStatus KbProcessingStatus[]
 
-  // Indexes
   @@index([status], map: "idx_kb_documents_status")
   @@index([uploadTime], map: "idx_kb_documents_upload_time")
   @@index([fileType], map: "idx_kb_documents_file_type")
@@ -280,7 +265,7 @@ model KbDocument {
 }
 
 model KbDocumentChunk {
-  id            String   @id @default(uuid())
+  id            String     @id @default(uuid())
   documentId    String
   chunkIndex    Int
   content       String
@@ -288,36 +273,29 @@ model KbDocumentChunk {
   vectorId      String?
   startPosition Int
   endPosition   Int
-  createdAt     DateTime @default(now())
+  createdAt     DateTime   @default(now())
+  document      KbDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
-  // Relations
-  document KbDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-
-  // Unique constraint
   @@unique([documentId, chunkIndex])
-  // Indexes
   @@index([documentId], map: "idx_kb_chunks_document_id")
   @@index([vectorId], map: "idx_kb_chunks_vector_id")
   @@map("kb_document_chunks")
 }
 
 model KbProcessingStatus {
-  id           Int      @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   documentId   String
   status       String
-  progress     Int      @default(0)
+  progress     Int        @default(0)
   currentStep  String?
   errorMessage String?
   errorType    String?
   startTime    BigInt
   endTime      BigInt?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now())
+  document     KbDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
-  // Relations
-  document KbDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-
-  // Indexes
   @@index([documentId], map: "idx_kb_processing_status_document_id")
   @@index([status], map: "idx_kb_processing_status_status")
   @@map("kb_processing_status")

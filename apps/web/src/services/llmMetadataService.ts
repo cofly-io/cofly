@@ -14,7 +14,6 @@ export class LLMMetadataService {
     ): Promise<ILLMMetadataResult> {
         try {
             const searchParams = new URLSearchParams({
-                type: 'models',
                 ...(search && { search })
             });
 
@@ -42,7 +41,7 @@ export class LLMMetadataService {
     static async getModels(
         datasourceId: string,
         search?: string,
-        connectInfo?: ILLMMetadataOptions['connectInfo']
+        // connectInfo?: ILLMMetadataOptions['connectInfo']
     ): Promise<ILLMMetadataResult> {
         return this.getMetadata(datasourceId,search);
     }

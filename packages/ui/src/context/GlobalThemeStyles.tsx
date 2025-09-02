@@ -70,8 +70,20 @@ export const GlobalThemeStyles = createGlobalStyle<{ theme: Theme }>`
 
   /* 选择文本样式 */
   ::selection {
-    background-color: ${props => props.theme.colors.primary};
-    color: white;
+    background-color: ${props => props.theme.mode === 'light' 
+      ? 'rgba(36, 194, 140, 0.3)'  /* light模式：淡绿色背景 */
+      : 'rgba(255, 255, 255, 0.3)' /* dark模式：淡白色背景 */
+    };
+    color: ${props => props.theme.colors.textPrimary};
+  }
+
+  /* Firefox 兼容性 */
+  ::-moz-selection {
+    background-color: ${props => props.theme.mode === 'light' 
+      ? 'rgba(36, 194, 140, 0.3)'  /* light模式：淡绿色背景 */
+      : 'rgba(255, 255, 255, 0.3)' /* dark模式：淡白色背景 */
+    };
+    color: ${props => props.theme.colors.textPrimary};
   }
 
   /* 焦点样式 */
@@ -115,6 +127,23 @@ export const GlobalThemeStyles = createGlobalStyle<{ theme: Theme }>`
   input:focus, textarea:focus, select:focus {
     border-color: var(--primary-color);
     outline: none;
+  }
+
+  /* 输入框文本选中样式 */
+  input::selection, textarea::selection {
+    background-color: ${props => props.theme.mode === 'light' 
+      ? 'rgba(36, 194, 140, 0.3)'  /* light模式：淡绿色背景 */
+      : 'rgba(255, 255, 255, 0.3)' /* dark模式：淡白色背景 */
+    };
+    color: ${props => props.theme.colors.textPrimary};
+  }
+
+  input::-moz-selection, textarea::-moz-selection {
+    background-color: ${props => props.theme.mode === 'light' 
+      ? 'rgba(36, 194, 140, 0.3)'  /* light模式：淡绿色背景 */
+      : 'rgba(255, 255, 255, 0.3)' /* dark模式：淡白色背景 */
+    };
+    color: ${props => props.theme.colors.textPrimary};
   }
 
   /* 卡片基础样式 */

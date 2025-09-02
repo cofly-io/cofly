@@ -276,7 +276,6 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
   // 在编辑模式下，从 editData.config 初始化表单值
   useEffect(() => {
     if (editMode && editData?.config !== undefined && connect?.detail?.fields) {
-      console.log('初始化编辑表单，配置数据:', editData.config);
 
       const editValues: Record<string, any> = {};
 

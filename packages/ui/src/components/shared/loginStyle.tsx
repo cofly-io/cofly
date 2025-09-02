@@ -54,8 +54,8 @@ export const ContentSection = styled.div`
   };
 `;
 
-export const Logo = styled.img`
-  height: 30px;
+// 定位的Logo容器
+export const LogoContainer = styled.div`
   position: absolute;
   top: 8px;
   left: 10px;

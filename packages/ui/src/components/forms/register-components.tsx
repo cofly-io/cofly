@@ -1,7 +1,6 @@
 "use client";
 
 import React, { ReactNode, useState, useEffect } from "react";
-import styled from "styled-components";
 import {
   ModalMoContainer,
   RegisterFormContainer,
@@ -10,7 +9,7 @@ import {
   PasswordField,
   PasswordHint,
   ContentSection,
-  Logo,
+  LogoContainer,
   WelcomeText,
   WelcomeSubText,
   ConfigText,
@@ -19,6 +18,8 @@ import {
   ErrorMessage,
   HintText
 } from "../shared/loginStyle";
+
+import AnimatedLogo from "../basic/AnimatedLogo";
 
 
 // Registration form interface
@@ -128,9 +129,9 @@ export const RegisterForm = ({
       </SubmitButton>
 
       {error && (
-        <div style={{ 
-          color: '#e53935', 
-          marginTop: '15px', 
+        <div style={{
+          color: '#e53935',
+          marginTop: '15px',
           fontSize: '14px',
           padding: '12px',
           borderRadius: '8px',
@@ -149,7 +150,6 @@ export const RegisterForm = ({
 
 // Registration page props
 interface RegisterPageProps {
-  logoSrc: string;
   backgroundImageUrl?: string;
   onRegister: (data: {
     email: string;
@@ -164,13 +164,10 @@ interface RegisterPageProps {
 
 // Full registration page component
 export const RegisterPageComponent = ({
-  logoSrc,
-  backgroundImageUrl,
   onRegister,
   loading,
   error,
   loginUrl,
-  onLanguageChange
 }: RegisterPageProps) => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -220,7 +217,7 @@ export const RegisterPageComponent = ({
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -238,7 +235,9 @@ export const RegisterPageComponent = ({
 
   return (
     <ModalMoContainer>
-      <Logo src={logoSrc} alt="Logo" />
+      <LogoContainer>
+        <AnimatedLogo fontSize="18px" />
+      </LogoContainer>
       <ContentSection>
         <WelcomeText>创建新账户</WelcomeText>
         <WelcomeSubText>Create your account!</WelcomeSubText>

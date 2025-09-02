@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled ,{ useTheme } from 'styled-components';
 import { RiAiGenerate2 } from 'react-icons/ri';
 
 /**
@@ -98,11 +98,10 @@ export const AIhelp: React.FC<AIhelpProps> = ({
   tooltip = 'AI生成',
   loading = false
 }) => {
-
+const theme = useTheme();
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
     if (onClick) {
       onClick(rules, content);
     }
@@ -125,7 +124,7 @@ export const AIhelp: React.FC<AIhelpProps> = ({
         ) : (
           <RiAiGenerate2
             size={size}
-            color={disabled ? '#9ca3af' : color}
+            color={disabled ? '#bfbfbf' :theme.mode=='light'?'#0daf9a': color}
             style={{
               transition: 'color 0.2s ease'
             }}

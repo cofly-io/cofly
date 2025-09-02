@@ -1,11 +1,10 @@
 "use client";
 
 import React, { ReactNode, useState, useEffect } from "react";
-import styled, { css } from "styled-components";
 import {
+  LogoContainer,
   ModalMoContainer,
   ContentSection,
-  Logo,
   WelcomeText,
   WelcomeSubText,
   ConfigText,
@@ -19,13 +18,7 @@ import {
 } from "../shared/loginStyle";
 import AnimatedLogo from "../basic/AnimatedLogo";
 
-// 定位的Logo容器
-const LogoContainer = styled.div`
-  position: absolute;
-  top: 8px;
-  left: 10px;
-  z-index: 10;
-`;
+
 
 
 // Reusable login form component
@@ -109,7 +102,6 @@ interface LoginPageProps {
 }
 
 export const LoginPageComponent = ({
-  logoSrc,
   onLogin,
   loading,
   error,

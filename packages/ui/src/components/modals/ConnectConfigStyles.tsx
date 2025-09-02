@@ -95,7 +95,7 @@ export const LoadingState = styled.div`
   align-items: center;
   justify-content: center;
   padding: 40px;
-  color: ${({ theme }) => theme.mode === 'dark' ? '#94a3b8' : '#64748b'};
+  color: ${({ theme }) => theme.mode === 'dark' ? '#94a3b8' : '#ededed'};
   font-size: 14px;
 `;
 

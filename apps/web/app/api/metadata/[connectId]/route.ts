@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { initializeConnects } from '@repo/node-set';
-import { IDatabaseConnect, IDatabaseMetadataOptions } from '@repo/common';
+import { IDatabaseConnect, IDatabaseMetadataOptions,ILLMConnect,ILLMMetadataOptions } from '@repo/common';
 import { prisma } from "@repo/database";
 
 /**
@@ -31,6 +31,7 @@ export async function GET(
             );
         }
 
+        //根据ID获取connect的配置信息
         const connectConfig = await prisma.connectConfig.findUnique({
             where: { id: connectId }
         });
@@ -68,11 +69,6 @@ export async function GET(
             let connectInstance = connectRegistry.getConnectById(provider) as IDatabaseConnect;
             
             if (!connectInstance) {
-                // 如果通过ID找不到，尝试通过provider查找
-                connectInstance = connectRegistry.getConnectsByProvider(provider).pop() as IDatabaseConnect;
-            }
-            
-            if (!connectInstance) {
                 return NextResponse.json(
                     {
                         success: false,
@@ -107,30 +103,11 @@ export async function GET(
             return NextResponse.json(result);
         } else if (mtype === 'llm') {
             const provider = connectConfig.ctype;
-            const type = searchParams.get('type') as 'models';
             const search = searchParams.get('search');
-
-            // 验证必填参数
-            if (!type) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error: '缺少必填参数: type'
-                    },
-                    { status: 400 }
-                );
-            }
-
 
             // 获取节点实例 - 先尝试通过ID获取，如果没有则通过provider获取
             const connectRegistry = await initializeConnects();
-            let connectInstance = connectRegistry.getConnectById(provider) as IDatabaseConnect;
-            
-            if (!connectInstance) {
-                // 如果通过ID找不到，尝试通过provider查找
-                connectInstance = connectRegistry.getConnectsByProvider(provider).pop() as IDatabaseConnect;
-            }
-            
+            let connectInstance = connectRegistry.getConnectById(provider) as ILLMConnect;
             if (!connectInstance) {
                 return NextResponse.json(
                     {
@@ -153,12 +130,13 @@ export async function GET(
             }
 
             // 构建metadata选项
-            const metadataOptions: IDatabaseMetadataOptions = {
-                type,
-                datasourceId: connectId,
+            const metadataOptions: ILLMMetadataOptions = {
+                connectInfo: {
+                    apiKey: JSON.parse(connectConfig.configinfo).apiKey,
+                    baseUrl:  JSON.parse(connectConfig.configinfo).baseUrl
+                },
                 search: search || undefined,
             };
-
             // 调用节点的metadata方法
             const result = await connectInstance.metadata(metadataOptions);
             return NextResponse.json(result);

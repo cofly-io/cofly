@@ -3,7 +3,7 @@
  * 用于处理各种LLM提供商的模型获取、解析和标准化
  */
 
-import { IDatabaseMetadataResult } from '@repo/common';
+import { ILLMMetadataResult } from '@repo/common';
 
 /**
  * 连接信息接口
@@ -32,7 +32,7 @@ export interface ModelData {
  * 获取LLM模型列表的通用方法
  */
 export async function getLLMModels(
-    datasourceId: string | undefined,
+    apiKey: string | undefined,
     search: string | undefined,
     providerName: string,
     apiUrl: string,
@@ -44,31 +44,31 @@ export async function getLLMModels(
         transformModel?: (model: any, ctype: string) => any;
         extractGroup?: (modelId: string) => string;
     } = {}
-): Promise<IDatabaseMetadataResult> {
-    if (!datasourceId) {
+): Promise<ILLMMetadataResult> {
+    if (!apiKey) {
         return {
             success: false,
-            error: '数据源ID不能为空'
+            error: 'API_KEY异常'
         };
     }
 
     try {
-        // 获取连接配置
-        const { credentialManager } = await import('@repo/common');
-        const connectConfig = await credentialManager.mediator?.get(datasourceId);
-        if (!connectConfig) {
-            return {
-                success: false,
-                error: `连接配置不存在: ${datasourceId}`
-            };
-        }
+        // // 获取连接配置
+        // const { credentialManager } = await import('@repo/common');
+        // const connectConfig = await credentialManager.mediator?.get(datasourceId);
+        // if (!connectConfig) {
+        //     return {
+        //         success: false,
+        //         error: `连接配置不存在: ${datasourceId}`
+        //     };
+        // }
 
-        const configData = connectConfig.config;
+        // const configData = connectConfig.config;
 
         const connectInfo: LLMConnectInfo = {
             ctype: providerName.toLowerCase(),
-            baseUrl: configData.baseUrl || apiUrl,
-            apiKey: configData.apiKey,
+            baseUrl: apiUrl,
+            apiKey: apiKey,
             supportedModels: supportedModels
         };
 
@@ -135,8 +135,8 @@ export async function fetchModelsFromProvider(
     const { ctype, baseUrl, apiKey } = connectInfo;
 
     // 构建API端点
-    const apiUrl = options.buildApiUrl ? 
-        options.buildApiUrl(baseUrl, ctype) : 
+    const apiUrl = options.buildApiUrl ?
+        options.buildApiUrl(baseUrl, ctype) :
         buildDefaultModelsApiUrl(baseUrl);
 
     const headers: Record<string, string> = {
@@ -163,8 +163,8 @@ export async function fetchModelsFromProvider(
 
     const data = await response.json();
 
-    return options.parseResponse ? 
-        options.parseResponse(data, ctype) : 
+    return options.parseResponse ?
+        options.parseResponse(data, ctype) :
         parseDefaultModelResponse(data, ctype, options);
 }
 
@@ -187,7 +187,7 @@ export function buildDefaultModelsApiUrl(baseUrl: string): string {
  * 解析默认的模型响应数据
  */
 export function parseDefaultModelResponse(
-    data: any, 
+    data: any,
     ctype: string,
     options: {
         isValidModel?: (model: any, ctype: string) => boolean;
@@ -220,13 +220,13 @@ export function parseDefaultModelResponse(
     // 过滤和转换模型数据
     const filteredModels = models
         .filter((model: any) => {
-            return options.isValidModel ? 
-                options.isValidModel(model, ctype) : 
+            return options.isValidModel ?
+                options.isValidModel(model, ctype) :
                 isDefaultValidModel(model);
         })
         .map((model: any) => {
-            return options.transformModel ? 
-                options.transformModel(model, ctype) : 
+            return options.transformModel ?
+                options.transformModel(model, ctype) :
                 transformDefaultModelData(model);
         });
 
@@ -257,7 +257,7 @@ export function transformDefaultModelData(model: any): ModelData {
  * 标准化模型数据
  */
 export function standardizeModels(
-    models: any[], 
+    models: any[],
     ctype: string,
     extractGroup?: (modelId: string) => string
 ): ModelData[] {
@@ -305,7 +305,7 @@ export function extractOpenRouterGroup(modelId: string): string {
     if (modelId.includes('mistralai/')) return 'Mistral AI';
     if (modelId.includes('cohere/')) return 'Cohere';
     if (modelId.includes('perplexity/')) return 'Perplexity';
-    
+
     return 'Other';
 }
 
@@ -325,7 +325,7 @@ export function isSiliconFlowValidModel(model: any, ctype: string): boolean {
  */
 export function buildSiliconFlowApiUrl(baseUrl: string, ctype: string): string {
     const cleanBaseUrl = baseUrl.replace(/\/$/, '');
-    
+
     // SiliconFlow的baseUrl已经包含/v1，直接添加/models即可
     if (cleanBaseUrl.endsWith('/v1')) {
         return `${cleanBaseUrl}/models`;

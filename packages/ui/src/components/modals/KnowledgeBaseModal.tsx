@@ -652,7 +652,7 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
                                                     用于筛选检索结果的相似度(0-1)。阈值越高结果越相关但数量少；阈值越低结果越多但相关性可能下降。建议0.6-0.8。
                                                 </ParameterDescription>
                                                 <PremiumFormInput
-                                                    type="text"
+                                                    type="number"
                                                     placeholder="未设置"
                                                     value={formData.similarityThreshold}
                                                     onChange={(e) => handleInputChange('similarityThreshold', parseFloat(e.target.value) || 0)}

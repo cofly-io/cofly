@@ -139,7 +139,7 @@ const EditableTitleContainer = styled.div`
 // 标签样式
 const TitleLabel = styled.label`
   font-size: 14px;
-  /*color: ${({ theme }) => theme.colors.textPrimary};*/
+  color: ${({ theme }) => theme.colors.textPrimary};
   background: ${({ theme }) => theme.panel.nodeBg};
   //border: 1px solid ${({ theme }) => theme.colors.textPrimary};
   padding: 6px 6px;
@@ -167,12 +167,20 @@ const EditInput = styled.input`
   padding: 8px 6px;
   font-weight: 600;
   flex: 1;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.colors.accent};
     box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent}20;
   }
   
+  /* 确保placeholder颜色正确 */
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.textSecondary};
+    opacity: 0.7;
+  }
+
 `;
 
 const Tabs = styled.div`
@@ -384,11 +392,7 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
   nodeId: propNodeId,
   onAIhelpClick,
 }) => {
-  console.log('🟡 [NodeSettings] 组件渲染:', {
-    nodeId: node?.id,
-    onAIhelpClick: typeof onAIhelpClick,
-    onAIhelpClickExists: !!onAIhelpClick
-  });
+
   const { themeMode } = useTheme();
   const [activeTab, setActiveTab] = useState('parameters');
   const [nodeId, setNodeId] = useState(node.id);
@@ -460,17 +464,6 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
       setNodeValues(initialNodeValues);
     }
   }, [initialNodeValues, hasUserInput]);
-
-  // 组件初始化时打印nodesDetailsMap
-  // useEffect(() => {
-  //   console.log('NodeSettings界面打开 - nodesDetailsMap:', nodesDetailsMap);
-  //   console.log('NodeSettings - activeTab:', activeTab);
-  //   console.log('NodeSettings - showSettings:', showSettings);
-  //   console.log('NodeSettings - parameters:', parameters);
-  //   console.log('NodeSettings - parameters.length:', parameters.length);
-  // }, []);
-
-
 
   const actualNodeWidth = useMemo(() => {
     // 确保节点配置面板有合理的最小宽度，不受自动布局影响
@@ -666,8 +659,6 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
       }
     });
 
-    console.log('🔍 [NodeSettings] 过滤后的参数:', convertedValues);
-
     onSave({
       ...node,
       id: nodeId || node.id,
@@ -776,9 +767,14 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
     const errorFields = new Set<string>();
     const errorNames: string[] = [];
 
-    console.log('🔍 [NodeSettings] 开始验证必填字段:', { parameters, nodeValues });
-
     parameters.forEach(param => {
+      // 首先检查字段是否可见
+      const shouldShow = checkFieldVisibility(param, nodeValues);
+      
+      if (!shouldShow) {
+        return; // 如果字段不可见，跳过验证
+      }
+
       // 检查是否为必填字段
       // 首先尝试从 param.required 获取
       let isRequired = (param as any).required;
@@ -801,32 +797,51 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
         }
       }
 
-      console.log('🔍 [NodeSettings] 检查参数:', {
-        name: param.name,
-        required: isRequired,
-        value: nodeValues[param.name],
-        controlType: (param as any).controlType
-      });
-
       if (isRequired) {
         const value = nodeValues[param.name];
         if (!value || (typeof value === 'string' && value.trim() === '')) {
-          console.log('❌ [NodeSettings] 发现必填字段为空:', param.name);
           errorFields.add(param.name);
           errorNames.push(param.displayName);
         }
       }
     });
 
-    console.log('🔍 [NodeSettings] 验证结果:', { errorFields, errorNames });
     return { errorFields, errorNames };
   }, [parameters, nodeValues]);
+
+  // 检查字段可见性的辅助函数
+  const checkFieldVisibility = useCallback((field: any, formValues: Record<string, any>) => {
+    if (!field.displayOptions) return true;
+
+    const { showBy, hide } = field.displayOptions;
+
+    // 检查隐藏条件
+    if (hide) {
+      for (const [key, values] of Object.entries(hide)) {
+        const formValue = formValues[key];
+        if ((values as string[]).includes(formValue)) {
+          return false;
+        }
+      }
+    }
+
+    // 检查显示条件
+    if (showBy) {
+      for (const [key, values] of Object.entries(showBy)) {
+        const formValue = formValues[key];
+        if (!(values as string[]).includes(formValue)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }, []);
 
   // 优化: 使用useCallback缓存测试函数
   const handleNodeTest = useCallback(async () => {
     // 如果正在测试中，调用停止测试
     if (isNodeTesting) {
-      console.log('🛑 [NodeSettings] 停止节点测试');
       if (onStopTest) {
         try {
           await onStopTest(nodeId || node.id);
@@ -840,32 +855,19 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
       return;
     }
 
-    console.log('🚀 [NodeSettings] 开始节点测试', {
-      nodeId,
-      hasOnTest: !!onTest,
-      nodeValuesKeys: Object.keys(nodeValues),
-      currentTestOutput: testOutput ? 'has output' : 'no output',
-      currentLastTestResult: lastTestResult ? 'has result' : 'no result',
-      isNodeTesting,
-      nodeTestEventId
-    });
-
     // 验证必填字段
     const { errorFields, errorNames } = validateRequiredFields();
     if (errorNames.length > 0) {
-      console.log('❌ [NodeSettings] 验证失败，设置错误状态');
       setValidationErrors(errorFields);
       showToast?.('error', '验证失败', `请填写必填字段: ${errorNames.join(', ')}`);
       return;
     }
 
-    console.log('✅ [NodeSettings] 验证通过，清除错误状态');
     // 清除验证错误状态
     setValidationErrors(new Set());
 
     if (onTest) {
       try {
-        console.log('🚀 [NodeSettings] 调用测试函数 onTest');
         onTest(nodeValues);
       } catch (error) {
         console.error('❌ [NodeSettings] Test failed:', error);
@@ -912,12 +914,6 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
         isNodeTesting={isNodeTesting}
         nodeTestEventId={nodeTestEventId}
         onUpdateNodesTestResultsMap={(id: string, data: any) => {
-          console.log('🔧 [NodeSettings] Setting mock data:', {
-            id,
-            isNodeTesting,
-            nodeTestEventId
-          });
-
           // 创建符合mockTestResult格式的数据
           const mockTestResult = {
             timestamp: new Date().toISOString(),

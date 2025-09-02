@@ -24,7 +24,6 @@ export default function RegisterPage() {
   return (
     <GlobalThemeProvider defaultTheme="dark">
       <RegisterPageComponent
-        logoSrc="/logo.png"
         onRegister={handleRegister}
         loading={loading}
         error={error || undefined}
