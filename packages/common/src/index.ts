@@ -9,7 +9,7 @@ export * from "./CredentialManager";
 export * from "./AgenticConfigManager";
 export * from "./AgenticThreadManager";
 export * from "./McpConfigManager";
-export * from "./AiRagConfigManager";
+export * from "./KnowledgeBaseManager";
 export * from "./PluginManager";
 export * from "./TeamManager";
 // 导出接口定义

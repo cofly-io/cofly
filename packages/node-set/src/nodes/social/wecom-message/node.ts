@@ -139,14 +139,23 @@ export class WecomSender implements INode {
     async execute(opts: IExecuteOptions): Promise<any> {
         const params = opts.inputs;
         
-        if (!params) {
+        if (!params || !params.credential) {
             return {
                 success: false,
                 message: '缺少输入参数'
             };
         }
 
-        const credential = await credentialManager.mediator?.get(opts?.inputs?.credential);
+        const credentialConfig = JSON.parse(params.credential || "{}");
+        const credentialId = credentialConfig.id;
+        if(!credentialId) {
+            return {
+                success: false,
+                message: '缺少输入参数'
+            };
+        }
+
+        const credential = await credentialManager.mediator?.get(credentialId);
         if(!credential || !credential.config) {
             return {
                 success: false,

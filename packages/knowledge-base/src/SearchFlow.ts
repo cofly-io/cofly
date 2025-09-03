@@ -1,14 +1,11 @@
 import {
-  DocumentChunk,
-  AppError,
-  ErrorType,
+    DocumentChunk,
+    AppError,
+    ErrorType, DocumentSearchQuery, DocumentSearchResponse, DocumentSearchResult,
 } from '@repo/common';
 import { prisma } from '@repo/database';
 import { validateSearchQuery } from "./Validation";
-import {
-    DocumentSearchQuery,
-    DocumentSearchResponse, DocumentSearchResult, EmbeddingService, KnowledgeBase, VectorService
-} from "./types";
+import { EmbeddingService, VectorService } from "./types";
 import { KnowledgeBaseInstance } from "./KnowledgeBaseManager";
 
 // /**
@@ -96,7 +93,15 @@ export class SearchFlow {
             console.error('Search flow error:', error);
 
             const appError = this.createAppError(error, 'Search failed');
-            throw appError;
+
+            return {
+                results: [],
+                totalCount: 0,
+                queryTime: 0,
+                query: searchQuery.query,
+                filters: searchQuery.filters,
+                error: appError,
+            } as DocumentSearchResponse;
         }
     }
 

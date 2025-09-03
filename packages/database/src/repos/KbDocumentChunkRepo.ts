@@ -2,21 +2,6 @@ import { Prisma, KbDocumentChunk } from "../schema";
 import { prisma } from "../client";
 import { DocumentChunk } from "@cofly-ai/interfaces";
 
-// Error types
-export class ChunkNotFoundError extends Error {
-  constructor(message = "文档块未找到") {
-    super(message);
-    this.name = "ChunkNotFoundError";
-  }
-}
-
-export class ChunkExistsError extends Error {
-  constructor(message = "文档块已存在") {
-    super(message);
-    this.name = "ChunkExistsError";
-  }
-}
-
 // Types for chunk operations
 export interface CreateChunkInput {
   id: string;

@@ -2,21 +2,6 @@ import { Prisma, KbDocument } from "../schema";
 import { prisma } from "../client";
 import { DocumentMetadata, DocumentSortDirection, DocumentStatus, SupportedFileType } from "@cofly-ai/interfaces";
 
-// Error types
-export class DocumentNotFoundError extends Error {
-    constructor(message = "文档未找到") {
-        super(message);
-        this.name = "DocumentNotFoundError";
-    }
-}
-
-export class DocumentExistsError extends Error {
-    constructor(message = "文档已存在") {
-        super(message);
-        this.name = "DocumentExistsError";
-    }
-}
-
 // Types for document operations
 export interface CreateDocumentInput {
     id: string;

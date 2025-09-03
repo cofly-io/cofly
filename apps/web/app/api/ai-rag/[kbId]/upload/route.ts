@@ -6,7 +6,7 @@ import {
     logUploadError,
     logUploadSuccess
 } from '@/middleware/upload-middleware';
-import { knowledgeBaseManager } from "@repo/knowledge-base";
+import { knowledgeBaseManager } from "@repo/common";
 
 export async function POST(
     request: NextRequest,
@@ -32,7 +32,14 @@ export async function POST(
 
     try {
         // 验证上传请求
-        const kb = await knowledgeBaseManager.get(kbId);
+        const kb = await knowledgeBaseManager.mediator?.get(kbId);
+        if(!kb) {
+            return NextResponse.json({
+                success: false,
+                error: 'Knowledge base not found id: ' + kbId
+            }, { status: 400 });
+        }
+
         const validation = await validateUploadRequest(request);
         if (!validation.isValid || !validation.formData) {
             if (validation.error) {

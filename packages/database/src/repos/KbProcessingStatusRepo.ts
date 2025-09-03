@@ -2,14 +2,6 @@ import { Prisma } from "../schema";
 import { prisma } from "../client";
 import { DocumentProcessingStatus, DocumentStatus, ErrorType, AppError } from "@cofly-ai/interfaces";
 
-// Error types
-export class ProcessingStatusNotFoundError extends Error {
-  constructor(message = "处理状态未找到") {
-    super(message);
-    this.name = "ProcessingStatusNotFoundError";
-  }
-}
-
 // Types for processing status operations
 export interface CreateProcessingStatusInput {
   documentId: string;

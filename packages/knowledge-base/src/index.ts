@@ -1,2 +1,4 @@
-export * from './KnowledgeBaseManager'
+export {
+    KnowledgeBaseLoader
+} from './KnowledgeBaseManager'
 export * from './types'

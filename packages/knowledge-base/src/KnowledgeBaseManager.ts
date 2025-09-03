@@ -4,19 +4,20 @@ import {
     credentialManager,
     DocumentMetadata,
     DocumentProcessingStatus,
+    DocumentSearchQuery,
+    DocumentSearchResponse,
+    IKnowledgeBaseInstance,
+    IKnowledgeBaseLoader,
     KnowledgeBaseHealth,
     KnowledgeBaseMetadata,
-    ModelSeries
+    ModelSeries,
+    ProcessingResult
 } from "@repo/common"
 import { DefaultConfig } from "./Constants";
 import {
-    DocumentSearchQuery,
-    DocumentSearchResponse,
     EmbeddingConfig,
     EmbeddingService,
-    IKnowledgeBaseInstance,
     KnowledgeBase,
-    ProcessingResult,
     ProcessorConfig,
     RerankerConfig,
     VectorConfig,
@@ -131,7 +132,7 @@ export class KnowledgeBaseInstance implements IKnowledgeBaseInstance {
     }
 }
 
-export class KnowledgeBaseManager {
+export class KnowledgeBaseLoader implements IKnowledgeBaseLoader {
 
     private kbs: Map<string, KnowledgeBaseInstance> = new Map();
 
@@ -281,4 +282,4 @@ export class KnowledgeBaseManager {
     }
 }
 
-export const knowledgeBaseManager = new KnowledgeBaseManager();
+export const knowledgeBaseLoader = new KnowledgeBaseLoader();

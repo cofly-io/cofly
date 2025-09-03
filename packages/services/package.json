@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@repo/common": "workspace:*",
-    "@repo/database": "workspace:*"
+    "@repo/database": "workspace:*",
+    "@repo/knowledge-base": "workspace:*"
   }
 }

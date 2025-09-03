@@ -809,16 +809,4 @@ export interface IExecuteOptions {
     state?: Map<string, any>;
     step?: any;
     publish?: any;
-
-    /**
-     * 连接配置映射，用于获取连接实例的配置信息
-     * key为连接实例ID，value为连接配置信息
-     */
-    connectConfigs?: Record<string, {
-        id: string;
-        name: string;
-        ctype: string;
-        nodeinfo: Record<string, any>;
-        description?: string;
-    }>;
 }

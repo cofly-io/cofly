@@ -1,5 +1,9 @@
 import { AppError, ErrorType } from "./SystemInterfaces";
 
+export const KnowledgeBaseDef = {
+    identifier: "IKnowledgeBaseLoader"
+}
+
 // 文档状态枚举
 export enum DocumentStatus {
     UPLOADING = 'uploading',
@@ -111,4 +115,107 @@ export interface DocumentBatchOperationResult {
 export interface KnowledgeBaseHealth {
     metadata: KnowledgeBaseMetadata;
     stats: Record<DocumentStatus, number>;
+}
+
+export interface GetDocumentsOptions {
+    limit?: number;
+    offset?: number;
+    status?: DocumentStatus;
+    fileType?: SupportedFileType;
+    sortBy?: DocumentSortDirection;
+    sortOrder?: 'asc' | 'desc';
+}
+
+export interface DocumentsResult {
+    documents: DocumentMetadata[];
+    total: number;
+}
+
+/**
+ * 处理步骤枚举
+ */
+export enum ProcessingStep {
+    VALIDATION = 'validation',
+    TEXT_EXTRACTION = 'text_extraction',
+    TEXT_CHUNKING = 'text_chunking',
+    VECTORIZATION = 'vectorization',
+    VECTOR_STORAGE = 'vector_stokbe',
+    METADATA_UPDATE = 'metadata_update',
+    COMPLETION = 'completion'
+}
+
+/**
+ * 处理结果接口
+ */
+export interface ProcessingResult {
+    success: boolean;
+    documentId: string;
+    status: DocumentStatus;
+    chunkCount: number;
+    processingTime: number;
+    error?: AppError;
+}
+
+export type ProcessedDocumentMetadata = Omit<DocumentMetadata, 'kbId'>
+
+// 搜索结果接口
+export interface DocumentSearchResult {
+    id: string;
+    score: number;
+    metadata: ProcessedDocumentMetadata;
+    chunkIndex?: number;
+    chunk?: DocumentChunk;
+    highlightedContent?: string;
+}
+
+// 搜索查询接口
+export interface DocumentSearchQuery {
+    query: string;
+    topK?: number;
+    threshold?: number;
+    filters?: DocumentSearchFilters;
+}
+
+// 搜索过滤器
+export interface DocumentSearchFilters {
+    fileTypes?: SupportedFileType[];
+    dateRange?: {
+        start: Date;
+        end: Date;
+    };
+    fileSizeRange?: {
+        min: number;
+        max: number;
+    };
+}
+
+// 搜索响应接口
+export interface DocumentSearchResponse {
+    results: DocumentSearchResult[];
+    totalCount: number;
+    queryTime: number;
+    query: string;
+    filters?: DocumentSearchFilters;
+    error?: AppError;
+}
+
+export interface IKnowledgeBaseLoader {
+    list() : Promise<KnowledgeBaseMetadata[]>
+    get(kbId: string) : Promise<IKnowledgeBaseInstance>
+}
+
+export interface IKnowledgeBaseInstance {
+    getDocuments(options: GetDocumentsOptions): Promise<DocumentsResult>;
+
+    getDocumentById(docId: string): Promise<DocumentMetadata | null>;
+
+    processFile(file: File): Promise<ProcessingResult>;
+
+    getProcessingStatus(docId: string): Promise<DocumentProcessingStatus | null>;
+
+    searchDocuments(searchQuery: DocumentSearchQuery): Promise<DocumentSearchResponse>;
+
+    deleteDocument(docId: string): Promise<boolean>
+
+    deleteDocumentChunk(chunkId: string): Promise<boolean>
 }

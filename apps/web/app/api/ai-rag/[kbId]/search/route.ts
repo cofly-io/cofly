@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { knowledgeBaseManager } from "@repo/knowledge-base";
+import { knowledgeBaseManager } from "@repo/common";
 
 /**
  * 获取知识库文档列表
@@ -19,7 +19,7 @@ export async function GET(
             throw new Error("搜索内容不能为空");
         }
 
-        const kb = await knowledgeBaseManager.get(kbId);
+        const kb = await knowledgeBaseManager.mediator?.get(kbId);
         if(!kb) {
             throw new Error("找不到知识库：" + kbId);
         }

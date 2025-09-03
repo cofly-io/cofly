@@ -5,11 +5,12 @@ import {
     DocumentProcessingStatus,
     VectorData,
     AppError,
-    ErrorType
+    ErrorType,
+    ProcessingResult
 } from '@repo/common';
 import { prisma } from '@repo/database';
 import { DocumentProcessor } from './DocumentProcessor';
-import { EmbeddingService, ProcessingResult, ProcessingStep, VectorService } from "./types";
+import { EmbeddingService, ProcessingStep, VectorService } from "./types";
 import { KnowledgeBaseInstance } from "./KnowledgeBaseManager";
 
 /**

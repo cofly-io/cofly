@@ -11,6 +11,7 @@ export {
     AbstractConnectLoader,
     NodeExecutionStatus,
     ConnectCategory,
+    KnowledgeBaseDef,
     DocumentStatus,
     DocumentSortDirection,
     ModelSeries
@@ -271,11 +272,18 @@ export type {
     // 知识库相关类型
     DocumentChunk,
     DocumentMetadata,
-
     DocumentProcessingStatus,
     DocumentBatchOperation,
     DocumentBatchOperationResult,
+    DocumentSearchQuery,
+    DocumentSearchFilters,
+    DocumentSearchResult,
+    DocumentSearchResponse,
+    ProcessingResult,
+    ProcessedDocumentMetadata,
     VectorData,
     KnowledgeBaseMetadata,
     KnowledgeBaseHealth,
+    IKnowledgeBaseLoader,
+    IKnowledgeBaseInstance
 } from "@cofly-ai/interfaces";
