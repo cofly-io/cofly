@@ -8,8 +8,8 @@ const Container = styled.div`
 `;
 
 const FiltersCard = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#ffffff'};
+  border: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : '#e5e7eb'};
   border-radius: 0.5rem;
   padding: 1rem;
 `;
@@ -51,14 +51,14 @@ const SearchInput = styled.input`
   display: block;
   width: 100%;
   padding: 0.5rem 0.75rem 0.5rem 2.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : '#d1d5db'};
   border-radius: 0.375rem;
   line-height: 1.25;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#ffffff'};
+  color: ${({ theme }) => theme.mode === 'dark' ? 'white' : '#1f2937'};
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : '#6b7280'};
   }
 
   &:focus {
@@ -68,7 +68,7 @@ const SearchInput = styled.input`
   }
 
   &:focus::placeholder {
-    color: rgba(255, 255, 255, 0.3);
+    color: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.3)' : '#9ca3af'};
   }
 `;
 
@@ -81,15 +81,15 @@ const FilterSelect = styled.select`
   width: 100%;
   padding:5px;
   //padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : '#d1d5db'};
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#ffffff'};
+  color: ${({ theme }) => theme.mode === 'dark' ? 'white' : '#1f2937'};
   cursor: pointer;
 
   option {
-    background: #0f172a;
-    color: white;
+    background: ${({ theme }) => theme.mode === 'dark' ? '#0f172a' : '#ffffff'};
+    color: ${({ theme }) => theme.mode === 'dark' ? 'white' : '#1f2937'};
   }
 
   &:focus {
@@ -103,17 +103,17 @@ const SortButton = styled.button`
   display: inline-flex;
   align-items: center;
   padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : '#d1d5db'};
   border-radius: 0.375rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#ffffff'};
   font-size: 0.875rem;
   font-weight: 500;
-  color: white;
+  color: ${({ theme }) => theme.mode === 'dark' ? 'white' : '#1f2937'};
   cursor: pointer;
   transition: background-color 0.15s ease-in-out;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : '#f9fafb'};
   }
 
   &:focus {
@@ -132,17 +132,17 @@ const ClearFiltersButton = styled.button`
   display: inline-flex;
   align-items: center;
   padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : '#d1d5db'};
   border-radius: 0.375rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#ffffff'};
   font-size: 0.875rem;
   font-weight: 500;
-  color: white;
+  color: ${({ theme }) => theme.mode === 'dark' ? 'white' : '#1f2937'};
   cursor: pointer;
   transition: background-color 0.15s ease-in-out;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : '#f9fafb'};
   }
 
   &:focus {

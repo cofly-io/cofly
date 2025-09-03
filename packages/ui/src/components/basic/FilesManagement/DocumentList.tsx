@@ -12,6 +12,8 @@ import {
   LoadingContainer,
   LoadingSpinner,
   LoadingText,
+  SelectText,
+  TipText,
   DocumentTable,
   DocumentTableHeader,
   DocumentTableBody,
@@ -39,6 +41,10 @@ import {
   GridActionGroup,
   GridActionButton
 } from './styles';
+import { IoIosSquare } from "react-icons/io";
+
+import { BiLogoMicrosoft } from "react-icons/bi";
+
 
 interface DocumentListProps {
   documents: DocumentMetadata[];
@@ -101,14 +107,14 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                 }}
                 onChange={handleSelectAllChange}
               />
-              <label style={{ marginLeft: '8px', fontSize: '14px', color: 'rgba(255, 255, 255, 0.8)' }}>
+              <SelectText>
                 {isAllSelected ? '取消全选' : '全选'}
                 {selectedDocuments.size > 0 && (
-                  <span style={{ marginLeft: '4px', color: '#60a5fa' }}>
+                  <span style={{ marginLeft: '4px'}}>
                     ({selectedDocuments.size} 个已选择)
                   </span>
                 )}
-              </label>
+              </SelectText>
             </div>
 
             {/* 文档统计 */}
@@ -124,18 +130,20 @@ export const DocumentList: React.FC<DocumentListProps> = ({
               onClick={() => setViewMode('table')}
               title="表格视图"
             >
-              <svg fill="currentColor" viewBox="0 0 20 20">
+              {/* <svg fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clipRule="evenodd" />
-              </svg>
+              </svg> */}
+              <IoIosSquare />
             </ViewModeButton>
             <ViewModeButton
               $active={viewMode === 'grid'}
               onClick={() => setViewMode('grid')}
               title="网格视图"
             >
-              <svg fill="currentColor" viewBox="0 0 20 20">
+              {/* <svg fill="currentColor" viewBox="0 0 20 20">
                 <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
+              </svg> */}
+              <BiLogoMicrosoft />
             </ViewModeButton>
           </ViewModeButtons>
         </DocumentListHeaderRow>
@@ -143,9 +151,9 @@ export const DocumentList: React.FC<DocumentListProps> = ({
 
       {/* 文档列表内容 */}
       {documents.length === 0 ? (
-        <div style={{ padding: '48px',fontSize:'12px', textAlign: 'center', color: 'rgba(255, 255, 255, 0.7)' }}>
+        <TipText>
           暂无文档数据
-        </div>
+        </TipText>
       ) : viewMode === 'table' ? (
         /* 表格视图 */
         <DocumentTable>
@@ -160,7 +168,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
             />
             <HeaderCell $width="60px"></HeaderCell>
             <HeaderCell>文档信息</HeaderCell>
-            <HeaderCell $width="100px">状态</HeaderCell>
+            <HeaderCell $width="120px">状态</HeaderCell>
             <HeaderCell $width="80px">大小</HeaderCell>
             <HeaderCell $width="200px">上传时间</HeaderCell>
             <HeaderCell $width="165px">操作</HeaderCell>
@@ -336,12 +344,12 @@ const DocumentListItem: React.FC<DocumentListItemProps> = ({
         </HeaderCell>
 
         {/* 大小列 */}
-        <HeaderCell $width="80px" style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)' }}>
+        <HeaderCell $width="80px">
           {formatFileSize(document.fileSize)}
         </HeaderCell>
 
         {/* 上传时间列 */}
-        <HeaderCell $width="200px" style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)' }}>
+        <HeaderCell $width="200px">
           {formatFilesDate(document.uploadTime)}
         </HeaderCell>
 

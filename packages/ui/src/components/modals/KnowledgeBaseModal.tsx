@@ -32,7 +32,7 @@ const CardsContainer = styled.div`
 `;
 
 const Card = styled.div`
-  background: ${({ theme }) => theme.mode === 'dark' ? '#1f293790' : '#ffffff'};
+  background: ${({ theme }) => theme.mode === 'dark' ? '#1f293790' : '#f5f5f5'};
   border: 1px solid ${({ theme }) => theme.mode === 'dark' ? '#374151' : '#e5e7eb'};
   border-radius: 12px;
   padding: 20px;
@@ -81,7 +81,7 @@ const FixedHeightTabContent = styled.div`
 
 const AdvancedSettingsContainer = styled.div`
   padding: 20px;
-  background: ${({ theme }) => theme.mode === 'dark' ? '#1f293790' : '#f8f9fa'};
+  background: ${({ theme }) => theme.mode === 'dark' ? '#1f293790' : '#f5f5f5'};
   border-radius: 8px;
   border: 1px solid ${({ theme }) => theme.mode === 'dark' ? '#374151' : '#d1d5db'};
 `;
@@ -655,9 +655,10 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
                                                     把文字(比如一个词、一句话)转换成一系列的数字，生成的那串数字就叫“向量”，维度越高，Tokend消耗越大，建议：512-2048。                                               </ParameterDescription>
                                                 <AdvancedFormInput
                                                     type="number"
+                                                    // step="any"
                                                     placeholder="留空则表示不设置"
                                                     value={formData.embeddingDimension}
-                                                    onChange={(e) => handleInputChange('embeddingDimension', e.target.value ? parseInt(e.target.value) : '')}
+                                                    onChange={(e) => handleInputChange('embeddingDimension', e.target.value ? parseFloat(e.target.value) : '')}
                                                     style={{ marginTop: '2px' }}
                                                 />
                                             </PremiumFormField>

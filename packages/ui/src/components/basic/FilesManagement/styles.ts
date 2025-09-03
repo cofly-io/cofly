@@ -16,7 +16,7 @@ export const FilesManagementContainer = styled.div`
 `;
 
 export const FilesManagementModal = styled.div`
-  background: ${({ theme }) => theme.mode === 'dark' 
+  background: ${({ theme }) => theme.mode === 'dark'
     ? `linear-gradient(135deg,
        rgb(43 45 109 / 95%) 0%, 
        rgb(69 35 105 / 95%) 50%, 
@@ -102,8 +102,8 @@ export const FilesManagementContent = styled.div`
 
 // 文件上传区域样式
 export const UploadArea = styled.div<{ $isDragOver: boolean }>`
-  border: 2px dashed ${props => props.$isDragOver 
-    ? 'rgba(255, 255, 255, 0.6)' 
+  border: 2px dashed ${props => props.$isDragOver
+    ? 'rgba(255, 255, 255, 0.6)'
     : 'rgba(255, 255, 255, 0.3)'
   };
   border-radius: 8px;
@@ -111,8 +111,8 @@ export const UploadArea = styled.div<{ $isDragOver: boolean }>`
   text-align: center;
   transition: all 0.2s ease;
   cursor: pointer;
-  background: ${props => props.$isDragOver 
-    ? 'rgba(255, 255, 255, 0.1)' 
+  background: ${props => props.$isDragOver
+    ? 'rgba(255, 255, 255, 0.1)'
     : 'transparent'
   };
 
@@ -594,7 +594,7 @@ export const DocumentListCard = styled.div`
 `;
 
 export const DocumentListHeader = styled.div`
-  padding: 12px 20px;
+  padding: 8px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.02);
 `;
@@ -613,7 +613,7 @@ export const DocumentListControls = styled.div`
 
 export const DocumentListStats = styled.div`
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+  color: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.7)' : '#6b7280'};  
 `;
 
 export const ViewModeButtons = styled.div`
@@ -624,15 +624,20 @@ export const ViewModeButtons = styled.div`
 
 export const ViewModeButton = styled.button<{ $active: boolean }>`
   padding: 4px 4px 0px 4px;
-  background: ${props => props.$active ? 'rgba(59, 130, 246, 0.2)' : 'transparent'};
-  border: 1px solid ${props => props.$active ? 'rgba(59, 130, 246, 0.4)' : 'rgba(255, 255, 255, 0.2)'};
+  background: ${props => props.$active
+    ? (props.theme.mode === 'dark' ? '#1e293b' : '#f5f5f5')
+    : (props.theme.mode === 'dark' ? '#273444' : '#f5f5f5')};
+  border: 1px solid ${props => props.$active
+    ? (props.theme.mode === 'dark' ? '#60a5fa' : '#24c5bf')
+    : (props.theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.6)' : '#c5c5c5')};
   border-radius: 4px;
-  color: ${props => props.$active ? '#60a5fa' : 'rgba(255, 255, 255, 0.6)'};
+  color: ${props => props.$active
+    ? (props.theme.mode === 'dark' ? '#60a5fa' : '#24c5bf')
+    : (props.theme.mode === 'dark' ? '#939393' : '#bfbfbf')};
   cursor: pointer;
   transition: all 0.2s ease;
-
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: #bfbfbf;
     color: white;
   }
 
@@ -640,6 +645,22 @@ export const ViewModeButton = styled.button<{ $active: boolean }>`
     width: 20px;
     height: 20px;
   }
+`;
+
+export const SelectText = styled.label`
+  margin-left: 8px;
+  font-size: 14px;
+  color: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.8)' : '#6b7280'};  
+  span {
+    color: ${({ theme }) => theme.mode === 'dark' ? '#60a5fa' : '#3b82f6'};
+  }
+`;
+
+export const TipText = styled.div`
+  padding: 8px;
+  font-size:12px; 
+  text-align: center;
+  color: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.8)' : '#6b7280'};
 `;
 
 export const LoadingContainer = styled.div`
@@ -676,10 +697,10 @@ export const LoadingText = styled.p`
 
 // 批量操作样式
 export const BatchOperationsCard = styled.div`
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(18, 244, 252, 0.1)'};  
+  border:1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(9, 236, 77, 0.3)'};  
   border-radius: 8px;
-  padding: 16px;
+  padding: 8px 12px 4px 12px;
 `;
 
 export const BatchOperationsHeader = styled.div`
@@ -693,7 +714,7 @@ export const BatchOperationsInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(255, 255, 255, 0.9);
+  color: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.9)' : '#6b7280'};  
   font-size: 14px;
   font-weight: 500;
 `;
@@ -712,7 +733,7 @@ export const BatchActionButton = styled.button`
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
-  color: white;
+  color: ${({ theme }) => theme.mode === 'dark' ? 'white' : '#6b7280'};  
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -739,17 +760,21 @@ export const PaginationWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.5)' : '#989c9b30'};  
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 12px 16px;
 `;
 
 export const PaginationInfo = styled.div`
-  color: rgba(255, 255, 255, 0.7);
+  color: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.7)' : '#6b7280'};  
   font-size: 14px;
 `;
 
+export const DisplayPerPage = styled.div`
+  fontSize: '14px', 
+  color:${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.7)' : '#6b7280'}; 
+`;
 export const PaginationControls = styled.div`
   display: flex;
   align-items: center;
@@ -762,10 +787,14 @@ export const PaginationButton = styled.button<{ $disabled?: boolean }>`
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: ${props => props.$disabled ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.1)'};
+  background: ${props => props.$disabled
+    ? (props.theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#5dcfa980')
+    : (props.theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#5dcfa9')};
   border: 1px solid ${props => props.$disabled ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)'};
   border-radius: 6px;
-  color: ${props => props.$disabled ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.8)'};
+  color:${props => props.$disabled
+    ? (props.theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.3)' : '#9c9c9cff')
+    : (props.theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : '#2a472aff')}; 
   cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
   transition: all 0.2s ease;
 
@@ -787,25 +816,33 @@ export const PageNumberButton = styled.button<{ $active?: boolean }>`
   min-width: 32px;
   height: 32px;
   padding: 0 8px;
-  background: ${props => props.$active ? 'rgba(59, 130, 246, 0.3)' : 'rgba(255, 255, 255, 0.1)'};
-  border: 1px solid ${props => props.$active ? 'rgba(59, 130, 246, 0.5)' : 'rgba(255, 255, 255, 0.2)'};
+  background: ${props => props.$active
+    ? (props.theme.mode === 'dark' ? 'rgba(59, 130, 246, 0.5)' : 'rgba(14, 231, 123, 0.5)')
+    : (props.theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(14, 231, 123, 0.1)')}; 
+  border: 1px solid ${props => props.$active
+    ? (props.theme.mode === 'dark' ? 'rgba(59, 130, 246, 0.5)' : 'rgba(14, 231, 123, 0.5)')
+    : (props.theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.2)')}; 
   border-radius: 6px;
-  color: ${props => props.$active ? '#60a5fa' : 'rgba(255, 255, 255, 0.8)'};
+  color:  ${props => props.$active
+    ? (props.theme.mode === 'dark' ? '60a5fa' : '#2a2a2a90')
+    : (props.theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.8)')};     
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${props => props.$active ? 'rgba(59, 130, 246, 0.4)' : 'rgba(255, 255, 255, 0.2)'};
+    background: : ${props => props.$active
+    ? (props.theme.mode === 'dark' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(14, 231, 123, 0.4)')
+    : (props.theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.2)')};     
     color: white;
   }
 `;
 
 export const PageSizeSelect = styled.select`
-  background: rgba(255, 255, 255, 0.1);
+  background: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.1)' : '#bfbfbf90'};  
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
-  color: white;
+  color:${({ theme }) => theme.mode === 'dark' ? 'white' : '#2a2a2a'};
   padding: 6px 8px;
   font-size: 14px;
   cursor: pointer;
@@ -826,7 +863,7 @@ export const DocumentItem = styled.div<{ $selected?: boolean }>`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(24, 250, 239, 0.1)'};  
   }
 
   &:last-child {
@@ -867,7 +904,7 @@ export const DocumentInfo = styled.div`
 `;
 
 export const DocumentName = styled.div`
-  color: white;
+  color: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.8)' : '#6b7280'};
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 4px;
@@ -881,7 +918,7 @@ export const DocumentMeta = styled.div`
   align-items: center;
   gap: 12px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.8)' : '#6b7280'};
 `;
 
 export const DocumentStatus = styled.span<{ $status: string }>`
@@ -942,15 +979,15 @@ export const DocumentActionButton = styled.button`
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: rgba(255, 255, 255, 0.1);
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#1cc5c590'}; 
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
   color: rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : '#1cc5c550'}; 
     color: white;
   }
 
@@ -964,12 +1001,12 @@ export const DocumentActionButton = styled.button`
 export const DocumentTableHeader = styled.div`
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  padding: 8px 16px;
   background: rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 12px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
+  color: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.8)' : '#6b7280'};
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
@@ -990,6 +1027,8 @@ export const HeaderCell = styled.div<{ $width?: string }>`
   padding-right: 12px;
   display: flex;
   align-items: center;
+  font-size: 14px; 
+  color: ${({ theme }) => theme.mode === 'dark' ? '#rgba(255, 255, 255, 0.7)' : '#6b7280'};  
 `;
 
 // 表格容器

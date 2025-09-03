@@ -70,7 +70,10 @@ const UploadButtons = styled.div`
 
 const UploadButton = styled.button<{ theme: Theme }>`
   padding: 0.5rem 1rem;
-  background-color: #3b82f6;
+  background: ${props => props.theme.mode === 'dark'
+    ? '#3b82f6'
+    : '#1cc5c5'
+  };
   color: white;
   border: none;
   border-radius: 0.375rem;

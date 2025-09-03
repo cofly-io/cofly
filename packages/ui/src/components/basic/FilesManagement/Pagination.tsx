@@ -6,7 +6,8 @@ import {
   PaginationControls,
   PaginationButton,
   PageNumberButton,
-  PageSizeSelect
+  PageSizeSelect,
+  DisplayPerPage
 } from './styles';
 
 interface FilesPaginationProps {
@@ -104,9 +105,9 @@ export const FilesPagination: React.FC<FilesPaginationProps> = ({
 
         {/* 每页显示数量选择 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <label style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)' }}>
+          <DisplayPerPage>
             每页显示:
-          </label>
+          </DisplayPerPage>
           <PageSizeSelect
             value={limit}
             onChange={handleLimitChange}
