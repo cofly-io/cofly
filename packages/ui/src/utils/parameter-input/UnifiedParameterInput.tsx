@@ -1168,9 +1168,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
       case 'collection':
         // Collection 类型：渲染一个包含多个子字段的容器
         if (variant !== 'node') return null;
-
         const collectionFields = field.options?.filter(isUnifiedParameterField) || [];
-
         return (
           <CollectionContainer $variant={variant}>
             <CollectionHeader $variant={variant}>

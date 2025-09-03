@@ -17,7 +17,7 @@ const SliderTrack = styled.div`
   position: relative;
   width: 100%;
   height: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#bfbfbf'};
   border-radius: 2px;
   cursor: pointer;
 `;
@@ -58,7 +58,7 @@ const SliderThumb = styled.div<{ $percentage: number; $isDragging: boolean }>`
 const ValueDisplay = styled.div`
   margin-left: 12px;
   min-width: 40px;
-  color: rgba(255, 255, 255, 0.9);
+  color: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.9)' : '#374151'};
   font-size: 12px;
   font-weight: 500;
 `;

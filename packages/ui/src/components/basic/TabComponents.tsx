@@ -51,7 +51,7 @@ export const TabButton = styled.button<{ $active?: boolean }>`
   &:hover:not([disabled]) {
     color: ${({ $active, theme }) => $active
       ? '#C2BFD0'
-      : (theme.mode === 'dark' ? '#94a3b8' : '#64748b')
+      : (theme.mode === 'dark' ? '#94a3b8' : '#ededed')
     };
 
 

@@ -26,9 +26,9 @@ const CardsContainer = styled.div`
   gap: 16px; /* 稍微减小间距 */
   margin-bottom: 24px;
   padding: 0 16px;
-  width: 100%; /* 确保容器宽度100% */
-  min-width: 1200px; /* 设置最小宽度确保四列布局 */
-  overflow-x: auto; /* 如果屏幕太小允许水平滚动 */
+//   width: 100%; /* 确保容器宽度100% */
+//   min-width: 1200px; /* 设置最小宽度确保四列布局 */
+//   overflow-x: auto; /* 如果屏幕太小允许水平滚动 */
 `;
 
 const Card = styled.div`
@@ -37,7 +37,7 @@ const Card = styled.div`
   border-radius: 12px;
   padding: 20px;
   height: 320px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0, 0, 0, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)'};
   min-width: 280px; /* 设置卡片最小宽度 */
 `;
 
@@ -67,8 +67,6 @@ const Label = styled.label`
   color: ${({ theme }) => theme.mode === 'dark' ? '#f9fafb' : '#374151'};
 `;
 
-
-
 const TabNavContainer = styled.div`
   display: flex;
   border-bottom: 1px solid ${({ theme }) => theme.mode === 'dark' ? '#374151' : '#e5e7eb'};
@@ -77,17 +75,16 @@ const TabNavContainer = styled.div`
 `;
 
 const FixedHeightTabContent = styled.div`
-  min-height: 360px;
+   min-height: 360px;
+   padding:0px 20px;
 `;
 
 const AdvancedSettingsContainer = styled.div`
   padding: 20px;
-  background: ${({ theme }) => theme.mode === 'dark' ? '#1f293790' : '#f9fafb'};
+  background: ${({ theme }) => theme.mode === 'dark' ? '#1f293790' : '#f8f9fa'};
   border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.mode === 'dark' ? '#374151' : '#e5e7eb'};
+  border: 1px solid ${({ theme }) => theme.mode === 'dark' ? '#374151' : '#d1d5db'};
 `;
-
-
 
 const ParameterDescription = styled.p`
   margin: 4px 0 8px 0;
@@ -96,15 +93,46 @@ const ParameterDescription = styled.p`
   line-height: 1.4;
 `;
 
+const ThemedInputSelect = styled.div`
+  .input-select {
+    width: 100%;   
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#ffffff'};
+    border: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : '#d1d5db'};
+    color: ${({ theme }) => theme.mode === 'dark' ? '#f9fafb' : '#1f2937'};
+    font-size: 13px;
+  }
+`;
+
+// Themed components specifically for advanced tab
+const AdvancedFormInput = styled(PremiumFormInput)`
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#ffffff'} !important;
+  border: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : '#d1d5db'} !important;
+  color: ${({ theme }) => theme.mode === 'dark' ? '#f9fafb' : '#1f2937'} !important;
+  
+  &::placeholder {
+    color: ${({ theme }) => theme.mode === 'dark' ? '#9ca3af' : '#6b7280'} !important;
+  }
+  
+  &:focus {
+    border-color: ${({ theme }) => theme.mode === 'dark' ? 'rgba(59, 130, 246, 0.6)' : '#3b82f6'} !important;
+    outline: 0;
+    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : '0 0 0 3px rgba(59, 130, 246, 0.1)'} !important;
+  }
+`;
+
+const AdvancedFormLabel = styled(PremiumFormLabel)`
+  color: ${({ theme }) => theme.mode === 'dark' ? '#f9fafb' : '#374151'} !important;
+`;
+
 const PageTip = styled.div`
-    background: #ffd11830;
-    border: 1px solid #f59e0b30;
+    background: ${({ theme }) => theme.mode === 'dark' ? '#ffd11830' : '#fef3c7'};
+    border: 1px solid ${({ theme }) => theme.mode === 'dark' ? '#f59e0b30' : '#f59e0b50'};
     padding: 8px;
     display: flex;
     font-size:12px;
     font-weight:400;
     margin-top: 16px;
-    color:#d9d9d9;
+    color: ${({ theme }) => theme.mode === 'dark' ? '#d9d9d9' : '#92400e'};
 `;
 
 interface ConnectConfig {
@@ -443,7 +471,7 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
                             </TabButton>
                         </TabNavContainer>
 
-                        <FixedHeightTabContent style={{ overflowX: 'auto' }}>
+                        <FixedHeightTabContent>
                             {activeTab === 'general' && (
                                 <>
                                     {/* 四列卡片布局 */}
@@ -491,22 +519,16 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
 
                                             <FormGroup>
                                                 <Label>模型选择</Label>
-                                                <InputSelect
-                                                    options={embeddingModels.map(model => model.value)}
-                                                    value={formData.embeddingModel}
-                                                    onChange={(value) => handleInputChange('embeddingModel', value)}
-                                                    //placeholder="请先选择连接配置"
-                                                    disabled={!formData.embeddingConnectId || loading}
-                                                    style={{
-                                                        width: '100%',
-                                                        padding: '16px 12px',
-                                                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                                                        borderRadius: '4px',
-                                                        background: 'rgba(255, 255, 255, 0.08)',
-                                                        color: 'inherit',
-                                                        fontSize: '13px',
-                                                    }}
-                                                />
+                                                <ThemedInputSelect>
+                                                    <InputSelect
+                                                        options={embeddingModels.map(model => model.value)}
+                                                        value={formData.embeddingModel}
+                                                        onChange={(value) => handleInputChange('embeddingModel', value)}
+                                                        //placeholder="请先选择连接配置"
+                                                        disabled={!formData.embeddingConnectId || loading}
+                                                        className="input-select"
+                                                    />
+                                                </ThemedInputSelect>
                                             </FormGroup>
                                         </Card>
 
@@ -555,22 +577,16 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
 
                                             <FormGroup>
                                                 <Label>模型选择</Label>
-                                                <InputSelect
-                                                    options={rerankModels.map(model => model.value)}
-                                                    value={formData.rerankModel}
-                                                    onChange={(value) => handleInputChange('rerankModel', value)}
-                                                    placeholder="请先选择连接配置"
-                                                    disabled={!formData.rerankerConnectId || loading}
-                                                    style={{
-                                                        width: '100%',
-                                                        padding: '16px 12px',
-                                                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                                                        borderRadius: '4px',
-                                                        background: 'rgba(255, 255, 255, 0.08)',
-                                                        color: 'inherit',
-                                                        fontSize: '13px',
-                                                    }}
-                                                />
+                                                <ThemedInputSelect>
+                                                    <InputSelect
+                                                        options={rerankModels.map(model => model.value)}
+                                                        value={formData.rerankModel}
+                                                        onChange={(value) => handleInputChange('rerankModel', value)}
+                                                        placeholder="请先选择连接配置"
+                                                        disabled={!formData.rerankerConnectId || loading}
+                                                        className="input-select"
+                                                    />
+                                                </ThemedInputSelect>
                                             </FormGroup>
                                         </Card>
                                     </CardsContainer>
@@ -585,7 +601,7 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
                                 <AdvancedSettingsContainer>
                                     <PremiumFormSection>
                                         <PremiumFormField>
-                                            <PremiumFormLabel>请求文档片段数量</PremiumFormLabel>
+                                            <AdvancedFormLabel>请求文档片段数量</AdvancedFormLabel>
                                             <ParameterDescription>
                                                 控制每次检索时返回的文档片段数量。数量越多，提供的上下文越丰富，但也会增加处理时间和成本。建议根据问题复杂度调整：简单问题用较少片段，复杂问题用较多片段。
                                             </ParameterDescription>
@@ -606,11 +622,11 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
 
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
                                             <PremiumFormField>
-                                                <PremiumFormLabel>分段大小</PremiumFormLabel>
+                                                <AdvancedFormLabel>分段大小</AdvancedFormLabel>
                                                 <ParameterDescription>
                                                     指文档切分后的字符数量。较小的分段匹配更精确但可能丢失上下文；较大的分段匹配精度可能降低。建议范围：500-1500字符。
                                                 </ParameterDescription>
-                                                <PremiumFormInput
+                                                <AdvancedFormInput
                                                     type="number"
                                                     placeholder="数值(建议不超过1000字)"
                                                     value={formData.chunkSize}
@@ -620,11 +636,11 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
                                             </PremiumFormField>
 
                                             <PremiumFormField>
-                                                <PremiumFormLabel>重叠大小</PremiumFormLabel>
+                                                <AdvancedFormLabel>重叠大小</AdvancedFormLabel>
                                                 <ParameterDescription>
                                                     相邻文档分段之间重叠的字符数量，重叠可避免信息被分割到不同段落中，提高检索的连续性。通常设置为分段大小的10-20%。
                                                 </ParameterDescription>
-                                                <PremiumFormInput
+                                                <AdvancedFormInput
                                                     type="number"
                                                     placeholder="数值(建议不超过1000字)"
                                                     value={formData.chunkOverlap}
@@ -634,10 +650,10 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
                                             </PremiumFormField>
 
                                             <PremiumFormField>
-                                                <PremiumFormLabel>嵌入维度</PremiumFormLabel>
+                                                <AdvancedFormLabel>嵌入维度</AdvancedFormLabel>
                                                 <ParameterDescription>
                                                     把文字(比如一个词、一句话)转换成一系列的数字，生成的那串数字就叫“向量”，维度越高，Tokend消耗越大，建议：512-2048。                                               </ParameterDescription>
-                                                <PremiumFormInput
+                                                <AdvancedFormInput
                                                     type="number"
                                                     placeholder="留空则表示不设置"
                                                     value={formData.embeddingDimension}
@@ -647,11 +663,11 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
                                             </PremiumFormField>
 
                                             <PremiumFormField>
-                                                <PremiumFormLabel>匹配度阈值</PremiumFormLabel>
+                                                <AdvancedFormLabel>匹配度阈值</AdvancedFormLabel>
                                                 <ParameterDescription>
                                                     用于筛选检索结果的相似度(0-1)。阈值越高结果越相关但数量少；阈值越低结果越多但相关性可能下降。建议0.6-0.8。
                                                 </ParameterDescription>
-                                                <PremiumFormInput
+                                                <AdvancedFormInput
                                                     type="number"
                                                     placeholder="未设置"
                                                     value={formData.similarityThreshold}
