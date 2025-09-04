@@ -7,6 +7,7 @@ import { prisma } from '@repo/database';
 import { validateSearchQuery } from "./Validation";
 import { EmbeddingService, VectorService } from "./types";
 import { KnowledgeBaseInstance } from "./KnowledgeBaseManager";
+import { extractKeywords } from "./utils/keywordExtractor";
 
 // /**
 //  * 搜索缓存项
@@ -67,7 +68,8 @@ export class SearchFlow {
             // }
 
             // 步骤4: 生成查询向量
-            const queryVector = await this.generateQueryVector(normalizedQuery.query);
+            const keywords = extractKeywords(normalizedQuery.query).join(" ");
+            const queryVector = await this.generateQueryVector(keywords);
 
             // 步骤5: 执行向量搜索
             const vectorResults = await this.performVectorSearch(queryVector, normalizedQuery);
@@ -87,7 +89,7 @@ export class SearchFlow {
             // this.updateSearchStats(Date.now() - startTime, false);
             // this.updatePopularQueries(normalizedQuery.query);
 
-            return this.createSearchResponse(filteredResults, normalizedQuery, Date.now() - startTime);
+            return this.createSearchResponse(filteredResults, normalizedQuery, keywords, Date.now() - startTime);
 
         } catch (error) {
             console.error('Search flow error:', error);
@@ -538,6 +540,7 @@ export class SearchFlow {
     private createSearchResponse(
         results: DocumentSearchResult[],
         searchQuery: DocumentSearchQuery,
+        keywords: string,
         queryTime: number
     ): DocumentSearchResponse {
         return {
@@ -545,6 +548,7 @@ export class SearchFlow {
             totalCount: results.length,
             queryTime,
             query: searchQuery.query,
+            keywords,
             filters: searchQuery.filters
         };
     }

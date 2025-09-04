@@ -1,7 +1,7 @@
 import path from 'path';
-import { AiKb, DocumentsResult, GetDocumentsOptions, prisma } from "@repo/database";
+import { AiKb, DocumentsResult, GetDocumentsOptions, prisma, PrismaClient } from "@repo/database";
 import {
-    credentialManager,
+    credentialManager, DocumentChunk,
     DocumentMetadata,
     DocumentProcessingStatus,
     DocumentSearchQuery,
@@ -81,6 +81,10 @@ export class KnowledgeBaseInstance implements IKnowledgeBaseInstance {
         return this.processor.processFile(file)
     }
 
+    async reprocessDocument(docId: string): Promise<ProcessingResult> {
+        throw new Error("not implement")
+    }
+
     async getProcessingStatus(docId: string): Promise<DocumentProcessingStatus | null> {
         return this.processor.getProcessingStatus(docId);
     }
@@ -94,9 +98,11 @@ export class KnowledgeBaseInstance implements IKnowledgeBaseInstance {
         try {
             return prisma.$transaction(async (tx) => {
 
-                await tx.kbDocumentChunk.deleteChunksByDocumentId(docId);
-                await tx.kbProcessingStatus.deleteProcessingStatusesByDocumentId(docId);
-                await tx.kbDocument.deleteDocument(docId);
+                const client = tx as any as PrismaClient;
+
+                await tx.kbDocumentChunk.deleteChunksByDocumentId(docId, client);
+                await tx.kbProcessingStatus.deleteProcessingStatusesByDocumentId(docId, client);
+                await tx.kbDocument.deleteDocument(docId, client);
 
                 await this.vector.deleteDocumentVectors(this.config.vector.collectionName, docId);
 
@@ -129,6 +135,10 @@ export class KnowledgeBaseInstance implements IKnowledgeBaseInstance {
             console.error(error);
             return false;
         }
+    }
+
+    async modifyDocumentChunk(chunk: DocumentChunk): Promise<boolean> {
+        throw new Error("not implement")
     }
 }
 

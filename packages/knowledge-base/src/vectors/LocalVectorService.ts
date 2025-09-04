@@ -1,9 +1,14 @@
-import { DocumentStatus, SupportedFileType, VectorData } from '@repo/common';
-import { DocumentSearchResult, ProcessedDocumentMetadata, VectorRecord, VectorService } from "../types";
+import {
+    DocumentSearchResult,
+    DocumentStatus,
+    ProcessedDocumentMetadata,
+    SupportedFileType,
+    VectorData
+} from '@repo/common';
+import { VectorRecord, VectorService } from "../types";
 import { KnowledgeBaseInstance } from "../KnowledgeBaseManager";
 import { LocalIndex, IndexItem, MetadataTypes } from 'vectra';
 import * as path from 'path';
-import { DefaultConfig } from "@/Constants";
 
 // 定义向量元数据接口
 interface MetadataType extends Record<string, MetadataTypes> {

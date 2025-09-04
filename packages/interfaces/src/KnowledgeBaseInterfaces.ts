@@ -195,6 +195,7 @@ export interface DocumentSearchResponse {
     totalCount: number;
     queryTime: number;
     query: string;
+    keywords?: string;
     filters?: DocumentSearchFilters;
     error?: AppError;
 }
@@ -211,6 +212,8 @@ export interface IKnowledgeBaseInstance {
 
     processFile(file: File): Promise<ProcessingResult>;
 
+    reprocessDocument(docId: string): Promise<ProcessingResult>;
+
     getProcessingStatus(docId: string): Promise<DocumentProcessingStatus | null>;
 
     searchDocuments(searchQuery: DocumentSearchQuery): Promise<DocumentSearchResponse>;
@@ -218,4 +221,6 @@ export interface IKnowledgeBaseInstance {
     deleteDocument(docId: string): Promise<boolean>
 
     deleteDocumentChunk(chunkId: string): Promise<boolean>
+
+    modifyDocumentChunk(chunk: DocumentChunk): Promise<boolean>
 }

@@ -52,7 +52,8 @@ export default defineConfig({
         'pptx2json',
         'node-pptx-parser',
         'vectra',
-        'gpt-3-encoder'
+        'gpt-3-encoder',
+        'nodejieba',
     ],
     esbuildOptions(options) {
         options.platform = 'node';

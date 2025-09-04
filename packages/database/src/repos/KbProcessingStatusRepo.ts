@@ -1,6 +1,6 @@
-import { Prisma } from "../schema";
-import { prisma } from "../client";
+import { Prisma, PrismaClient } from "../schema";
 import { DocumentProcessingStatus, DocumentStatus, ErrorType, AppError } from "@cofly-ai/interfaces";
+import { prisma } from "../client";
 
 // Types for processing status operations
 export interface CreateProcessingStatusInput {
@@ -40,9 +40,11 @@ export const kbProcessingStatusRepo = Prisma.defineExtension({
         kbProcessingStatus: {
             // 创建处理状态记录
             async createProcessingStatus(
-                status: Omit<CreateProcessingStatusInput, 'endTime'>
+                status: Omit<CreateProcessingStatusInput, 'endTime'>,
+                tx?: PrismaClient
             ): Promise<DocumentProcessingStatus> {
-                const createdStatus = await prisma.kbProcessingStatus.create({
+                const client = tx || prisma;
+                const createdStatus = await client.kbProcessingStatus.create({
                     data: {
                         documentId: status.documentId,
                         status: status.status,
@@ -60,7 +62,8 @@ export const kbProcessingStatusRepo = Prisma.defineExtension({
             // 更新处理状态
             async updateProcessingStatus(
                 documentId: string,
-                updates: UpdateProcessingStatusInput
+                updates: UpdateProcessingStatusInput,
+                tx?: PrismaClient
             ): Promise<void> {
                 const updateData: any = {
                     updatedAt: new Date(),
@@ -87,7 +90,8 @@ export const kbProcessingStatusRepo = Prisma.defineExtension({
                     updateData.endTime = updates.endTime;
                 }
 
-                await prisma.kbProcessingStatus.updateMany({
+                const client = tx || prisma;
+                await client.kbProcessingStatus.updateMany({
                     where: {
                         documentId,
                         endTime: null,
@@ -100,7 +104,8 @@ export const kbProcessingStatusRepo = Prisma.defineExtension({
             async completeProcessingStatus(
                 documentId: string,
                 finalStatus: DocumentStatus,
-                error?: AppError
+                error?: AppError,
+                tx?: PrismaClient
             ): Promise<void> {
                 const endTime = new Date();
 
@@ -119,7 +124,8 @@ export const kbProcessingStatusRepo = Prisma.defineExtension({
                     updateData.errorType = error.type;
                 }
 
-                await prisma.kbProcessingStatus.updateMany({
+                const client = tx || prisma;
+                await client.kbProcessingStatus.updateMany({
                     where: {
                         documentId,
                         endTime: null,
@@ -236,10 +242,11 @@ export const kbProcessingStatusRepo = Prisma.defineExtension({
             },
 
             // 清理旧的处理状态记录
-            async cleanupOldProcessingStatuses(olderThanDays: number = 30): Promise<number> {
+            async cleanupOldProcessingStatuses(olderThanDays: number = 30, tx?: PrismaClient): Promise<number> {
                 const cutoffTime = Date.now() - (olderThanDays * 24 * 60 * 60 * 1000);
 
-                const result = await prisma.kbProcessingStatus.deleteMany({
+                const client = tx || prisma;
+                const result = await client.kbProcessingStatus.deleteMany({
                     where: {
                         endTime: {
                             not: null,
@@ -270,9 +277,10 @@ export const kbProcessingStatusRepo = Prisma.defineExtension({
             },
 
             // 重置处理状态（用于重新处理失败的文档）
-            async resetProcessingStatus(documentId: string): Promise<void> {
+            async resetProcessingStatus(documentId: string, tx?: PrismaClient): Promise<void> {
                 // 结束当前的处理状态
-                await prisma.kbProcessingStatus.updateMany({
+                const client = tx || prisma;
+                await client.kbProcessingStatus.updateMany({
                     where: {
                         documentId,
                         endTime: null,
@@ -292,14 +300,15 @@ export const kbProcessingStatusRepo = Prisma.defineExtension({
                     startTime: BigInt(Date.now()),
                 };
 
-                await this.createProcessingStatus(newStatus);
+                await this.createProcessingStatus(newStatus, tx);
             },
 
             // 批量更新处理进度
-            async batchUpdateProgress(updates: BatchProgressUpdate[]): Promise<void> {
+            async batchUpdateProgress(updates: BatchProgressUpdate[], tx?: PrismaClient): Promise<void> {
                 if (updates.length === 0) return;
 
-                await prisma.$transaction(
+                const client = tx || prisma;
+                await client.$transaction(
                     updates.map(update => {
                         const updateData: any = {
                             progress: update.progress,
@@ -310,7 +319,7 @@ export const kbProcessingStatusRepo = Prisma.defineExtension({
                             updateData.currentStep = update.currentStep;
                         }
 
-                        return prisma.kbProcessingStatus.updateMany({
+                        return client.kbProcessingStatus.updateMany({
                             where: {
                                 documentId: update.documentId,
                                 endTime: null,
@@ -322,8 +331,9 @@ export const kbProcessingStatusRepo = Prisma.defineExtension({
             },
 
             // 删除文档的所有处理状态记录
-            async deleteProcessingStatusesByDocumentId(documentId: string): Promise<void> {
-                await prisma.kbProcessingStatus.deleteMany({
+            async deleteProcessingStatusesByDocumentId(documentId: string, tx?: PrismaClient): Promise<void> {
+                const client = tx || prisma;
+                await client.kbProcessingStatus.deleteMany({
                     where: {documentId},
                 });
             },

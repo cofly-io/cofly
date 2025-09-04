@@ -1,6 +1,6 @@
-import { Prisma, KbDocument } from "../schema";
-import { prisma } from "../client";
+import { Prisma, PrismaClient, KbDocument } from "../schema";
 import { DocumentMetadata, DocumentSortDirection, DocumentStatus, SupportedFileType } from "@cofly-ai/interfaces";
+import { prisma } from "../client";
 
 // Types for document operations
 export interface CreateDocumentInput {
@@ -38,11 +38,13 @@ export const kbDocumentRepo = Prisma.defineExtension({
         kbDocument: {
             // 创建新文档记录
             async createDocument(
-                document: Omit<CreateDocumentInput, 'uploadTime' | 'processedTime'>
+                document: Omit<CreateDocumentInput, 'uploadTime' | 'processedTime'>,
+                tx?: PrismaClient
             ): Promise<DocumentMetadata> {
                 const now = new Date();
 
-                const createdDoc = await prisma.kbDocument.create({
+                const client = tx || prisma;
+                const createdDoc = await client.kbDocument.create({
                     data: {
                         id: document.id,
                         kbId: document.kbId,
@@ -134,7 +136,8 @@ export const kbDocumentRepo = Prisma.defineExtension({
             async updateDocumentStatus(
                 id: string,
                 status: string,
-                processedTime?: Date
+                processedTime?: Date,
+                tx?: PrismaClient
             ): Promise<void> {
                 const updateData: any = {
                     status,
@@ -145,15 +148,17 @@ export const kbDocumentRepo = Prisma.defineExtension({
                     updateData.processedTime = processedTime;
                 }
 
-                await prisma.kbDocument.update({
+                const client = tx || prisma;
+                await client.kbDocument.update({
                     where: {id},
                     data: updateData,
                 });
             },
 
             // 更新文档块数量
-            async updateDocumentChunkCount(id: string, chunkCount: number): Promise<void> {
-                await prisma.kbDocument.update({
+            async updateDocumentChunkCount(id: string, chunkCount: number, tx?: PrismaClient): Promise<void> {
+                const client = tx || prisma;
+                await client.kbDocument.update({
                     where: {id},
                     data: {
                         chunkCount,
@@ -163,8 +168,9 @@ export const kbDocumentRepo = Prisma.defineExtension({
             },
 
             // 更新文档文本预览
-            async updateDocumentTextPreview(id: string, textPreview: string): Promise<void> {
-                await prisma.kbDocument.update({
+            async updateDocumentTextPreview(id: string, textPreview: string, tx?: PrismaClient): Promise<void> {
+                const client = tx || prisma;
+                await client.kbDocument.update({
                     where: {id},
                     data: {
                         textPreview,
@@ -174,17 +180,19 @@ export const kbDocumentRepo = Prisma.defineExtension({
             },
 
             // 删除文档
-            async deleteDocument(id: string): Promise<void> {
-                await prisma.kbDocument.delete({
+            async deleteDocument(id: string, tx?: PrismaClient): Promise<void> {
+                const client = tx || prisma;
+                await client.kbDocument.deleteMany({
                     where: {id},
                 });
             },
 
             // 批量删除文档
-            async deleteDocuments(ids: string[]): Promise<void> {
+            async deleteDocuments(ids: string[], tx?: PrismaClient): Promise<void> {
                 if (ids.length === 0) return;
 
-                await prisma.kbDocument.deleteMany({
+                const client = tx || prisma;
+                await client.kbDocument.deleteMany({
                     where: {
                         id: {
                             in: ids,

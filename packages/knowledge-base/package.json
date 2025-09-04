@@ -28,20 +28,24 @@
     "@repo/typescript-config": "workspace:*",
     "@turbo/gen": "^2.5.5",
     "@types/node": "^22.16.5",
+    "@types/stopword": "^2.0.3",
     "esbuild-visualizer": "^0.7.0",
     "eslint": "^9.31.0",
     "tsup": "^8.5.0",
     "typescript": "5.8.3"
   },
   "dependencies": {
+    "@node-rs/jieba": "^2.0.1",
     "@repo/common": "workspace:*",
     "@repo/database": "workspace:*",
     "@xenova/transformers": "^2.17.2",
     "@zilliz/milvus2-sdk-node": "^2.6.0",
+    "install": "^0.13.0",
     "mammoth": "^1.10.0",
     "mime-types": "^3.0.1",
     "node-pptx-parser": "^1.0.1",
     "pdfjs-dist": "^5.4.149",
+    "stopword": "^3.1.5",
     "vectra": "^0.11.1",
     "xlsx": "^0.18.5"
   }

@@ -1,4 +1,4 @@
-import { Prisma, KbDocumentChunk } from "../schema";
+import { Prisma, KbDocumentChunk, PrismaClient } from "../schema";
 import { prisma } from "../client";
 import { DocumentChunk } from "@cofly-ai/interfaces";
 
@@ -25,13 +25,29 @@ export interface ChunkStats {
   documentsWithChunks: number;
 }
 
+function mapToDocumentChunk(data: KbDocumentChunk) : DocumentChunk {
+
+    return {
+        id: data.id,
+        documentId: data.documentId,
+        chunkIndex: data.chunkIndex,
+        content: data.content,
+        contentLength: data.content.length,
+        vectorId: data.vectorId,
+        startPosition: data.startPosition,
+        endPosition: data.endPosition,
+    } as DocumentChunk;
+}
+
 export const kbDocumentChunkRepo = Prisma.defineExtension({
     name: "ChunkRepo",
     model: {
         kbDocumentChunk: {
             // 创建文档块
-            async createChunk(data: CreateChunkInput): Promise<DocumentChunk> {
-                const chunk = await prisma.kbDocumentChunk.create({
+            async createChunk(data: CreateChunkInput, tx?: PrismaClient): Promise<DocumentChunk> {
+
+                const client = tx || prisma;
+                const chunk = await client.kbDocumentChunk.create({
                     data: {
                         id: data.id,
                         documentId: data.documentId,
@@ -44,14 +60,16 @@ export const kbDocumentChunkRepo = Prisma.defineExtension({
                     },
                 });
 
-                return this.mapToDocumentChunk(chunk);
+                return mapToDocumentChunk(chunk);
             },
 
             // 批量创建文档块
-            async createChunks(chunks: CreateChunkInput[]): Promise<void> {
+            async createChunks(chunks: CreateChunkInput[], tx?: PrismaClient): Promise<void> {
+
                 if (chunks.length === 0) return;
 
-                await prisma.kbDocumentChunk.createMany({
+                const client = tx || prisma;
+                await client.kbDocumentChunk.createMany({
                     data: chunks.map(chunk => ({
                         id: chunk.id,
                         documentId: chunk.documentId,
@@ -67,38 +85,42 @@ export const kbDocumentChunkRepo = Prisma.defineExtension({
 
             // 根据ID获取文档块
             async getChunkById(id: string): Promise<DocumentChunk | null> {
+
                 const chunk = await prisma.kbDocumentChunk.findUnique({
                     where: {id},
                 });
 
                 if(!chunk) return null;
 
-                return this.mapToDocumentChunk(chunk);
+                return mapToDocumentChunk(chunk);
             },
 
             // 根据文档ID获取所有块
             async getChunksByDocumentId(documentId: string): Promise<DocumentChunk[]> {
+
                 const chunks = await prisma.kbDocumentChunk.findMany({
                     where: {documentId},
                     orderBy: {chunkIndex: 'asc'},
                 });
 
-                return chunks.map(chunk => this.mapToDocumentChunk(chunk));
+                return chunks.map(chunk => mapToDocumentChunk(chunk));
             },
 
             // 根据向量ID获取文档块
             async getChunkByVectorId(vectorId: string): Promise<DocumentChunk | null> {
+
                 const chunk = await prisma.kbDocumentChunk.findFirst({
                     where: {vectorId},
                 });
 
                 if(!chunk) return null;
 
-                return this.mapToDocumentChunk(chunk);
+                return mapToDocumentChunk(chunk);
             },
 
             // 根据多个向量ID获取文档块
             async getChunksByVectorIds(vectorIds: string[]): Promise<DocumentChunk[]> {
+
                 if (vectorIds.length === 0) return [];
 
                 const chunks = await prisma.kbDocumentChunk.findMany({
@@ -113,22 +135,26 @@ export const kbDocumentChunkRepo = Prisma.defineExtension({
                     ],
                 });
 
-                return chunks.map(chunk => this.mapToDocumentChunk(chunk));
+                return chunks.map(chunk => mapToDocumentChunk(chunk));
             },
 
             // 更新文档块的向量ID
-            async updateChunkVectorId(id: string, vectorId: string): Promise<void> {
-                await prisma.kbDocumentChunk.update({
+            async updateChunkVectorId(id: string, vectorId: string, tx?: PrismaClient): Promise<void> {
+
+                const client = tx || prisma;
+                await client.kbDocumentChunk.update({
                     where: {id},
                     data: {vectorId},
                 });
             },
 
             // 批量更新文档块的向量ID
-            async updateChunksVectorIds(updates: UpdateChunkVectorInput[]): Promise<void> {
+            async updateChunksVectorIds(updates: UpdateChunkVectorInput[], tx?: PrismaClient): Promise<void> {
+
                 if (updates.length === 0) return;
 
-                await prisma.$transaction(
+                const client = tx || prisma;
+                await client.$transaction(
                     updates.map(update =>
                         prisma.kbDocumentChunk.update({
                             where: {id: update.chunkId},
@@ -139,15 +165,19 @@ export const kbDocumentChunkRepo = Prisma.defineExtension({
             },
 
             // 删除文档的所有块
-            async deleteChunksByDocumentId(documentId: string): Promise<void> {
-                await prisma.kbDocumentChunk.deleteMany({
+            async deleteChunksByDocumentId(documentId: string, tx?: PrismaClient): Promise<void> {
+
+                const client = tx || prisma;
+                await client.kbDocumentChunk.deleteMany({
                     where: {documentId},
                 });
             },
 
             // 删除特定的文档块
-            async deleteChunk(id: string): Promise<void> {
-                await prisma.kbDocumentChunk.delete({
+            async deleteChunk(id: string, tx?: PrismaClient): Promise<void> {
+
+                const client = tx || prisma;
+                await client.kbDocumentChunk.deleteMany({
                     where: {id},
                 });
             },
@@ -187,7 +217,7 @@ export const kbDocumentChunkRepo = Prisma.defineExtension({
                     take: limit,
                 });
 
-                return chunks.map(chunk => this.mapToDocumentChunk(chunk));
+                return chunks.map(chunk => mapToDocumentChunk(chunk));
             },
 
             // 搜索文档块内容
@@ -215,7 +245,7 @@ export const kbDocumentChunkRepo = Prisma.defineExtension({
                     take: limit,
                 });
 
-                return chunks.map(chunk => this.mapToDocumentChunk(chunk));
+                return chunks.map(chunk => mapToDocumentChunk(chunk));
             },
 
             // 获取块统计信息
@@ -247,20 +277,6 @@ export const kbDocumentChunkRepo = Prisma.defineExtension({
                     documentsWithChunks: documentsWithChunks.length,
                 };
             },
-            
-            mapToDocumentChunk(data: KbDocumentChunk) : DocumentChunk {
-
-                return {
-                    id: data.id,
-                    documentId: data.documentId,
-                    chunkIndex: data.chunkIndex,
-                    content: data.content,
-                    contentLength: data.content.length,
-                    vectorId: data.vectorId,
-                    startPosition: data.startPosition,
-                    endPosition: data.endPosition,
-                } as DocumentChunk;
-            }
         },
     },
 });
