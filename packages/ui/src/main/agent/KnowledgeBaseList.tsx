@@ -64,6 +64,10 @@ interface KnowledgeBaseListProps {
     success: boolean;
     error?: string;
   }>;
+  onDeleteDocumentChunk?: (knowledgeBaseId: string, documentId: string, chunkId: string) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
   onReprocessDocument?: (knowledgeBaseId: string, documentId: string) => Promise<{
     success: boolean;
     error?: string;
@@ -91,6 +95,7 @@ export const KnowledgeBaseList: React.FC<KnowledgeBaseListProps> = ({
   onFileUpload,
   onLoadDocuments,
   onDeleteDocument,
+  onDeleteDocumentChunk,
   onReprocessDocument,
   onDownloadDocument,
   toastHook,
@@ -201,6 +206,7 @@ export const KnowledgeBaseList: React.FC<KnowledgeBaseListProps> = ({
                   onFileUpload={onFileUpload}
                   onLoadDocuments={onLoadDocuments}
                   onDeleteDocument={onDeleteDocument}
+                  onDeleteDocumentChunk={onDeleteDocumentChunk}
                   onReprocessDocument={onReprocessDocument}
                   onDownloadDocument={onDownloadDocument}
                 />
@@ -278,6 +284,10 @@ interface KnowledgeBaseCardProps {
     success: boolean;
     error?: string;
   }>;
+  onDeleteDocumentChunk?: (knowledgeBaseId: string, documentId: string, chunkId: string) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
   onReprocessDocument?: (knowledgeBaseId: string, documentId: string) => Promise<{
     success: boolean;
     error?: string;
@@ -299,6 +309,7 @@ const KnowledgeBaseCard: React.FC<KnowledgeBaseCardProps> = ({
   onFileUpload,
   onLoadDocuments,
   onDeleteDocument,
+  onDeleteDocumentChunk,
   onReprocessDocument,
   onDownloadDocument,
 }) => {
@@ -433,6 +444,7 @@ const KnowledgeBaseCard: React.FC<KnowledgeBaseCardProps> = ({
         onFileUpload={onFileUpload}
         onLoadDocuments={onLoadDocuments}
         onDeleteDocument={onDeleteDocument}
+        onDeleteDocumentChunk={onDeleteDocumentChunk}
         onReprocessDocument={onReprocessDocument}
         onDownloadDocument={onDownloadDocument}
       />

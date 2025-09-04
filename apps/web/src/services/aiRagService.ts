@@ -634,7 +634,46 @@ export class AiRagService {
     documentId: string
   ): Promise<DocumentOperationResponse> {
     try {
+      console.log('🔧 [AiRagService] 开始删除文档:', { knowledgeBaseId, documentId });
+      
       const response = await fetch(`/api/ai-rag/${knowledgeBaseId}/documents/${documentId}`, {
+        method: 'DELETE'
+      });
+
+      console.log('🔧 [AiRagService] API响应状态:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorResult = await response.json().catch(() => ({}));
+        console.error('🔧 [AiRagService] API响应错误:', errorResult);
+        return {
+          success: false,
+          error: errorResult.error?.message || `HTTP ${response.status}: ${response.statusText}`
+        };
+      }
+
+      const result = await response.json();
+      console.log('🔧 [AiRagService] API响应成功:', result);
+      return result;
+
+    } catch (error) {
+      console.error('🔧 [AiRagService] Delete document error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '删除文档失败'
+      };
+    }
+  }
+
+  /**
+   * 删除文档片段
+   */
+  static async deleteDocumentChunk(
+    knowledgeBaseId: string,
+    documentId: string,
+    chunkId: string
+  ): Promise<DocumentOperationResponse> {
+    try {
+      const response = await fetch(`/api/ai-rag/${knowledgeBaseId}/documents/${documentId}/chunks/${chunkId}`, {
         method: 'DELETE'
       });
 
@@ -650,10 +689,10 @@ export class AiRagService {
       return result;
 
     } catch (error) {
-      console.error('Delete document error:', error);
+      console.error('Delete document chunk error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : '删除文档失败'
+        error: error instanceof Error ? error.message : '删除文档片段失败'
       };
     }
   }

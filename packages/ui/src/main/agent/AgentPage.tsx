@@ -117,6 +117,10 @@ interface AgentPageProps {
     success: boolean;
     error?: string;
   }>;
+  onDeleteDocumentChunk?: (knowledgeBaseId: string, documentId: string, chunkId: string) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
   onReprocessDocument?: (knowledgeBaseId: string, documentId: string) => Promise<{
     success: boolean;
     error?: string;
@@ -173,6 +177,7 @@ export const AgentPage: React.FC<AgentPageProps> = ({
   onFileUpload,
   onLoadDocuments,
   onDeleteDocument,
+  onDeleteDocumentChunk,
   onReprocessDocument,
   onDownloadDocument,
   // onFetchOnlineModels,
@@ -668,6 +673,7 @@ export const AgentPage: React.FC<AgentPageProps> = ({
                     onFileUpload={onFileUpload}
                     onLoadDocuments={onLoadDocuments}
                     onDeleteDocument={onDeleteDocument}
+                    onDeleteDocumentChunk={onDeleteDocumentChunk}
                     onReprocessDocument={onReprocessDocument}
                     onDownloadDocument={onDownloadDocument}
                     toastHook={toastHook}

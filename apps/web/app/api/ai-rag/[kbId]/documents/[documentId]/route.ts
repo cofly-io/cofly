@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@repo/database';
+import { knowledgeBaseManager } from '@repo/knowledge-base';
 
 /**
  * 删除单个文档
@@ -12,21 +13,25 @@ export async function DELETE(
   try {
     const { kbId, documentId } = await params;
 
-    console.log('🗑️ 删除文档:', { kbId, documentId });
+    console.log('🗑️ [API DELETE] 开始删除文档请求:', { kbId, documentId });
 
     // 验证知识库是否存在
+    console.log('🗑️ [API DELETE] 验证知识库是否存在...');
     const knowledgeBase = await prisma.aiKb.findUnique({
       where: { id: kbId }
     });
 
     if (!knowledgeBase) {
+      console.error('🗑️ [API DELETE] 知识库不存在:', kbId);
       return NextResponse.json({
         success: false,
         error: { message: '知识库不存在' }
       }, { status: 404 });
     }
+    console.log('🗑️ [API DELETE] 知识库存在:', knowledgeBase.name);
 
     // 验证文档是否存在并属于该知识库
+    console.log('🗑️ [API DELETE] 验证文档是否存在...');
     const document = await prisma.kbDocument.findFirst({
       where: {
         id: documentId,
@@ -35,18 +40,31 @@ export async function DELETE(
     });
 
     if (!document) {
+      console.error('🗑️ [API DELETE] 文档不存在或不属于该知识库:', { documentId, kbId });
       return NextResponse.json({
         success: false,
         error: { message: '文档不存在或不属于该知识库' }
       }, { status: 404 });
     }
+    console.log('🗑️ [API DELETE] 文档存在:', document.fileName);
 
-    // 删除文档记录
-    await prisma.kbDocument.delete({
-      where: { id: documentId }
-    });
+    // 使用 KnowledgeBaseManager 删除文档
+    console.log('🗑️ [API DELETE] 开始使用 KnowledgeBaseManager 删除文档...');
+    const kbInstance = await knowledgeBaseManager.get(kbId);
+    console.log('🗑️ [API DELETE] 获取到 KnowledgeBase 实例');
+    
+    const deleteResult = await kbInstance.deleteDocument(documentId);
+    console.log('🗑️ [API DELETE] KnowledgeBaseManager 删除结果:', deleteResult);
 
-    console.log('✅ 文档删除成功:', documentId);
+    if (!deleteResult) {
+      console.error('🗑️ [API DELETE] KnowledgeBaseManager 删除失败');
+      return NextResponse.json({
+        success: false,
+        error: { message: '删除文档失败' }
+      }, { status: 500 });
+    }
+
+    console.log('✅ [API DELETE] 文档删除成功:', documentId);
 
     return NextResponse.json({
       success: true,
@@ -54,7 +72,7 @@ export async function DELETE(
     });
 
   } catch (error) {
-    console.error('❌ 删除文档失败:', error);
+    console.error('❌ [API DELETE] 删除文档失败:', error);
     return NextResponse.json({
       success: false,
       error: { message: '删除文档失败' }

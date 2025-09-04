@@ -640,23 +640,61 @@ export default function AgentPageContainer() {
 
   // 删除文档处理函数
   const handleDeleteDocument = async (knowledgeBaseId: string, documentId: string) => {
+    console.log('🔧 [AgentPage] ========== 接收删除请求 ==========');
+    console.log('🔧 [AgentPage] 删除参数:', { knowledgeBaseId, documentId });
+    
     try {
-      console.log('🔧 [AgentPage] 开始删除文档:', { knowledgeBaseId, documentId });
-
+      console.log('🔧 [AgentPage] 开始调用 AiRagService.deleteDocument...');
+      
+      const startTime = Date.now();
       const result = await AiRagService.deleteDocument(knowledgeBaseId, documentId);
+      const endTime = Date.now();
+      
+      console.log('🔧 [AgentPage] AiRagService.deleteDocument 调用完成');
+      console.log('🔧 [AgentPage] 耗时:', endTime - startTime + 'ms');
+      console.log('🔧 [AgentPage] 服务返回结果:', result);
 
       if (result.success) {
-        console.log('🔧 [AgentPage] 文档删除成功');
+        console.log('🔧 [AgentPage] ✅ 文档删除成功');
+        console.log('🔧 [AgentPage] ========== 删除请求成功结束 ==========');
         return result;
       } else {
-        console.error('🔧 [AgentPage] 文档删除失败:', result.error);
+        console.error('🔧 [AgentPage] ❌ 文档删除失败:', result.error);
         return result;
       }
     } catch (error) {
-      console.error('🔧 [AgentPage] 文档删除异常:', error);
+      console.error('🔧 [AgentPage] ❌ 文档删除异常:', error);
+      console.error('🔧 [AgentPage] 异常详情:', {
+        message: error instanceof Error ? error.message : '未知错误',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      console.log('🔧 [AgentPage] ========== 删除请求异常结束 ==========');
       return {
         success: false,
         error: error instanceof Error ? error.message : '文档删除异常'
+      };
+    }
+  };
+
+  // 删除文档片段处理函数
+  const handleDeleteDocumentChunk = async (knowledgeBaseId: string, documentId: string, chunkId: string) => {
+    try {
+      console.log('🔧 [AgentPage] 开始删除文档片段:', { knowledgeBaseId, documentId, chunkId });
+
+      const result = await AiRagService.deleteDocumentChunk(knowledgeBaseId, documentId, chunkId);
+
+      if (result.success) {
+        console.log('🔧 [AgentPage] 文档片段删除成功');
+        return result;
+      } else {
+        console.error('🔧 [AgentPage] 文档片段删除失败:', result.error);
+        return result;
+      }
+    } catch (error) {
+      console.error('🔧 [AgentPage] 文档片段删除异常:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '文档片段删除异常'
       };
     }
   };
@@ -762,6 +800,7 @@ export default function AgentPageContainer() {
         onFileUpload={handleFileUpload}
         onLoadDocuments={handleLoadDocuments}
         onDeleteDocument={handleDeleteDocument}
+        onDeleteDocumentChunk={handleDeleteDocumentChunk}
         onReprocessDocument={handleReprocessDocument}
         onDownloadDocument={handleDownloadDocument}
 

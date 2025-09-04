@@ -1001,20 +1001,20 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             onChange(field.name, selectedValue);
 
             // 约束：只有当 selectconnect 字段配置了 linkage 时，才触发联动逻辑
-            if (field.linkage && field.linkage.targets && field.linkage.targets.length > 0) {
-              console.log('🔗 [selectconnect] 触发联动逻辑:', {
-                fieldName: field.name,
-                targets: field.linkage.targets,
-                selectedValue
-              });
-              // 联动逻辑会由 useLinkageData hook 自动处理
-            } else {
-              console.log('⚠️ [selectconnect] 跳过联动逻辑 - 未配置 linkage:', {
-                fieldName: field.name,
-                hasLinkage: !!field.linkage,
-                hasTargets: !!(field.linkage?.targets?.length)
-              });
-            }
+            // if (field.linkage && field.linkage.targets && field.linkage.targets.length > 0) {
+            //   console.log('🔗 [selectconnect] 触发联动逻辑:', {
+            //     fieldName: field.name,
+            //     targets: field.linkage.targets,
+            //     selectedValue
+            //   });
+            //   // 联动逻辑会由 useLinkageData hook 自动处理
+            // } else {
+            //   console.log('⚠️ [selectconnect] 跳过联动逻辑 - 未配置 linkage:', {
+            //     fieldName: field.name,
+            //     hasLinkage: !!field.linkage,
+            //     hasTargets: !!(field.linkage?.targets?.length)
+            //   });
+            // }
           } catch (error) {
             console.error('❌ [UnifiedParameterInput] 解析连接信息失败:', error);
             // 如果解析失败，按旧格式处理（向后兼容）

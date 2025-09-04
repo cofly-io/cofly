@@ -246,17 +246,41 @@ const DocumentListItem: React.FC<DocumentListItemProps> = ({
 
   // 处理删除
   const handleDelete = useCallback(async () => {
+    console.log('🔧 [DocumentListItem] ========== 开始删除流程 ==========');
+    console.log('🔧 [DocumentListItem] 删除文档详情:', { 
+      documentId: document.id, 
+      fileName: document.fileName,
+      fileType: document.fileType,
+      fileSize: document.fileSize
+    });
+    console.log('🔧 [DocumentListItem] onDelete 函数可用性:', typeof onDelete === 'function' ? '可用' : '不可用');
+    
     if (!confirm(`确定要删除文档 "${document.fileName}" 吗？此操作不可撤销。`)) {
+      console.log('🔧 [DocumentListItem] 用户取消删除操作');
       return;
     }
 
+    console.log('🔧 [DocumentListItem] 用户确认删除，准备调用 onDelete 函数...');
     try {
       setIsDeleting(true);
+      console.log('🔧 [DocumentListItem] 正在调用 onDelete(' + document.id + ')...');
+      
+      const startTime = Date.now();
       await onDelete(document.id);
+      const endTime = Date.now();
+      
+      console.log('🔧 [DocumentListItem] ✅ onDelete 调用成功完成!');
+      console.log('🔧 [DocumentListItem] 删除耗时:', endTime - startTime + 'ms');
+      console.log('🔧 [DocumentListItem] ========== 删除流程结束 ==========');
     } catch (error) {
-      console.error('Delete failed:', error);
+      console.error('🔧 [DocumentListItem] ❌ 删除失败:', error);
+      console.error('🔧 [DocumentListItem] 错误详情:', {
+        message: error instanceof Error ? error.message : '未知错误',
+        stack: error instanceof Error ? error.stack : undefined
+      });
     } finally {
       setIsDeleting(false);
+      console.log('🔧 [DocumentListItem] 删除状态已重置');
     }
   }, [document.id, document.fileName, onDelete]);
 

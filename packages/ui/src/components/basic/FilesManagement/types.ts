@@ -125,6 +125,10 @@ export interface FilesManagementProps {
     success: boolean;
     error?: string;
   }>;
+  onDeleteDocumentChunk?: (knowledgeBaseId: string, documentId: string, chunkId: string) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
   onReprocessDocument?: (knowledgeBaseId: string, documentId: string) => Promise<{
     success: boolean;
     error?: string;

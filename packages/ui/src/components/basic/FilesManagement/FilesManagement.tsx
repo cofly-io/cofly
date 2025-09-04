@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled, { useTheme } from 'styled-components';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { FilesManagementProps, DocumentMetadata, FilesPaginationInfo, FilesDocumentsResponse, FilesApiResponse } from './types';
 import { APP_CONFIG } from './constants';
 import { FilesFileUpload } from './FileUpload';
@@ -100,8 +101,7 @@ const ContentArea = styled.div`
   flex-direction: column;
 `;
 
-const UploadSection = styled.div<{ theme: Theme }>`
-  padding: 1.5rem;
+const UploadSection = styled.div<{ theme: Theme; $isCollapsed?: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.mode === 'dark'
     ? 'rgba(255, 255, 255, 0.1)'
     : 'rgba(0, 0, 0, 0.1)'
@@ -110,6 +110,51 @@ const UploadSection = styled.div<{ theme: Theme }>`
     ? 'rgba(255, 255, 255, 0.02)'
     : 'rgba(0, 0, 0, 0.02)'
   };
+  transition: all 0.3s ease;
+`;
+
+const UploadHeader = styled.div<{ theme: Theme }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  // padding: 1rem 1.5rem;
+  padding: 2px 20px 0px 20px;
+  cursor: pointer;
+  user-select: none;
+  
+  &:hover {
+    background: ${({ theme }) => theme.mode === 'dark'
+      ? 'rgba(255, 255, 255, 0.05)'
+      : 'rgba(0, 0, 0, 0.05)'
+    };
+  }
+`;
+
+const UploadContent = styled.div<{ $isCollapsed: boolean }>`
+  padding: ${({ $isCollapsed }) => $isCollapsed ? '0 1.5rem' : '0 1.5rem 1.5rem 1.5rem'};
+  max-height: ${({ $isCollapsed }) => $isCollapsed ? '0' : '500px'};
+  overflow: hidden;
+  transition: all 0.3s ease;
+  opacity: ${({ $isCollapsed }) => $isCollapsed ? '0' : '1'};
+`;
+
+const CollapseButton = styled.div<{ theme: Theme }>`
+  display: flex;
+  align-items: center;
+  color: ${({ theme }) => theme.mode === 'dark'
+    ? 'rgba(255, 255, 255, 0.7)'
+    : 'rgba(0, 0, 0, 0.7)'
+  };
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: ${({ theme }) => theme.mode === 'dark' ? '#ffffff' : '#000000'};
+  }
+  
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
 `;
 
 const SectionTitle = styled.h3<{ theme: Theme }>`
@@ -128,7 +173,7 @@ const ManageSection = styled.div`
 
 const FiltersContainer = styled.div<{ theme: Theme }>`
   //padding: 1.5rem;
-  padding:12px 20px;
+  padding: 6px 0px;
   padding-bottom: 0;
   background: ${({ theme }) => theme.mode === 'dark'
     ? 'rgba(255, 255, 255, 0.05)'
@@ -226,6 +271,7 @@ export const FilesManagement: React.FC<FilesManagementProps> = ({
   onFileUpload,
   onLoadDocuments,
   onDeleteDocument,
+  onDeleteDocumentChunk,
   onReprocessDocument,
   onDownloadDocument
 }) => {
@@ -234,6 +280,7 @@ export const FilesManagement: React.FC<FilesManagementProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(new Set());
+  const [isUploadCollapsed, setIsUploadCollapsed] = useState(false);
 
   // 分页状态
   const [pagination, setPagination] = useState<FilesPaginationInfo>({
@@ -387,34 +434,65 @@ export const FilesManagement: React.FC<FilesManagementProps> = ({
 
   // 处理单个文档删除
   const handleDocumentDelete = useCallback(async (documentId: string) => {
+    console.log('🔧 [FilesManagement] ========== 接收到删除请求 ==========');
+    console.log('🔧 [FilesManagement] 删除参数:', { knowledgeBaseId, documentId });
+    console.log('🔧 [FilesManagement] onDeleteDocument 函数可用性:', typeof onDeleteDocument === 'function' ? '可用' : '不可用');
+    
     try {
       if (!knowledgeBaseId) {
-        setError('缺少知识库ID，无法删除文档');
+        const errorMsg = '缺少知识库ID，无法删除文档';
+        console.error('🔧 [FilesManagement] 验证失败:', errorMsg);
+        setError(errorMsg);
         return;
       }
 
       if (!onDeleteDocument) {
-        setError('删除功能未配置，请联系管理员');
+        const errorMsg = '删除功能未配置，请联系管理员';
+        console.error('🔧 [FilesManagement] 配置检查失败:', errorMsg);
+        setError(errorMsg);
         return;
       }
 
+      console.log('🔧 [FilesManagement] 所有验证通过，开始调用删除服务函数...');
+      console.log('🔧 [FilesManagement] 调用 onDeleteDocument(' + knowledgeBaseId + ', ' + documentId + ')');
+      
+      const startTime = Date.now();
       const result = await onDeleteDocument(knowledgeBaseId, documentId);
+      const endTime = Date.now();
+      
+      console.log('🔧 [FilesManagement] 删除服务函数调用完成');
+      console.log('🔧 [FilesManagement] 耗时:', endTime - startTime + 'ms');
+      console.log('🔧 [FilesManagement] 服务函数返回结果:', result);
+      
       if (!result.success) {
-        throw new Error(result.error || '删除文档失败');
+        const error = new Error(result.error || '删除文档失败');
+        console.error('🔧 [FilesManagement] 服务函数返回失败结果:', error.message);
+        throw error;
       }
 
+      console.log('🔧 [FilesManagement] ✅ 删除成功，开始清理UI状态...');
+      
       // 从选择中移除
       setSelectedDocuments(prev => {
         const newSet = new Set(prev);
         newSet.delete(documentId);
+        console.log('🔧 [FilesManagement] 已从选择中移除文档:', documentId);
         return newSet;
       });
 
       // 重新加载文档列表
+      console.log('🔧 [FilesManagement] 开始重新加载文档列表...');
       await loadDocuments();
+      console.log('🔧 [FilesManagement] ✅ 文档删除完成，UI已更新');
+      console.log('🔧 [FilesManagement] ========== 删除流程成功结束 ==========');
     } catch (err) {
-      console.error('Delete document error:', err);
+      console.error('🔧 [FilesManagement] ❌ 删除过程中发生错误:', err);
+      console.error('🔧 [FilesManagement] 错误详情:', {
+        message: err instanceof Error ? err.message : '未知错误',
+        stack: err instanceof Error ? err.stack : undefined
+      });
       setError(err instanceof Error ? err.message : '删除文档失败');
+      console.log('🔧 [FilesManagement] ========== 删除流程异常结束 ==========');
     }
   }, [knowledgeBaseId, onDeleteDocument, loadDocuments]);
 
@@ -511,17 +589,24 @@ export const FilesManagement: React.FC<FilesManagementProps> = ({
         {/* 内容区域 */}
         <ContentArea>
           {/* 文件上传区域 */}
-          <UploadSection theme={theme}>
-            {/* <SectionTitle theme={theme}>文件上传</SectionTitle> */}
-            <FilesFileUpload
-              onUploadSuccess={handleUploadSuccess}
-              onUploadError={handleUploadError}
-              acceptedTypes={acceptedTypes}
-              maxFileSize={maxFileSize}
-              multiple={true}
-              knowledgeBaseId={knowledgeBaseId}
-              onFileUpload={onFileUpload}
-            />
+          <UploadSection theme={theme} $isCollapsed={isUploadCollapsed}>
+            <UploadHeader theme={theme} onClick={() => setIsUploadCollapsed(!isUploadCollapsed)}>
+              <SectionTitle theme={theme}>文件上传</SectionTitle>
+              <CollapseButton theme={theme}>
+                {isUploadCollapsed ? <FiChevronDown /> : <FiChevronUp />}
+              </CollapseButton>
+            </UploadHeader>
+            <UploadContent $isCollapsed={isUploadCollapsed}>
+              <FilesFileUpload
+                onUploadSuccess={handleUploadSuccess}
+                onUploadError={handleUploadError}
+                acceptedTypes={acceptedTypes}
+                maxFileSize={maxFileSize}
+                multiple={true}
+                knowledgeBaseId={knowledgeBaseId}
+                onFileUpload={onFileUpload}
+              />
+            </UploadContent>
           </UploadSection>
 
           {/* 文档管理区域 */}
