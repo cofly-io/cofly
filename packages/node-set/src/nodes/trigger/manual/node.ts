@@ -14,11 +14,13 @@ export class Manual implements INode {
 		fields: [
 			// 模式选择器（核心联动字段）
 			{
-				displayName: '说明',      // 显示名称
-				name: 'note',                 // 字段名
-				type: 'string',              // 字段类型，
-				controlType: 'Note',        // 提示AI这是联动触发器
-				default: '此节点是工作流执行的起始点，点击画布上"业务流测试"后，工作流会继续执行后续节点'
+				label: '说明',      // 显示名称
+				fieldName: 'note',                 // 字段名
+				control: {
+					name: 'note',        // 提示AI这是联动触发器
+					dataType: 'string',
+					defaultValue: '此节点是工作流执行的起始点，点击画布上"业务流测试"后，工作流会继续执行后续节点'
+				}
 			}
 		],
 	};

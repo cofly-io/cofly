@@ -24,62 +24,93 @@ export class DingdingConnect extends BaseSocialConnect {
         description: '配置钉钉开放平台API的基础凭证信息，用于调用钉钉API接口',
         fields: [
             {
-                displayName: 'AppKey',
-                name: 'appKey',
-                type: 'string' as const,
-                required: true,
+                label: 'AppKey',
+                fieldName: 'appKey',
                 description: '钉钉应用的AppKey，在钉钉开发者后台获取',
-                placeholder: '请输入钉钉应用的AppKey',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入钉钉应用的AppKey'
+                }
             },
             {
-                displayName: 'AppSecret',
-                name: 'appSecret',
-                type: 'string' as const,
-                required: true,
+                label: 'AppSecret',
+                fieldName: 'appSecret',
                 description: '钉钉应用的AppSecret，在钉钉开发者后台获取',
-                placeholder: '请输入钉钉应用的AppSecret',
-                controlType: "password"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入钉钉应用的AppSecret',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: 'AgentId',
-                name: 'agentId',
-                type: 'string' as const,
-                required: true,
+                label: 'AgentId',
+                fieldName: 'agentId',
                 description: '钉钉应用的AgentId，用于发送工作通知',
-                placeholder: '请输入钉钉应用的AgentId',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入钉钉应用的AgentId'
+                }
             },
             {
-                displayName: '服务器出口IP',
-                name: 'serverIp',
-                type: 'string' as const,
-                required: false,
+                label: '服务器出口IP',
+                fieldName: 'serverIp',
                 description: '服务器出口IP地址，需要在钉钉开发者后台配置IP白名单',
-                placeholder: '请输入服务器出口IP地址（可选）',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入服务器出口IP地址（可选）'
+                }
             },
             {
-                displayName: 'API基础URL',
-                name: 'baseUrl',
-                type: 'string' as const,
-                required: false,
-                default: 'https://oapi.dingtalk.com',
+                label: 'API基础URL',
+                fieldName: 'baseUrl',
                 description: '钉钉API的基础URL地址',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'https://oapi.dingtalk.com',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: 'https://oapi.dingtalk.com'
+                }
             },
             {
-                displayName: '连接超时时间(秒)',
-                name: 'timeout',
-                type: 'number' as const,
-                required: false,
-                default: 30,
+                label: '连接超时时间(秒)',
+                fieldName: 'timeout',
                 description: 'API请求的超时时间，单位为秒',
-                typeOptions: {
-                    minValue: 5,
-                    maxValue: 120
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 30,
+                    validation: {
+                        required: false,
+                        min: 5,
+                        max: 120
+                    },
+                    placeholder: '30'
+                }
             }
         ],
         validateConnection: true,

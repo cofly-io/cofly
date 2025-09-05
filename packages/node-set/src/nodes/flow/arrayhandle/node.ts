@@ -16,319 +16,349 @@ export class ArrayHandle implements INode {
 	detail: INodeDetail = {
 		fields: [
 			{
-				displayName: '数组',
-				name: 'arrayData',
-				type: 'json',
-				default: '[]',
-				required: true,
-				placeholder: '请输入JSON格式的数组数据，例如：[{"name":"张三","age":25},{"name":"李四","age":30}]',
-				controlType: 'textarea',
-				description: '要处理的数组数据，必须是有效的JSON格式'
+				label: '数组',
+				fieldName: 'arrayData',
+				description: '要处理的数组数据，必须是有效的JSON格式',
+				control: {
+					name: 'textarea',
+					dataType: 'json',
+					defaultValue: '[]',
+					placeholder: '请输入JSON格式的数组数据，例如：[{"name":"张三","age":25},{"name":"李四","age":30}]',
+					validation: { required: true }
+				}
 			},
 			{
-				displayName: '处理类型',
-				name: 'operation',
-				type: 'options',
-				options: [
-					{
-						name: '排序',
-						value: 'sort',
-						description: '按指定字段对数组进行排序'
-					},
-					{
-						name: '过滤',
-						value: 'filter',
-						description: '根据条件过滤数组元素'
-					},
-					{
-						name: '去重',
-						value: 'unique',
-						description: '移除数组中的重复元素'
-					},
-					{
-						name: '映射',
-						value: 'map',
-						description: '转换数组中的每个元素'
-					},
-					{
-						name: '分组',
-						value: 'group',
-						description: '按指定字段对数组元素进行分组'
-					},
-					{
-						name: '聚合',
-						value: 'aggregate',
-						description: '对数组进行统计计算（求和、平均值等）'
-					},
-					{
-						name: '切片',
-						value: 'slice',
-						description: '截取数组的指定部分'
-					},
-					{
-						name: '连接',
-						value: 'join',
-						description: '将数组元素连接成字符串'
-					}
-				],
-				default: 'sort',
-				required: true,
-				controlType: 'selectwithdesc',
+				label: '处理类型',
+				fieldName: 'operation',
 				linkage: {
 					targets: ['sortField', 'sortOrder', 'filterField', 'filterOperator', 'filterValue', 'uniqueField', 'mapExpression', 'groupField', 'aggregateField', 'aggregateFunction', 'sliceStart', 'sliceEnd', 'joinSeparator'],
 					trigger: 'onChange'
+				},
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'sort',
+					validation: { required: true },
+					options: [
+						{
+							name: '排序',
+							value: 'sort',
+							description: '按指定字段对数组进行排序'
+						},
+						{
+							name: '过滤',
+							value: 'filter',
+							description: '根据条件过滤数组元素'
+						},
+						{
+							name: '去重',
+							value: 'unique',
+							description: '移除数组中的重复元素'
+						},
+						{
+							name: '映射',
+							value: 'map',
+							description: '转换数组中的每个元素'
+						},
+						{
+							name: '分组',
+							value: 'group',
+							description: '按指定字段对数组元素进行分组'
+						},
+						{
+							name: '聚合',
+							value: 'aggregate',
+							description: '对数组进行统计计算（求和、平均值等）'
+						},
+						{
+							name: '切片',
+							value: 'slice',
+							description: '截取数组的指定部分'
+						},
+						{
+							name: '连接',
+							value: 'join',
+							description: '将数组元素连接成字符串'
+						}
+					]
 				}
 			},
 			// 排序相关配置
 			{
-				displayName: '排序字段',
-				name: 'sortField',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '请输入要排序的字段名',
-				controlType: 'input',
-				displayOptions: {
+				label: '排序字段',
+				fieldName: 'sortField',
+				conditionRules: {
 					showBy: {
 						operation: ['sort']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '请输入要排序的字段名',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '排序方式',
-				name: 'sortOrder',
-				type: 'options',
-				options: [
-					{
-						name: '升序',
-						value: 'asc',
-						description: '从小到大排序'
-					},
-					{
-						name: '降序',
-						value: 'desc',
-						description: '从大到小排序'
-					}
-				],
-				default: 'asc',
-				controlType: 'selectwithdesc',
-				displayOptions: {
+				label: '排序方式',
+				fieldName: 'sortOrder',
+				conditionRules: {
 					showBy: {
 						operation: ['sort']
 					}
+				},
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'asc',
+					options: [
+						{
+							name: '升序',
+							value: 'asc',
+							description: '从小到大排序'
+						},
+						{
+							name: '降序',
+							value: 'desc',
+							description: '从大到小排序'
+						}
+					]
 				}
 			},
 			// 过滤相关配置
 			{
-				displayName: '过滤字段',
-				name: 'filterField',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '请输入要过滤的字段名',
-				controlType: 'input',
-				displayOptions: {
+				label: '过滤字段',
+				fieldName: 'filterField',
+				conditionRules: {
 					showBy: {
 						operation: ['filter']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '请输入要过滤的字段名',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '过滤操作符',
-				name: 'filterOperator',
-				type: 'options',
-				options: [
-					{
-						name: '等于',
-						value: 'equals',
-						description: '字段值等于指定值'
-					},
-					{
-						name: '不等于',
-						value: 'notEquals',
-						description: '字段值不等于指定值'
-					},
-					{
-						name: '大于',
-						value: 'greaterThan',
-						description: '字段值大于指定值'
-					},
-					{
-						name: '小于',
-						value: 'lessThan',
-						description: '字段值小于指定值'
-					},
-					{
-						name: '包含',
-						value: 'contains',
-						description: '字段值包含指定文本'
-					},
-					{
-						name: '不包含',
-						value: 'notContains',
-						description: '字段值不包含指定文本'
-					}
-				],
-				default: 'equals',
-				controlType: 'selectwithdesc',
-				displayOptions: {
+				label: '过滤操作符',
+				fieldName: 'filterOperator',
+				conditionRules: {
 					showBy: {
 						operation: ['filter']
 					}
+				},
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'equals',
+					options: [
+						{
+							name: '等于',
+							value: 'equals',
+							description: '字段值等于指定值'
+						},
+						{
+							name: '不等于',
+							value: 'notEquals',
+							description: '字段值不等于指定值'
+						},
+						{
+							name: '大于',
+							value: 'greaterThan',
+							description: '字段值大于指定值'
+						},
+						{
+							name: '小于',
+							value: 'lessThan',
+							description: '字段值小于指定值'
+						},
+						{
+							name: '包含',
+							value: 'contains',
+							description: '字段值包含指定文本'
+						},
+						{
+							name: '不包含',
+							value: 'notContains',
+							description: '字段值不包含指定文本'
+						}
+					]
 				}
 			},
 			{
-				displayName: '过滤值',
-				name: 'filterValue',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '请输入过滤条件的值',
-				controlType: 'input',
-				displayOptions: {
+				label: '过滤值',
+				fieldName: 'filterValue',
+				conditionRules: {
 					showBy: {
 						operation: ['filter']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '请输入过滤条件的值',
+					validation: { required: true }
 				}
 			},
 			// 去重相关配置
 			{
-				displayName: '去重字段',
-				name: 'uniqueField',
-				type: 'string',
-				default: '',
-				placeholder: '留空则对整个对象去重，填写字段名则按该字段去重',
-				controlType: 'input',
-				displayOptions: {
+				label: '去重字段',
+				fieldName: 'uniqueField',
+				conditionRules: {
 					showBy: {
 						operation: ['unique']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '留空则对整个对象去重，填写字段名则按该字段去重'
 				}
 			},
 			// 映射相关配置
 			{
-				displayName: '映射表达式',
-				name: 'mapExpression',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '例如：{"newField": "{{item.oldField}}", "computed": "{{item.value * 2}}"}',
-				controlType: 'textarea',
+				label: '映射表达式',
+				fieldName: 'mapExpression',
 				description: '使用JSON格式定义新的对象结构，可以使用{{item.fieldName}}引用原字段',
-				displayOptions: {
+				conditionRules: {
 					showBy: {
 						operation: ['map']
 					}
+				},
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '例如：{"newField": "{{item.oldField}}", "computed": "{{item.value * 2}}"}',
+					validation: { required: true }
 				}
 			},
 			// 分组相关配置
 			{
-				displayName: '分组字段',
-				name: 'groupField',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '请输入要分组的字段名',
-				controlType: 'input',
-				displayOptions: {
+				label: '分组字段',
+				fieldName: 'groupField',
+				conditionRules: {
 					showBy: {
 						operation: ['group']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '请输入要分组的字段名',
+					validation: { required: true }
 				}
 			},
 			// 聚合相关配置
 			{
-				displayName: '聚合字段',
-				name: 'aggregateField',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '请输入要聚合的字段名',
-				controlType: 'input',
-				displayOptions: {
+				label: '聚合字段',
+				fieldName: 'aggregateField',
+				conditionRules: {
 					showBy: {
 						operation: ['aggregate']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '请输入要聚合的字段名',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '聚合函数',
-				name: 'aggregateFunction',
-				type: 'options',
-				options: [
-					{
-						name: '求和',
-						value: 'sum',
-						description: '计算字段值的总和'
-					},
-					{
-						name: '平均值',
-						value: 'avg',
-						description: '计算字段值的平均值'
-					},
-					{
-						name: '最大值',
-						value: 'max',
-						description: '找出字段的最大值'
-					},
-					{
-						name: '最小值',
-						value: 'min',
-						description: '找出字段的最小值'
-					},
-					{
-						name: '计数',
-						value: 'count',
-						description: '统计元素数量'
-					}
-				],
-				default: 'sum',
-				controlType: 'selectwithdesc',
-				displayOptions: {
+				label: '聚合函数',
+				fieldName: 'aggregateFunction',
+				conditionRules: {
 					showBy: {
 						operation: ['aggregate']
 					}
+				},
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'sum',
+					options: [
+						{
+							name: '求和',
+							value: 'sum',
+							description: '计算字段值的总和'
+						},
+						{
+							name: '平均值',
+							value: 'avg',
+							description: '计算字段值的平均值'
+						},
+						{
+							name: '最大值',
+							value: 'max',
+							description: '找出字段的最大值'
+						},
+						{
+							name: '最小值',
+							value: 'min',
+							description: '找出字段的最小值'
+						},
+						{
+							name: '计数',
+							value: 'count',
+							description: '统计元素数量'
+						}
+					]
 				}
 			},
 			// 切片相关配置
 			{
-				displayName: '开始位置',
-				name: 'sliceStart',
-				type: 'number',
-				default: 0,
-				placeholder: '起始索引（从0开始）',
-				controlType: 'input',
-				displayOptions: {
+				label: '开始位置',
+				fieldName: 'sliceStart',
+				conditionRules: {
 					showBy: {
 						operation: ['slice']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 0,
+					placeholder: '起始索引（从0开始）'
 				}
 			},
 			{
-				displayName: '结束位置',
-				name: 'sliceEnd',
-				type: 'number',
-				default: -1,
-				placeholder: '结束索引（-1表示到末尾）',
-				controlType: 'input',
-				displayOptions: {
+				label: '结束位置',
+				fieldName: 'sliceEnd',
+				conditionRules: {
 					showBy: {
 						operation: ['slice']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: -1,
+					placeholder: '结束索引（-1表示到末尾）'
 				}
 			},
 			// 连接相关配置
 			{
-				displayName: '连接符',
-				name: 'joinSeparator',
-				type: 'string',
-				default: ',',
-				placeholder: '元素之间的分隔符',
-				controlType: 'input',
-				displayOptions: {
+				label: '连接符',
+				fieldName: 'joinSeparator',
+				conditionRules: {
 					showBy: {
 						operation: ['join']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: ',',
+					placeholder: '元素之间的分隔符'
 				}
 			}
 		]

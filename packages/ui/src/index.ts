@@ -1,7 +1,35 @@
 // 组件导出
 export * from './components'
 export * from './main'
-export * from './node'
+// Node exports with renamed ButtonGroup to avoid conflicts
+export {
+  NodeSettings,
+  LeftPanel,
+  RightPanel,
+  NodeDetailsView,
+  ParameterInput,
+  // Rename the node ButtonGroup to avoid conflict with components ButtonGroup
+  ButtonGroup as NodeButtonGroup,
+  DataViewButton,
+  Panel,
+  PanelTitle,
+  OutputContainer,
+  OutputContainerTitle,
+  OutputContainerContent,
+  NodeEmptyState,
+  NodeEmptyStateText,
+  PreviousNodeSelector,
+  SelectorLabel,
+  SelectDropdown,
+  ExecuteButton,
+  PanelHeader,
+  ActionContainer,
+  ActionButton,
+  SetMockButton,
+  CodeMirrorContainer,
+  EditModeActions
+} from './node'
+export * from './node/types'
 export * from './controls'
 // Context exports (avoiding conflicts with main exports)
 export { UnifiedThemeProvider } from './context/ThemeProvider';

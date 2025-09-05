@@ -293,7 +293,7 @@ export const LLMCntDetailsView: React.FC<LLMCntDetailsViewProps> = ({
       // 从字段中获取默认值
       const initialValues: Record<string, any> = {};
       connect.detail.fields.forEach(field => {
-        initialValues[field.name] = field.default || '';
+        initialValues[field.fieldName] = field.control.defaultValue || '';
       });
       setFormValues(initialValues);
     }
@@ -359,9 +359,9 @@ export const LLMCntDetailsView: React.FC<LLMCntDetailsViewProps> = ({
 
   // 验证表单
   const isFormValid = () => {
-    const requiredFields = connect.detail.fields.filter(field => field.required);
+    const requiredFields = connect.detail.fields.filter(field => field.control.validation?.required);
     const isRequiredFieldsValid = requiredFields.every(field => {
-      const value = formValues[field.name];
+      const value = formValues[field.fieldName];
       return value !== undefined && value !== null && String(value).trim() !== '';
     });
     return configName.trim() !== '' && isRequiredFieldsValid && selectedModels.length > 0;
@@ -526,9 +526,9 @@ export const LLMCntDetailsView: React.FC<LLMCntDetailsViewProps> = ({
         <FieldsGrid $hasDialogue={false}>
           {connect.detail.fields.map((field) => {
             return (<ConnectParameterInput
-              key={field.name}
+              key={field.fieldName}
               field={field}
-              value={formValues[field.name]}
+              value={formValues[field.fieldName]}
               onChange={handleFieldChange}
               formValues={formValues}
             />

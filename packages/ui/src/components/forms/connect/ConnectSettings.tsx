@@ -263,10 +263,10 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
 
     // 使用保存的值或默认值
     connect.detail.fields.forEach((field: IConnectField) => {
-      if (savedValues[field.name] !== undefined) {
-        initialValues[field.name] = savedValues[field.name];
-      } else if (field.default !== undefined) {
-        initialValues[field.name] = field.default;
+      if (savedValues[field.fieldName] !== undefined) {
+        initialValues[field.fieldName] = savedValues[field.fieldName];
+      } else if (field.control.defaultValue !== undefined) {
+        initialValues[field.fieldName] = field.control.defaultValue;
       }
     });
 
@@ -281,10 +281,10 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
 
       // 遍历连接字段定义，从 editData.config 中提取对应的值
       connect.detail.fields.forEach((field: IConnectField) => {
-        if (editData.config[field.name] !== undefined) {
-          editValues[field.name] = editData.config[field.name];
-        } else if (field.default !== undefined) {
-          editValues[field.name] = field.default;
+        if (editData.config[field.fieldName] !== undefined) {
+          editValues[field.fieldName] = editData.config[field.fieldName];
+        } else if (field.control.defaultValue !== undefined) {
+          editValues[field.fieldName] = field.control.defaultValue;
         }
       });
 
@@ -424,10 +424,10 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
 
     // 检查连接字段必填项（排除模型字段，因为经济模式下不需要）
     const requiredFields = connect.detail.fields.filter((field: IConnectField) =>
-      field.required && field.name !== 'model'
+      field.control.validation?.required && field.fieldName !== 'models'
     );
     const missingFields = requiredFields.filter((field: IConnectField) => {
-      const value = formValues[field.name];
+      const value = formValues[field.fieldName];
       const isEmpty = value === undefined || value === '' || value === null;
       return isEmpty;
     });
@@ -455,7 +455,7 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
       links.push({
         url: about.modelUrl,
         label: '模型列表',
-        key: 'model',
+        key: 'models',
         icon: <HiOutlineCube />
       });
     }
@@ -547,14 +547,14 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
               <FieldsGrid $hasDialogue={false}>
                 {connect.detail.fields
                   .filter((field: IConnectField) =>
-                    field.name !== 'model' // 过滤掉模型字段
+                    field.fieldName !== 'models' // 过滤掉模型字段
                   )
                   .map((field: IConnectField) => {
                     return (
                       <ConnectParameterInput
-                        key={field.name}
+                        key={field.fieldName}
                         field={field}
-                        value={formValues[field.name]}
+                        value={formValues[field.fieldName]}
                         onChange={handleInputChange}
                         formValues={formValues}
                       />

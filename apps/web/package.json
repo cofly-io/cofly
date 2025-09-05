@@ -36,7 +36,6 @@
     "@repo/services": "workspace:*",
     "@repo/engine": "workspace:*",
     "@repo/node-set": "workspace:*",
-    "@repo/knowledge-base": "workspace:*",
     "@repo/mcp-workflow-tools": "workspace:*",
     "@repo/ui": "workspace:*",
     "@types/bcryptjs": "^3.0.0",

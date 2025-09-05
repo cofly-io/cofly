@@ -18,13 +18,15 @@ export class MySQL implements INode {
 		fields: [
 			// 数据库连接配置
 			{
-				displayName: '连接源',
-				name: 'datasource',
-				type: 'string',
-				default: '',
-				required: true,
+				label: '连接源',
+				fieldName: 'datasource',
 				connectType: "mysql",
-				controlType: 'selectconnect',
+				control: {
+					name: 'selectconnect',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true }
+				},
 				// 联动配置：影响表名字段
 				linkage: {
 					targets: ['table'],
@@ -33,172 +35,183 @@ export class MySQL implements INode {
 			},
 			// 表名（除了执行SQL操作外都需要）
 			{
-				displayName: '表名',
-				name: 'table',
-				type: 'string',
-				// displayOptions: {
-				// 	hide: {
-				// 		operation: ['executeQuery'],
-				// 	},
-				// },
-				default: '',
-				required: true,
-				placeholder: '例如: users',
-				controlType: 'selectfilter',
+				label: '表名',
+				fieldName: 'table',			
+				control: {
+					name: 'selectfilter',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true },
+					placeholder: '例如: users',
+				},
 				// 联动配置：依赖连接源字段
 				linkage: {
 					dependsOn: 'datasource',
-					fetchMethod: 'fetchConnectDetail',
 					// clearOnChange: true,
 					// enableWhen: (value) => !!value
 				}
 			},
 			// 操作类型选择器
 			{
-				displayName: '操作类型',
-				name: 'operation',
-				type: 'options',
-				options: [
-					{
-						name: '执行SQL',
-						value: 'executeQuery',
-						description: '执行自定义SQL语句',
-					},
-					{
-						name: '查询数据',
-						value: 'select',
-						description: '执行SELECT查询获取数据',
-					},
-					{
-						name: '插入数据',
-						value: 'insert',
-						description: '向表中插入新记录',
-					},
-					{
-						name: '更新数据',
-						value: 'update',
-						description: '更新表中的现有记录',
-					},
-					{
-						name: '删除数据',
-						value: 'delete',
-						description: '删除表中的记录',
-					},
-				],
-				default: 'executeQuery',
-				placeholder: '选择操作类型',
-				controlType: 'selectwithdesc'
+				label: '操作类型',
+				fieldName: 'operation',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'executeQuery',
+					options: [
+						{
+							name: '执行SQL',
+							value: 'executeQuery',
+							description: '执行自定义SQL语句',
+						},
+						{
+							name: '查询数据',
+							value: 'select',
+							description: '执行SELECT查询获取数据',
+						},
+						{
+							name: '插入数据',
+							value: 'insert',
+							description: '向表中插入新记录',
+						},
+						{
+							name: '更新数据',
+							value: 'update',
+							description: '更新表中的现有记录',
+						},
+						{
+							name: '删除数据',
+							value: 'delete',
+							description: '删除表中的记录',
+						},
+					]
+				}
 			},
 			// 查询操作相关字段
 			{
-				displayName: '查询字段',
-				name: 'columns',
-				type: 'string',
-				displayOptions: {
+				label: '查询字段',
+				fieldName: 'columns',
+				
+				conditionRules: {
 					showBy: {
-						operation: ['select'],
-					},
+						operation: ['select']
+					}
 				},
-				default: '*',
-				placeholder: '例如: id,name,email 或 * (全部字段)',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					placeholder: '例如: id,name,email 或 * (全部字段)',
+				}
 			},
 			{
-				displayName: '查询条件',
-				name: 'whereCondition',
-				type: 'string',
-				displayOptions: {
+				label: '查询条件',
+				fieldName: 'whereCondition',
+				conditionRules: {
 					showBy: {
-						operation: ['select', 'update', 'delete'],
-					},
+						operation: ['select', 'update', 'delete']
+					}
 				},
-				default: '',
-				placeholder: '例如: id > 10 AND status = "active"',
-				controlType: 'textarea'
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					placeholder: '例如: id > 10 AND status = "active"',
+				}
 			},
 			{
-				displayName: '排序',
-				name: 'orderBy',
-				type: 'string',
-				displayOptions: {
+				label: '排序',
+				fieldName: 'orderBy',
+				conditionRules: {
 					showBy: {
-						operation: ['select'],
-					},
+						operation: ['select']
+					}
 				},
-				default: '',
-				placeholder: '例如: id DESC, name ASC',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					placeholder: '例如: id DESC, name ASC',
+				}
 			},
 			{
-				displayName: '限制条数',
-				name: 'limit',
-				type: 'number',
-				displayOptions: {
+				label: '限制条数',
+				fieldName: 'limit',
+				conditionRules: {
 					showBy: {
-						operation: ['select'],
-					},
+						operation: ['select']
+					}
 				},
-				default: 0,
-				placeholder: '0表示不限制',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 0,
+					placeholder: '0表示不限制'
+				}
 			},
 
 			// 插入操作相关字段
 			{
-				displayName: '插入数据',
-				name: 'insertData',
-				type: 'string',
-				displayOptions: {
+				label: '插入数据',
+				fieldName: 'insertData',
+				conditionRules: {
 					showBy: {
-						operation: ['insert'],
-					},
+						operation: ['insert']
+					}
 				},
-				default: '',
-				required: true,
-				placeholder: 'JSON格式: {"name": "张三", "email": "zhang@example.com"}',
-				controlType: 'textarea'
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true },
+					placeholder: 'JSON格式: {"name": "张三", "email": "zhang@example.com"}',
+				}
 			},
 
 			// 更新操作相关字段
 			{
-				displayName: '更新数据',
-				name: 'updateData',
-				type: 'string',
-				displayOptions: {
+				label: '更新数据',
+				fieldName: 'updateData',
+				conditionRules: {
 					showBy: {
-						operation: ['update'],
-					},
+						operation: ['update']
+					}
 				},
-				default: '',
-				required: true,
-				placeholder: 'JSON格式: {"name": "李四", "status": "inactive"}',
-				controlType: 'textarea'
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true },
+					placeholder: 'JSON格式: {"name": "李四", "status": "inactive"}',
+				}
 			},
 
 			// 自定义SQL
 			{
-				displayName: 'SQL语句',
-				name: 'query',
-				type: 'string',
-				displayOptions: {
+				label: 'SQL语句',
+				fieldName: 'query',
+				conditionRules: {
 					showBy: {
-						operation: ['executeQuery'],
-					},
+						operation: ['executeQuery']
+					}
 				},
-				default: '',
-				required: true,
-				placeholder: '例如: SELECT * FROM users WHERE created_at > "2024-01-01"',
-				controlType: 'sqlcode'
+				control: {
+					name: 'sqlcode',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true },
+					placeholder: '例如: SELECT * FROM users WHERE created_at > "2024-01-01"',
+				}
 			},
 
 			// 连接选项
 			{
-				displayName: '连接超时(秒)',
-				name: 'connectionTimeout',
-				type: 'number',
-				default: 30,
-				placeholder: '连接超时时间',
-				controlType: 'input'
+				label: '连接超时(秒)',
+				fieldName: 'connectionTimeout',
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 30,
+					placeholder: '连接超时时间',
+				}
 			},
 			// {
 			// 	displayName: '启用SSL',

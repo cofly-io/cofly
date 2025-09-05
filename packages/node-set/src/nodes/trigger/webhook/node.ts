@@ -15,36 +15,42 @@ export class Webhook implements INode {
 	detail: INodeDetail = {
 		fields: [
             {
-                displayName: '请求方式',             // 显示名称
-                name: 'method',                     // 字段名
-                type: 'string',                     // 字段类型
-                default: 'GET',                     // 默认值
-                controlType: 'select',
-                options: [
-                    { name: 'GET', value: 'GET' },
-                    { name: 'POST', value: 'POST' },
-                    { name: 'PUT', value: 'PUT' },
-                    { name: 'DELETE', value: 'DELETE' },
-                ],
+                label: '请求方式',             // 显示名称
+                fieldName: 'method',                     // 字段名
+                control: {
+                    name: 'select',
+                    dataType: 'string',
+                    defaultValue: 'GET',                     // 默认值
+                    options: [
+                        { name: 'GET', value: 'GET' },
+                        { name: 'POST', value: 'POST' },
+                        { name: 'PUT', value: 'PUT' },
+                        { name: 'DELETE', value: 'DELETE' },
+                    ],
+                }
             },
             {
-                displayName: '响应模式',             // 显示名称
-                name: 'respondMode',                // 字段名
-                type: 'string',                     // 字段类型
-                default: 'imm',                     // 默认值
-                controlType: 'selectwithdesc',
-                options: [
-                    { name: '立即返回', value: 'onCall', description: '立即执行并返回结果' },
-                    { name: '执行完成后返回', value: 'onFinished', description: '最后一个节点执行完成后返回' },
-                    { name: '使用“响应到Webhook”节点', value: 'onNode', description: '通过定义在流程中的相应节点返回' },
-                ],
+                label: '响应模式',             // 显示名称
+                fieldName: 'respondMode',                // 字段名
+                control: {
+                    name: 'selectwithdesc',
+                    dataType: 'string',
+                    defaultValue: 'imm',                     // 默认值
+                    options: [
+                        { name: '立即返回', value: 'onCall', description: '立即执行并返回结果' },
+                        { name: '执行完成后返回', value: 'onFinished', description: '最后一个节点执行完成后返回' },
+                        { name: '使用“响应到Webhook”节点', value: 'onNode', description: '通过定义在流程中的相应节点返回' },
+                    ],
+                }
             },
 			{
-				displayName: '说明',                 // 显示名称
-				name: 'note',                       // 字段名
-				type: 'string',                     // 字段类型
-				default: '',                        // 默认值
-				controlType: 'Note'
+				label: '说明',                 // 显示名称
+				fieldName: 'note',                       // 字段名
+				control: {
+					name: 'note',
+					dataType: 'string',
+					defaultValue: ''                        // 默认值
+				}
 			}
 		],
 	};

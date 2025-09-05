@@ -15,109 +15,117 @@ export class Switch implements INode {
 	detail: INodeDetail = {
 		fields: [
 			{
-				displayName: '模式',
-				name: 'mode',
-				type: 'options',
-				options: [
-					{
-						name: '表达式',
-						value: 'expression',
-						description: '使用JavaScript表达式进行条件判断',
-					},
-					{
-						name: '规则',
-						value: 'rules',
-						description: '使用预定义规则进行条件判断',
-					}
-				],
-				default: 'expression',
-				placeholder: '选择判断模式',
-				controlType: 'selectwithdesc'
+				label: '模式',
+				fieldName: 'mode',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'expression',
+					placeholder: '选择判断模式',
+					options: [
+						{
+							name: '表达式',
+							value: 'expression',
+							description: '使用JavaScript表达式进行条件判断',
+						},
+						{
+							name: '规则',
+							value: 'rules',
+							description: '使用预定义规则进行条件判断',
+						}
+					]
+				}
 			},
 			{
-				displayName: '表达式',
-				name: 'expression',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '例如: $input.age > 18 ? 0 : 1',
-				controlType: 'textarea',
-				displayOptions: {
+				label: '表达式',
+				fieldName: 'expression',
+				conditionRules: {
 					showBy: {
 						mode: ['expression']
 					}
+				},
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '例如: $input.age > 18 ? 0 : 1',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '规则配置',
-				name: 'rules',
-				type: 'string',
-				default: '[]',
-				required: true,
-				placeholder: '配置判断规则的JSON数组',
-				controlType: 'textarea',
-				displayOptions: {
+				label: '规则配置',
+				fieldName: 'rules',
+				conditionRules: {
 					showBy: {
 						mode: ['rules']
 					}
+				},
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '[]',
+					placeholder: '配置判断规则的JSON数组',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '默认输出',
-				name: 'defaultOutput',
-				type: 'number',
-				default: 0,
-				placeholder: '当所有条件都不满足时的默认输出分支（0-3）',
-				controlType: 'input'
-			},
-			{
-				displayName: '输出分支数量',
-				name: 'outputCount',
-				type: 'number',
-				default: 2,
-				placeholder: '设置输出分支的数量（2-4）',
-				controlType: 'input'
-			},
-			{
-				displayName: '分支0名称',
-				name: 'branch0Name',
-				type: 'string',
-				default: '分支0',
-				placeholder: '第一个输出分支的名称',
-				controlType: 'input'
-			},
-			{
-				displayName: '分支1名称',
-				name: 'branch1Name',
-				type: 'string',
-				default: '分支1',
-				placeholder: '第二个输出分支的名称',
-				controlType: 'input'
-			},
-			{
-				displayName: '分支2名称',
-				name: 'branch2Name',
-				type: 'string',
-				default: '分支2',
-				placeholder: '第三个输出分支的名称',
-				controlType: 'input',
-				displayOptions: {
-					showBy: {
-						outputCount: [3, 4]
-					}
+				label: '默认输出',
+				fieldName: 'defaultOutput',
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 0,
+					placeholder: '当所有条件都不满足时的默认输出分支（0-3）'
 				}
 			},
 			{
-				displayName: '分支3名称',
-				name: 'branch3Name',
-				type: 'string',
-				default: '分支3',
-				placeholder: '第四个输出分支的名称',
-				controlType: 'input',
-				displayOptions: {
-					showBy: {
-						outputCount: [4]
-					}
+				label: '输出分支数量',
+				fieldName: 'outputCount',
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 2,
+					placeholder: '设置输出分支的数量（2-4）'
+				}
+			},
+			{
+				label: '分支0名称',
+				fieldName: 'branch0Name',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '分支0',
+					placeholder: '第一个输出分支的名称'
+				}
+			},
+			{
+				label: '分支1名称',
+				fieldName: 'branch1Name',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '分支1',
+					placeholder: '第二个输出分支的名称'
+				}
+			},
+			{
+				label: '分支2名称',
+				fieldName: 'branch2Name',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '分支2',
+					placeholder: '第三个输出分支的名称'
+				}
+			},
+			{
+				label: '分支3名称',
+				fieldName: 'branch3Name',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '分支3',
+					placeholder: '第四个输出分支的名称'
 				}
 			}
 		]

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, UploadProgress, AppError, ErrorType } from '@repo/common';
-import { knowledgeBaseManager } from "@repo/knowledge-base";
+import { knowledgeBaseManager } from "@repo/common";
 
 export async function GET(
     request: NextRequest,
@@ -39,10 +39,10 @@ export async function GET(
             return NextResponse.json(response, { status: 400 });
         }
 
-        const kb = await knowledgeBaseManager.get(kbId);
+        const kb = await knowledgeBaseManager.mediator?.get(kbId);
 
         // 获取文档信息
-        const document = await kb.getDocumentById(fileId);
+        const document = await kb?.getDocumentById(fileId);
         if (!document) {
             const error: AppError = {
                 type: ErrorType.VALIDATION_ERROR,
@@ -59,7 +59,7 @@ export async function GET(
         }
 
         // 获取处理状态
-        const processingStatus = await kb.getProcessingStatus(fileId);
+        const processingStatus = await kb?.getProcessingStatus(fileId);
 
         const progress: UploadProgress = {
             fileId: document.id,

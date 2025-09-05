@@ -27,67 +27,92 @@ export class FeishuBitableConnect extends BaseSocialConnect {
         description: '配置飞书多维表格API的基础凭证信息，用于调用飞书多维表格接口',
         fields: [
             {
-                displayName: 'App ID',
-                name: 'appId',
-                type: 'string' as const,
-                required: true,
+                label: 'App ID',
+                fieldName: 'appId',
                 description: '飞书应用的App ID，在飞书开发者后台获取',
-                placeholder: '请输入飞书应用的App ID',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入飞书应用的App ID'
+                }
             },
             {
-                displayName: 'App Secret',
-                name: 'appSecret',
-                type: 'string' as const,
-                required: true,
+                label: 'App Secret',
+                fieldName: 'appSecret',
                 description: '飞书应用的App Secret，在飞书开发者后台获取',
-                placeholder: '请输入飞书应用的App Secret',
-                controlType: "password"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入飞书应用的App Secret',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: 'API基础URL',
-                name: 'baseUrl',
-                type: 'string' as const,
-                required: false,
-                default: 'https://open.feishu.cn',
+                label: 'API基础URL',
+                fieldName: 'baseUrl',
                 description: '飞书API的基础URL地址',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'https://open.feishu.cn',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: 'https://open.feishu.cn'
+                }
             },
             {
-                displayName: '连接超时时间(秒)',
-                name: 'timeout',
-                type: 'number' as const,
-                required: false,
-                default: 30,
+                label: '连接超时时间(秒)',
+                fieldName: 'timeout',
                 description: 'API请求的超时时间，单位为秒',
-                typeOptions: {
-                    minValue: 5,
-                    maxValue: 120
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 30,
+                    validation: {
+                        required: false,
+                        min: 5,
+                        max: 120
+                    },
+                    placeholder: '30'
+                }
             },
             {
-                displayName: '用户ID类型',
-                name: 'userIdType',
-                type: 'options' as const,
-                required: false,
-                default: 'open_id',
+                label: '用户ID类型',
+                fieldName: 'userIdType',
                 description: '用户ID的类型，用于人员字段操作',
-                options: [
-                    {
-                        name: 'Open ID',
-                        value: 'open_id'
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'open_id',
+                    validation: {
+                        required: false
                     },
-                    {
-                        name: 'Union ID',
-                        value: 'union_id'
-                    },
-                    {
-                        name: 'User ID',
-                        value: 'user_id'
-                    }
-                ],
-                controlType: "select"
+                    options: [
+                        {
+                            name: 'Open ID',
+                            value: 'open_id'
+                        },
+                        {
+                            name: 'Union ID',
+                            value: 'union_id'
+                        },
+                        {
+                            name: 'User ID',
+                            value: 'user_id'
+                        }
+                    ]
+                }
             }
         ],
         validateConnection: true,

@@ -17,316 +17,349 @@ export class Redis implements INode {
 		fields: [
 			// 数据库连接配置
 			{
-				displayName: '连接源',
-				name: 'datasource',
-				type: 'string',
-				default: '',
-				required: true,
+				label: '连接源',
+				fieldName: 'datasource',
 				connectType: "redis",
-				controlType: 'selectconnect'
+				control: {
+					name: 'selectconnect',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true }
+				}
 			},
 			// 操作类型选择器
 			{
-				displayName: '操作类型',
-				name: 'operation',
-				type: 'options',
-				options: [
-					{
-						name: '执行命令',
-						value: 'executeCommand',
-						description: '执行自定义Redis命令',
-					},
-					{
-						name: '获取值',
-						value: 'get',
-						description: '根据键获取对应的值',
-					},
-					{
-						name: '设置值',
-						value: 'set',
-						description: '设置键值对',
-					},
-					{
-						name: '删除键',
-						value: 'delete',
-						description: '删除指定的键',
-					},
-					{
-						name: '检查键存在',
-						value: 'exists',
-						description: '检查键是否存在',
-					},
-					{
-						name: '设置过期时间',
-						value: 'expire',
-						description: '为键设置过期时间',
-					},
-					{
-						name: '获取所有键',
-						value: 'keys',
-						description: '获取匹配模式的所有键',
-					},
-					{
-						name: 'Hash操作',
-						value: 'hash',
-						description: 'Hash数据结构操作',
-					},
-					{
-						name: 'List操作',
-						value: 'list',
-						description: 'List数据结构操作',
-					},
-					{
-						name: 'Set操作',
-						value: 'set_ops',
-						description: 'Set数据结构操作',
-					}
-				],
-				default: 'executeCommand',
-				placeholder: '选择操作类型',
-				controlType: 'selectwithdesc'
+				label: '操作类型',
+				fieldName: 'operation',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'executeCommand',
+					options: [
+						{
+							name: '执行命令',
+							value: 'executeCommand',
+							description: '执行自定义Redis命令',
+						},
+						{
+							name: '获取值',
+							value: 'get',
+							description: '根据键获取对应的值',
+						},
+						{
+							name: '设置值',
+							value: 'set',
+							description: '设置键值对',
+						},
+						{
+							name: '删除键',
+							value: 'delete',
+							description: '删除指定的键',
+						},
+						{
+							name: '检查键存在',
+							value: 'exists',
+							description: '检查键是否存在',
+						},
+						{
+							name: '设置过期时间',
+							value: 'expire',
+							description: '为键设置过期时间',
+						},
+						{
+							name: '获取所有键',
+							value: 'keys',
+							description: '获取匹配模式的所有键',
+						},
+						{
+							name: 'Hash操作',
+							value: 'hash',
+							description: 'Hash数据结构操作',
+						},
+						{
+							name: 'List操作',
+							value: 'list',
+							description: 'List数据结构操作',
+						},
+						{
+							name: 'Set操作',
+							value: 'set_ops',
+							description: 'Set数据结构操作',
+						}
+					]
+				}
 			},
 
 			// 键名（大部分操作都需要）
 			{
-				displayName: '键名',
-				name: 'key',
-				type: 'string',
-				displayOptions: {
+				label: '键名',
+				fieldName: 'key',
+				conditionRules: {
 					hide: {
-						operation: ['executeCommand', 'keys'],
-					},
+						operation: ['executeCommand', 'keys']
+					}
 				},
-				default: '',
-				required: true,
-				placeholder: '例如: user:123, cache:data',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '例如: user:123, cache:data',
+					validation: { required: true }
+				}
 			},
 
 			// 值（设置操作需要）
 			{
-				displayName: '值',
-				name: 'value',
-				type: 'string',
-				displayOptions: {
+				label: '值',
+				fieldName: 'value',
+				conditionRules: {
 					showBy: {
-						operation: ['set'],
-					},
+						operation: ['set']
+					}
 				},
-				default: '',
-				required: true,
-				placeholder: '要设置的值',
-				controlType: 'textarea'
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '要设置的值',
+					validation: { required: true }
+				}
 			},
 
 			// 过期时间（设置值和过期时间操作需要）
 			{
-				displayName: '过期时间(秒)',
-				name: 'expireTime',
-				type: 'number',
-				displayOptions: {
+				label: '过期时间(秒)',
+				fieldName: 'expireTime',
+				conditionRules: {
 					showBy: {
-						operation: ['set', 'expire'],
-					},
+						operation: ['set', 'expire']
+					}
 				},
-				default: 0,
-				placeholder: '0表示永不过期',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 0,
+					placeholder: '0表示永不过期'
+				}
 			},
 
 			// 键模式（获取所有键操作需要）
 			{
-				displayName: '键模式',
-				name: 'pattern',
-				type: 'string',
-				displayOptions: {
+				label: '键模式',
+				fieldName: 'pattern',
+				conditionRules: {
 					showBy: {
-						operation: ['keys'],
-					},
+						operation: ['keys']
+					}
 				},
-				default: '*',
-				placeholder: '例如: user:*, cache:*, *',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '*',
+					placeholder: '例如: user:*, cache:*, *'
+				}
 			},
 
 			// Hash操作相关字段
 			{
-				displayName: 'Hash操作类型',
-				name: 'hashOperation',
-				type: 'options',
-				displayOptions: {
+				label: 'Hash操作类型',
+				fieldName: 'hashOperation',
+				conditionRules: {
 					showBy: {
-						operation: ['hash'],
-					},
+						operation: ['hash']
+					}
 				},
-				options: [
-					{ name: '获取字段值', value: 'hget' },
-					{ name: '设置字段值', value: 'hset' },
-					{ name: '获取所有字段', value: 'hgetall' },
-					{ name: '删除字段', value: 'hdel' },
-					{ name: '检查字段存在', value: 'hexists' }
-				],
-				default: 'hget',
-				controlType: 'select'
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'hget',
+					options: [
+						{ name: '获取字段值', value: 'hget' },
+						{ name: '设置字段值', value: 'hset' },
+						{ name: '获取所有字段', value: 'hgetall' },
+						{ name: '删除字段', value: 'hdel' },
+						{ name: '检查字段存在', value: 'hexists' }
+					]
+				}
 			},
 
 			{
-				displayName: 'Hash字段名',
-				name: 'hashField',
-				type: 'string',
-				displayOptions: {
+				label: 'Hash字段名',
+				fieldName: 'hashField',
+				conditionRules: {
 					showBy: {
 						operation: ['hash'],
 						hashOperation: ['hget', 'hset', 'hdel', 'hexists']
-					},
+					}
 				},
-				default: '',
-				placeholder: 'Hash字段名',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'Hash字段名'
+				}
 			},
 
 			{
-				displayName: 'Hash字段值',
-				name: 'hashValue',
-				type: 'string',
-				displayOptions: {
+				label: 'Hash字段值',
+				fieldName: 'hashValue',
+				conditionRules: {
 					showBy: {
 						operation: ['hash'],
 						hashOperation: ['hset']
-					},
+					}
 				},
-				default: '',
-				placeholder: 'Hash字段值',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'Hash字段值'
+				}
 			},
 
 			// List操作相关字段
 			{
-				displayName: 'List操作类型',
-				name: 'listOperation',
-				type: 'options',
-				displayOptions: {
+				label: 'List操作类型',
+				fieldName: 'listOperation',
+				conditionRules: {
 					showBy: {
-						operation: ['list'],
-					},
+						operation: ['list']
+					}
 				},
-				options: [
-					{ name: '左侧推入', value: 'lpush' },
-					{ name: '右侧推入', value: 'rpush' },
-					{ name: '左侧弹出', value: 'lpop' },
-					{ name: '右侧弹出', value: 'rpop' },
-					{ name: '获取范围', value: 'lrange' },
-					{ name: '获取长度', value: 'llen' }
-				],
-				default: 'lpush',
-				controlType: 'select'
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'lpush',
+					options: [
+						{ name: '左侧推入', value: 'lpush' },
+						{ name: '右侧推入', value: 'rpush' },
+						{ name: '左侧弹出', value: 'lpop' },
+						{ name: '右侧弹出', value: 'rpop' },
+						{ name: '获取范围', value: 'lrange' },
+						{ name: '获取长度', value: 'llen' }
+					]
+				}
 			},
 
 			{
-				displayName: 'List值',
-				name: 'listValue',
-				type: 'string',
-				displayOptions: {
+				label: 'List值',
+				fieldName: 'listValue',
+				conditionRules: {
 					showBy: {
 						operation: ['list'],
 						listOperation: ['lpush', 'rpush']
-					},
+					}
 				},
-				default: '',
-				placeholder: 'List元素值',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'List元素值'
+				}
 			},
 
 			{
-				displayName: '开始索引',
-				name: 'listStart',
-				type: 'number',
-				displayOptions: {
+				label: '开始索引',
+				fieldName: 'listStart',
+				conditionRules: {
 					showBy: {
 						operation: ['list'],
 						listOperation: ['lrange']
-					},
+					}
 				},
-				default: 0,
-				placeholder: '开始索引',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 0,
+					placeholder: '开始索引'
+				}
 			},
 
 			{
-				displayName: '结束索引',
-				name: 'listEnd',
-				type: 'number',
-				displayOptions: {
+				label: '结束索引',
+				fieldName: 'listEnd',
+				conditionRules: {
 					showBy: {
 						operation: ['list'],
 						listOperation: ['lrange']
-					},
+					}
 				},
-				default: -1,
-				placeholder: '结束索引（-1表示最后一个）',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: -1,
+					placeholder: '结束索引（-1表示最后一个）'
+				}
 			},
 
 			// Set操作相关字段
 			{
-				displayName: 'Set操作类型',
-				name: 'setOperation',
-				type: 'options',
-				displayOptions: {
+				label: 'Set操作类型',
+				fieldName: 'setOperation',
+				conditionRules: {
 					showBy: {
-						operation: ['set_ops'],
-					},
+						operation: ['set_ops']
+					}
 				},
-				options: [
-					{ name: '添加成员', value: 'sadd' },
-					{ name: '移除成员', value: 'srem' },
-					{ name: '获取所有成员', value: 'smembers' },
-					{ name: '检查成员存在', value: 'sismember' },
-					{ name: '获取成员数量', value: 'scard' }
-				],
-				default: 'sadd',
-				controlType: 'select'
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'sadd',
+					options: [
+						{ name: '添加成员', value: 'sadd' },
+						{ name: '移除成员', value: 'srem' },
+						{ name: '获取所有成员', value: 'smembers' },
+						{ name: '检查成员存在', value: 'sismember' },
+						{ name: '获取成员数量', value: 'scard' }
+					]
+				}
 			},
 
 			{
-				displayName: 'Set成员值',
-				name: 'setMember',
-				type: 'string',
-				displayOptions: {
+				label: 'Set成员值',
+				fieldName: 'setMember',
+				conditionRules: {
 					showBy: {
 						operation: ['set_ops'],
 						setOperation: ['sadd', 'srem', 'sismember']
-					},
+					}
 				},
-				default: '',
-				placeholder: 'Set成员值',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'Set成员值'
+				}
 			},
 
 			// 自定义命令
 			{
-				displayName: 'Redis命令',
-				name: 'command',
-				type: 'string',
-				displayOptions: {
+				label: 'Redis命令',
+				fieldName: 'command',
+				conditionRules: {
 					showBy: {
-						operation: ['executeCommand'],
-					},
+						operation: ['executeCommand']
+					}
 				},
-				default: '',
-				required: true,
-				placeholder: '例如: GET user:123, SET cache:data "value", HGET user:123 name',
-				controlType: 'textarea'
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '例如: GET user:123, SET cache:data "value", HGET user:123 name',
+					validation: { required: true }
+				}
 			},
 
 			// 连接选项
 			{
-				displayName: '连接超时(秒)',
-				name: 'connectionTimeout',
-				type: 'number',
-				default: 30,
-				placeholder: '连接超时时间',
-				controlType: 'input'
+				label: '连接超时(秒)',
+				fieldName: 'connectionTimeout',
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 30,
+					placeholder: '连接超时时间'
+				}
 			}
 		],
 	};

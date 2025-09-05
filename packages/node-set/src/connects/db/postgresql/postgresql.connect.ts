@@ -30,92 +30,112 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
         ],
         fields: [
             {
-                displayName: '主机地址',
-                name: 'host',
-                type: 'string' as const,
-                default: 'localhost',
+                label: '主机地址',
+                fieldName: 'host',
                 description: 'PostgreSQL服务器的主机地址',
-                placeholder: 'localhost 或 IP地址',
-                required: true,
-                testConnection: true
-            },
-            {
-                displayName: '端口',
-                name: 'port',
-                type: 'number' as const,
-                default: 5432,
-                description: 'PostgreSQL服务器端口号',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 65535
-                },
-                required: true,
-                testConnection: true
-            },
-            {
-                displayName: '用户名',
-                name: 'username',
-                type: 'string' as const,
-                default: '',
-                description: '数据库用户名',
-                required: true,
-                testConnection: true
-            },
-            {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as const,
-                default: '',
-                description: '数据库密码',
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                testConnection: true
-            },
-            {
-                displayName: '数据库名',
-                name: 'database',
-                type: 'string' as const,
-                default: '',
-                description: '要连接的数据库名称',
-                required: true,
-                testConnection: true
-            },
-            {
-                displayName: 'Schema',
-                name: 'schema',
-                type: 'string' as const,
-                default: 'public',
-                description: '默认Schema名称'
-            },
-            {
-                displayName: '启用SSL',
-                name: 'ssl',
-                type: 'boolean' as const,
-                default: false,
-                description: '是否启用SSL连接'
-            },
-            {
-                displayName: '连接超时(秒)',
-                name: 'connectionTimeout',
-                type: 'number' as const,
-                default: 10,
-                description: '连接超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 300
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'localhost',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'localhost 或 IP地址'
                 }
             },
             {
-                displayName: '连接池大小',
-                name: 'connectionLimit',
-                type: 'number' as const,
-                default: 10,
+                label: '端口',
+                fieldName: 'port',
+                description: 'PostgreSQL服务器端口号',
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 5432,
+                    validation: {
+                        required: true
+                    }
+                }
+            },
+            {
+                label: '用户名',
+                fieldName: 'username',
+                description: '数据库用户名',
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    }
+                }
+            },
+            {
+                label: '密码',
+                fieldName: 'password',
+                description: '数据库密码',
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
+            },
+            {
+                label: '数据库名',
+                fieldName: 'database',
+                description: '要连接的数据库名称',
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    }
+                }
+            },
+            {
+                label: 'Schema',
+                fieldName: 'schema',
+                description: '默认Schema名称',
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'public'
+                }
+            },
+            {
+                label: '启用SSL',
+                fieldName: 'ssl',
+                description: '是否启用SSL连接',
+                control: {
+                    name: 'switch' as const,
+                    dataType: 'boolean' as const,
+                    defaultValue: false
+                }
+            },
+            {
+                label: '连接超时(秒)',
+                fieldName: 'connectionTimeout',
+                description: '连接超时时间，单位：秒',
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 10
+                }
+            },
+            {
+                label: '连接池大小',
+                fieldName: 'connectionLimit',
                 description: '最大连接数',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 100
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 10
                 }
             }
         ],

@@ -24,14 +24,16 @@ export class WecomEvent implements INode{
 	detail: INodeDetail = {
 		fields: [
             {
-                displayName: '企业微信连接',
-                name: 'credential',
-                type: 'string',
-                required: true,
-                connectType: 'wecom',
-                default: '',
+                label: '企业微信连接',
+                fieldName: 'credential',
                 description: '选择企业微信连接配置',
-                controlType: 'selectconnect'
+                connectType: 'wecom',
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    validation: { required: true },
+                    defaultValue: ''
+                }
             },
 		],
 	};

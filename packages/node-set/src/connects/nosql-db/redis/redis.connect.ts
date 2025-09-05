@@ -23,64 +23,81 @@ export class RedisConnect extends BaseDatabaseConnect {
         ],
         fields: [
             {
-                displayName: '主机地址',
-                name: 'host',
-                type: 'string' as const,
-                default: 'localhost',
+                label: '主机地址',
+                fieldName: 'host',
                 description: 'Redis服务器的主机地址',
-                placeholder: 'localhost 或 IP地址',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'localhost',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'localhost 或 IP地址'
+                }
             },
             {
-                displayName: '端口',
-                name: 'port',
-                type: 'number' as const,
-                default: 6379,
+                label: '端口',
+                fieldName: 'port',
                 description: 'Redis服务器端口号',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 65535
-                },
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 6379,
+                    validation: {
+                        required: true,
+                        min: 1,
+                        max: 65535
+                    },
+                    placeholder: '6379'
+                }
             },
             {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as const,
-                default: '',
+                label: '密码',
+                fieldName: 'password',
                 description: 'Redis密码（如果设置了AUTH）',
-                placeholder: "请输入Redis密码",
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入Redis密码',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '数据库索引',
-                name: 'database',
-                type: 'number' as const,
-                default: 0,
+                label: '数据库索引',
+                fieldName: 'database',
                 description: 'Redis数据库索引（0-15）',
-                typeOptions: {
-                    minValue: 0,
-                    maxValue: 15
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 0,
+                    validation: {
+                        min: 0,
+                        max: 15
+                    },
+                    placeholder: '0'
+                }
             },
             {
-                displayName: '连接超时(秒)',
-                name: 'connectTimeout',
-                type: 'number' as const,
-                default: 10,
+                label: '连接超时(秒)',
+                fieldName: 'connectTimeout',
                 description: '连接超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 300
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 10,
+                    validation: {
+                        min: 1,
+                        max: 300
+                    },
+                    placeholder: '10'
+                }
             }
         ],
         validateConnection: true,

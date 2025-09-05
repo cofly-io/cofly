@@ -19,542 +19,573 @@ export class WebService implements INode {
 		fields: [
 			// 服务类型选择
 			{
-				displayName: '服务类型',
-				name: 'serviceType',
-				type: 'options',
-				options: [
-					{
-						name: 'REST API',
-						value: 'rest',
-						description: 'RESTful Web服务',
-					},
-					{
-						name: 'SOAP服务',
-						value: 'soap',
-						description: 'SOAP Web服务',
-					},
-					{
-						name: 'GraphQL',
-						value: 'graphql',
-						description: 'GraphQL API服务',
-					},
-					{
-						name: '自定义服务',
-						value: 'custom',
-						description: '自定义Web服务',
-					},
-				],
-				default: 'rest',
-				required: true,
-				controlType: 'selectwithdesc'
+				label: '服务类型',
+				fieldName: 'serviceType',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'rest',
+					validation: { required: true },
+					options: [
+						{
+							name: 'REST API',
+							value: 'rest',
+							description: 'RESTful Web服务',
+						},
+						{
+							name: 'SOAP服务',
+							value: 'soap',
+							description: 'SOAP Web服务',
+						},
+						{
+							name: 'GraphQL',
+							value: 'graphql',
+							description: 'GraphQL API服务',
+						},
+						{
+							name: '自定义服务',
+							value: 'custom',
+							description: '自定义Web服务',
+						},
+					]
+				}
 			},
 
 			// REST API配置
 			{
-				displayName: '请求方法',
-				name: 'method',
-				type: 'options',
-				displayOptions: {
+				label: '请求方法',
+				fieldName: 'method',
+				conditionRules: {
 					showBy: {
 						serviceType: ['rest', 'custom'],
 					},
 				},
-				options: [
-					{
-						name: 'GET',
-						value: 'GET',
-						description: '获取数据',
-					},
-					{
-						name: 'POST',
-						value: 'POST',
-						description: '提交数据',
-					},
-					{
-						name: 'PUT',
-						value: 'PUT',
-						description: '更新数据',
-					},
-					{
-						name: 'DELETE',
-						value: 'DELETE',
-						description: '删除数据',
-					},
-					{
-						name: 'PATCH',
-						value: 'PATCH',
-						description: '部分更新数据',
-					},
-				],
-				default: 'GET',
-				controlType: 'selectwithdesc'
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'GET',
+					options: [
+						{
+							name: 'GET',
+							value: 'GET',
+							description: '获取数据',
+						},
+						{
+							name: 'POST',
+							value: 'POST',
+							description: '提交数据',
+						},
+						{
+							name: 'PUT',
+							value: 'PUT',
+							description: '更新数据',
+						},
+						{
+							name: 'DELETE',
+							value: 'DELETE',
+							description: '删除数据',
+						},
+						{
+							name: 'PATCH',
+							value: 'PATCH',
+							description: '部分更新数据',
+						},
+					]
+				}
 			},
 
 			// 服务端点URL
 			{
-				displayName: '服务端点',
-				name: 'endpoint',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: 'https://api.example.com/v1/users',
-				controlType: 'input'
+				label: '服务端点',
+				fieldName: 'endpoint',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'https://api.example.com/v1/users',
+					validation: { required: true }
+				}
 			},
 
 			// SOAP特定配置
 			{
-				displayName: 'SOAP Action',
-				name: 'soapAction',
-				type: 'string',
-				displayOptions: {
+				label: 'SOAP Action',
+				fieldName: 'soapAction',
+				conditionRules: {
 					showBy: {
 						serviceType: ['soap'],
 					},
 				},
-				default: '',
-				placeholder: 'http://tempuri.org/GetUserInfo',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'http://tempuri.org/GetUserInfo'
+				}
 			},
 			{
-				displayName: 'SOAP信封',
-				name: 'soapEnvelope',
-				type: 'string',
-				displayOptions: {
+				label: 'SOAP信封',
+				fieldName: 'soapEnvelope',
+				conditionRules: {
 					showBy: {
 						serviceType: ['soap'],
 					},
 				},
-				default: `<?xml version="1.0" encoding="utf-8"?>
+				control: {
+					name: 'jscode',
+					dataType: 'string',
+					defaultValue: `<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
     <!-- SOAP请求内容 -->
   </soap:Body>
-</soap:Envelope>`,
-				controlType: 'xmlcode'
+</soap:Envelope>`
+				}
 			},
 
 			// GraphQL特定配置
 			{
-				displayName: 'GraphQL查询',
-				name: 'graphqlQuery',
-				type: 'string',
-				displayOptions: {
+				label: 'GraphQL查询',
+				fieldName: 'graphqlQuery',
+				conditionRules: {
 					showBy: {
 						serviceType: ['graphql'],
 					},
 				},
-				default: `query {
+				control: {
+					name: 'jscode',
+					dataType: 'string',
+					defaultValue: `query {
   users {
     id
     name
     email
   }
-}`,
-				controlType: 'graphqlcode'
+}`
+				}
 			},
 			{
-				displayName: 'GraphQL变量',
-				name: 'graphqlVariables',
-				type: 'string',
-				displayOptions: {
+				label: 'GraphQL变量',
+				fieldName: 'graphqlVariables',
+				conditionRules: {
 					showBy: {
 						serviceType: ['graphql'],
 					},
 				},
-				default: '{}',
-				placeholder: '{"userId": 123, "limit": 10}',
-				controlType: 'jsoncode'
+				control: {
+					name: 'jscode',
+					dataType: 'string',
+					defaultValue: '{}',
+					placeholder: '{"userId": 123, "limit": 10}'
+				}
 			},
 
 			// 服务认证配置
 			{
-				displayName: '认证方式',
-				name: 'authentication',
-				type: 'options',
-				options: [
-					{
-						name: '无认证',
-						value: 'none',
-						description: '不使用认证',
-					},
-					{
-						name: 'API Key',
-						value: 'apikey',
-						description: 'API密钥认证',
-					},
-					{
-						name: 'Bearer Token',
-						value: 'bearer',
-						description: 'Bearer令牌认证',
-					},
-					{
-						name: 'Basic认证',
-						value: 'basic',
-						description: '用户名密码认证',
-					},
-					{
-						name: 'OAuth 2.0',
-						value: 'oauth2',
-						description: 'OAuth 2.0认证',
-					},
-				],
-				default: 'none',
-				controlType: 'selectwithdesc'
+				label: '认证方式',
+				fieldName: 'authentication',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'none',
+					options: [
+						{
+							name: '无认证',
+							value: 'none',
+							description: '不使用认证',
+						},
+						{
+							name: 'API Key',
+							value: 'apikey',
+							description: 'API密钥认证',
+						},
+						{
+							name: 'Bearer Token',
+							value: 'bearer',
+							description: 'Bearer令牌认证',
+						},
+						{
+							name: 'Basic认证',
+							value: 'basic',
+							description: '用户名密码认证',
+						},
+						{
+							name: 'OAuth 2.0',
+							value: 'oauth2',
+							description: 'OAuth 2.0认证',
+						},
+					]
+				}
 			},
 
 			// API Key认证
 			{
-				displayName: 'API Key位置',
-				name: 'apiKeyLocation',
-				type: 'options',
-				displayOptions: {
+				label: 'API Key位置',
+				fieldName: 'apiKeyLocation',
+				conditionRules: {
 					showBy: {
 						authentication: ['apikey'],
 					},
 				},
-				options: [
-					{
-						name: '请求头',
-						value: 'header',
-						description: '在HTTP请求头中发送',
-					},
-					{
-						name: '查询参数',
-						value: 'query',
-						description: '在URL查询参数中发送',
-					},
-				],
-				default: 'header',
-				controlType: 'select'
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'header',
+					options: [
+						{
+							name: '请求头',
+							value: 'header',
+							description: '在HTTP请求头中发送',
+						},
+						{
+							name: '查询参数',
+							value: 'query',
+							description: '在URL查询参数中发送',
+						},
+					]
+				}
 			},
 			{
-				displayName: 'API Key名称',
-				name: 'apiKeyName',
-				type: 'string',
-				displayOptions: {
+				label: 'API Key名称',
+				fieldName: 'apiKeyName',
+				conditionRules: {
 					showBy: {
 						authentication: ['apikey'],
 					},
 				},
-				default: 'X-API-Key',
-				required: true,
-				placeholder: 'X-API-Key, api_key等',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'X-API-Key',
+					placeholder: 'X-API-Key, Authorization等',
+					validation: { required: true }
+				}
 			},
-			{
-				displayName: 'API Key值',
-				name: 'apiKeyValue',
-				type: 'string',
-				displayOptions: {
+							{
+				label: 'API Key值',
+				fieldName: 'apiKeyValue',
+				conditionRules: {
 					showBy: {
 						authentication: ['apikey'],
 					},
 				},
-				default: '',
-				required: true,
-				placeholder: 'your-api-key',
-				controlType: 'password'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'your-api-key',
+					validation: { required: true }
+				}
 			},
 
 			// Bearer Token认证
 			{
-				displayName: 'Bearer Token',
-				name: 'bearerToken',
-				type: 'string',
-				displayOptions: {
+				label: 'Bearer Token',
+				fieldName: 'bearerToken',
+				conditionRules: {
 					showBy: {
 						authentication: ['bearer'],
 					},
 				},
-				default: '',
-				required: true,
-				placeholder: 'your-bearer-token',
-				controlType: 'password'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'your-bearer-token',
+					validation: { required: true }
+				}
 			},
 
 			// Basic认证
 			{
-				displayName: '用户名',
-				name: 'username',
-				type: 'string',
-				displayOptions: {
+				label: '用户名',
+				fieldName: 'username',
+				conditionRules: {
 					showBy: {
 						authentication: ['basic'],
 					},
 				},
-				default: '',
-				required: true,
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true }
+				}
 			},
 			{
-				displayName: '密码',
-				name: 'password',
-				type: 'string',
-				displayOptions: {
+				label: '密码',
+				fieldName: 'password',
+				conditionRules: {
 					showBy: {
 						authentication: ['basic'],
 					},
 				},
-				default: '',
-				required: true,
-				controlType: 'password'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true }
+				}
 			},
 
 			// OAuth 2.0认证
 			{
-				displayName: 'Access Token',
-				name: 'accessToken',
-				type: 'string',
-				displayOptions: {
+				label: 'Access Token',
+				fieldName: 'accessToken',
+				conditionRules: {
 					showBy: {
 						authentication: ['oauth2'],
 					},
 				},
-				default: '',
-				required: true,
-				placeholder: 'OAuth 2.0 访问令牌',
-				controlType: 'password'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'OAuth 2.0 访问令牌',
+					validation: { required: true }
+				}
 			},
 
 			// 请求参数配置
 			{
-				displayName: '发送查询参数',
-				name: 'sendQuery',
-				type: 'boolean',
-				displayOptions: {
+				label: '发送查询参数',
+				fieldName: 'sendQuery',
+				conditionRules: {
 					showBy: {
 						serviceType: ['rest', 'custom'],
 					},
 				},
-				default: false,
-				controlType: 'checkbox'
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: false
+				}
 			},
 			{
-				displayName: '查询参数',
-				name: 'queryParams',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						sendQuery: [true],
-					},
-				},
-				default: '',
-				placeholder: 'page=1\nlimit=10\nfilter=active',
-				controlType: 'textarea'
+				label: '查询参数',
+				fieldName: 'queryParams',
+			
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'page=1\nlimit=10\nfilter=active'
+				}
 			},
 
 			// 请求头配置
 			{
-				displayName: '自定义请求头',
-				name: 'sendHeaders',
-				type: 'boolean',
-				default: false,
-				controlType: 'checkbox'
+				label: '自定义请求头',
+				fieldName: 'sendHeaders',
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: false
+				}
 			},
 			{
-				displayName: '请求头',
-				name: 'customHeaders',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						sendHeaders: [true],
-					},
-				},
-				default: '',
-				placeholder: 'Content-Type: application/json\nAccept: application/json',
-				controlType: 'textarea'
+				label: '请求头',
+				fieldName: 'customHeaders',
+			
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'Content-Type: application/json\nAccept: application/json'
+				}
 			},
 
 			// 请求体配置（REST和自定义服务）
 			{
-				displayName: '发送请求体',
-				name: 'sendBody',
-				type: 'boolean',
-				displayOptions: {
+				label: '发送请求体',
+				fieldName: 'sendBody',
+				conditionRules: {
 					showBy: {
 						serviceType: ['rest', 'custom'],
 						method: ['POST', 'PUT', 'PATCH'],
 					},
 				},
-				default: false,
-				controlType: 'checkbox'
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: false
+				}
 			},
 			{
-				displayName: '请求体格式',
-				name: 'bodyFormat',
-				type: 'options',
-				displayOptions: {
-					showBy: {
-						sendBody: [true],
-					},
-				},
-				options: [
-					{
-						name: 'JSON',
-						value: 'json',
-						description: 'JSON格式数据',
-					},
-					{
-						name: 'XML',
-						value: 'xml',
-						description: 'XML格式数据',
-					},
-					{
-						name: '表单数据',
-						value: 'form',
-						description: 'application/x-www-form-urlencoded',
-					},
-					{
-						name: '原始数据',
-						value: 'raw',
-						description: '原始文本数据',
-					},
-				],
-				default: 'json',
-				controlType: 'selectwithdesc'
+				label: '请求体格式',
+				fieldName: 'bodyFormat',
+				// conditionRules: {
+				// 	showBy: {
+				// 		sendBody: [true],
+				// 	},
+				// },
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'json',
+					options: [
+						{
+							name: 'JSON',
+							value: 'json',
+							description: 'JSON格式数据',
+						},
+						{
+							name: 'XML',
+							value: 'xml',
+							description: 'XML格式数据',
+						},
+						{
+							name: '表单数据',
+							value: 'form',
+							description: 'application/x-www-form-urlencoded',
+						},
+						{
+							name: '原始数据',
+							value: 'raw',
+							description: '原始文本数据',
+						},
+					]
+				}
 			},
 			{
-				displayName: 'JSON数据',
-				name: 'jsonBody',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						sendBody: [true],
-						bodyFormat: ['json'],
-					},
-				},
-				default: '{}',
-				placeholder: '{"name": "张三", "email": "zhang@example.com"}',
-				controlType: 'jsoncode'
+				label: 'JSON数据',
+				fieldName: 'jsonBody',
+			
+				control: {
+					name: 'jscode',
+					dataType: 'string',
+					defaultValue: '{}',
+					placeholder: '{"name": "张三", "email": "zhang@example.com"}'
+				}
 			},
 			{
-				displayName: 'XML数据',
-				name: 'xmlBody',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						sendBody: [true],
-						bodyFormat: ['xml'],
-					},
+				label: 'XML数据',
+				fieldName: 'xmlBody',
+				conditionRules: {
+					// showBy: {
+					// 	sendBody: [true],
+					// 	bodyFormat: ['xml'],
+					// },
 				},
-				default: '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <!-- XML内容 -->\n</root>',
-				controlType: 'xmlcode'
+				control: {
+					name: 'jscode',
+					dataType: 'string',
+					defaultValue: '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <!-- XML内容 -->\n</root>'
+				}
 			},
 			{
-				displayName: '表单数据',
-				name: 'formBody',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						sendBody: [true],
-						bodyFormat: ['form'],
-					},
-				},
-				default: '',
-				placeholder: 'name=张三\nemail=zhang@example.com',
-				controlType: 'textarea'
+				label: '表单数据',
+				fieldName: 'formBody',
+				// conditionRules: {
+				// 	showBy: {
+				// 		sendBody: [true],
+				// 		bodyFormat: ['form'],
+				// 	},
+				// },
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'name=张三\nemail=zhang@example.com'
+				}
 			},
 			{
-				displayName: '原始数据',
-				name: 'rawBody',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						sendBody: [true],
-						bodyFormat: ['raw'],
-					},
-				},
-				default: '',
-				placeholder: '原始文本内容',
-				controlType: 'textarea'
+				label: '原始数据',
+				fieldName: 'rawBody',
+		
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '原始文本内容'
+				}
 			},
 
 			// 响应处理配置
 			{
-				displayName: '响应格式',
-				name: 'responseFormat',
-				type: 'options',
-				options: [
-					{
-						name: '自动检测',
-						value: 'auto',
-						description: '自动检测响应格式',
-					},
-					{
-						name: 'JSON',
-						value: 'json',
-						description: 'JSON格式响应',
-					},
-					{
-						name: 'XML',
-						value: 'xml',
-						description: 'XML格式响应',
-					},
-					{
-						name: '文本',
-						value: 'text',
-						description: '纯文本响应',
-					},
-				],
-				default: 'auto',
-				controlType: 'selectwithdesc'
+				label: '响应格式',
+				fieldName: 'responseFormat',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'auto',
+					options: [
+						{
+							name: '自动检测',
+							value: 'auto',
+							description: '自动检测响应格式',
+						},
+						{
+							name: 'JSON',
+							value: 'json',
+							description: 'JSON格式响应',
+						},
+						{
+							name: 'XML',
+							value: 'xml',
+							description: 'XML格式响应',
+						},
+						{
+							name: '文本',
+							value: 'text',
+							description: '纯文本响应',
+						},
+					]
+				}
 			},
 
 			// 高级选项
 			{
-				displayName: '请求超时(秒)',
-				name: 'timeout',
-				type: 'number',
-				default: 30,
-				placeholder: '请求超时时间',
-				controlType: 'input'
+				label: '请求超时(秒)',
+				fieldName: 'timeout',
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 30,
+					placeholder: '请求超时时间'
+				}
 			},
 			{
-				displayName: '重试次数',
-				name: 'retryCount',
-				type: 'number',
-				default: 0,
-				placeholder: '失败时重试次数',
-				controlType: 'input'
+				label: '重试次数',
+				fieldName: 'retryCount',
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 0,
+					placeholder: '失败时重试次数'
+				}
 			},
 			{
-				displayName: '重试间隔(秒)',
-				name: 'retryDelay',
-				type: 'number',
-				displayOptions: {
-					showBy: {
-						retryCount: [1, 2, 3, 4, 5],
-					},
-				},
-				default: 1,
-				placeholder: '重试间隔时间',
-				controlType: 'input'
+				label: '重试间隔(秒)',
+				fieldName: 'retryDelay',
+			
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 1,
+					placeholder: '重试间隔时间'
+				}
 			},
 			{
-				displayName: '忽略SSL证书错误',
-				name: 'rejectUnauthorized',
-				type: 'boolean',
-				default: true,
-				controlType: 'checkbox'
+				label: '忽略SSL证书错误',
+				fieldName: 'rejectUnauthorized',
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: true
+				}
 			},
 			{
-				displayName: '返回完整响应',
-				name: 'fullResponse',
-				type: 'boolean',
-				default: false,
-				controlType: 'checkbox'
-			},
-		],
-	};
-
-	async metadata(opts: IExecuteOptions): Promise<any> {
-		// Web服务节点通常不需要元数据查询
-		return {
-			success: false,
-			error: 'Web服务节点不支持元数据查询'
-		};
+				label: '返回完整响应',
+				fieldName: 'fullResponse',
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: false
+				}
+			}
+		]
 	}
-
 	async execute(opts: IExecuteOptions): Promise<any> {
 		console.log('🌐 [WebService Node] 开始执行Web服务调用:', opts.inputs);
 

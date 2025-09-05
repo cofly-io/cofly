@@ -24,61 +24,79 @@ export class MongoDBConnect extends BaseDatabaseConnect {
         ],
         fields: [
             {
-                displayName: '主机地址',
-                name: 'host',
-                type: 'string' as const,
-                default: 'localhost',
+                label: '主机地址',
+                fieldName: 'host',
                 description: 'MongoDB服务器地址',
-                placeholder: 'localhost, 192.168.1.100等',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'localhost',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'localhost, 192.168.1.100等'
+                }
             },
             {
-                displayName: '端口',
-                name: 'port',
-                type: 'number' as const,
-                default: 27017,
+                label: '端口',
+                fieldName: 'port',
                 description: 'MongoDB服务器端口号',
-                placeholder: '默认端口: 27017',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 65535
-                },
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 27017,
+                    validation: {
+                        required: true,
+                        min: 1,
+                        max: 65535
+                    },
+                    placeholder: '默认端口: 27017'
+                }
             },
             {
-                displayName: '数据库名',
-                name: 'database',
-                type: 'string' as const,
-                default: '',
+                label: '数据库名',
+                fieldName: 'database',
                 description: '要连接的数据库名称',
-                placeholder: 'myapp, test, admin等',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'myapp, test, admin等'
+                }
             },
             {
-                displayName: '用户名',
-                name: 'username',
-                type: 'string' as const,
-                default: '',
-                placeholder: "请输入数据库用户名",
+                label: '用户名',
+                fieldName: 'username',
                 description: '数据库用户名（可选，如果启用了认证）',
-                required: false,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入数据库用户名'
+                }
             },
             {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as const,
-                default: '',
+                label: '密码',
+                fieldName: 'password',
                 description: '数据库密码（可选，如果启用了认证）',
-                placeholder: "请输入数据库密码",
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入数据库密码',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             }
         ],
         validateConnection: true,

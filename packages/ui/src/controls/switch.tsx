@@ -4,6 +4,7 @@ import styled, { css } from 'styled-components';
 // Switch控件的Props接口
 export interface SwitchProps {
   value?: boolean;
+  text?: string;//'示例：开启,关闭'
   onChange?: (checked: boolean) => void;
   disabled?: boolean;
   size?: 'small' | 'medium' | 'large';
@@ -125,6 +126,7 @@ const StyledSwitch = styled.div<{ $active: boolean; $disabled?: boolean; $size?:
 // Switch控件组件
 export const Switch: React.FC<SwitchProps> = ({
   value = false,
+  text, //'开启,关闭'
   onChange,
   disabled = false,
   size = 'small',
@@ -156,6 +158,12 @@ export const Switch: React.FC<SwitchProps> = ({
         }
       }}
     >
+      <span style={{ fontSize: '14px' }}>
+        {text ?
+          (value ? text?.split(',')[0] : text?.split(',')[1]) :
+          (value ? '是' : '否')
+        }
+      </span>
       <div />
     </StyledSwitch>
   );

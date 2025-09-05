@@ -16,14 +16,16 @@ export class FeishuEvent implements INode{
 	detail: INodeDetail = {
 		fields: [
             {
-                displayName: '飞书连接',
-                name: 'credential',
-                type: 'string',
-                required: true,
-                connectType: 'feishu',
-                default: '',
+                label: '飞书连接',
+                fieldName: 'credential',
                 description: '选择飞书连接配置',
-                controlType: 'selectconnect'
+                connectType: 'feishu',
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    validation: { required: true },
+                    defaultValue: ''
+                }
             },
 		],
 	};

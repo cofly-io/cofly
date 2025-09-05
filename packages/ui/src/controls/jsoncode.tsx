@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
-import { javascript } from '@codemirror/lang-javascript';
+import { json } from '@codemirror/lang-json';
 import { EditorView } from '@codemirror/view';
 import styled, { useTheme } from 'styled-components';
 
@@ -196,25 +196,56 @@ interface CodeEditorProps {
   onExpandModeChange?: (expanded: boolean) => void;
   placeholder?: string;
   hasError?: boolean;
+  onValidationChange?: (isValid: boolean, error?: string) => void;
 }
 
-// 轻量级的JavaScript代码编辑器组件
-export const JsCode: React.FC<CodeEditorProps> = ({
+// JSON验证工具函数
+const validateJSON = (value: string): { isValid: boolean; error?: string } => {
+  if (!value.trim()) {
+    return { isValid: true }; // 空内容认为有效
+  }
+  
+  try {
+    JSON.parse(value);
+    return { isValid: true };
+  } catch (error) {
+    return { 
+      isValid: false, 
+      error: error instanceof Error ? error.message : 'Invalid JSON format'
+    };
+  }
+};
+
+// 轻量级的JSON代码编辑器组件
+export const JsonCode: React.FC<CodeEditorProps> = ({
   value,
   onChange,
   readOnly = false,
   height = '180px',
   onExpandModeChange,
-  placeholder = '请输入JavaScript代码...',
-  hasError = false
+  placeholder = '请输入JSON数据...',
+  hasError = false,
+  onValidationChange
 }) => {
   const theme = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalValue, setModalValue] = useState(value);
   const [lineCount, setLineCount] = useState(1);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const editorRef = useRef<any>(null);
   const modalEditorRef = useRef<any>(null);
+
+  // 处理值变化并验证JSON
+  const handleValueChange = (newValue: string) => {
+    const validation = validateJSON(newValue);
+    setValidationError(validation.isValid ? null : validation.error || null);
+    onValidationChange?.(validation.isValid, validation.error);
+    
+    if (onChange) {
+      onChange(newValue);
+    }
+  };
 
   // 创建自定义拖拽处理扩展
   const createDragExtension = () => {
@@ -254,6 +285,14 @@ export const JsCode: React.FC<CodeEditorProps> = ({
   };
 
   const handleModalSave = () => {
+    // 验证JSON格式
+    const validation = validateJSON(modalValue);
+    if (!validation.isValid) {
+      // 如果JSON不合法，不保存，但不关闭模态窗口
+      setValidationError(validation.error || 'Invalid JSON format');
+      return;
+    }
+    
     if (onChange) {
       onChange(modalValue);
     }
@@ -270,6 +309,10 @@ export const JsCode: React.FC<CodeEditorProps> = ({
   const handleModalValueChange = (newValue: string) => {
     setModalValue(newValue);
     setLineCount(newValue.split('\n').length);
+    
+    // 验证JSON
+    const validation = validateJSON(newValue);
+    setValidationError(validation.isValid ? null : validation.error || null);
   };
 
   // 拖拽处理函数
@@ -322,8 +365,6 @@ export const JsCode: React.FC<CodeEditorProps> = ({
     e.stopPropagation();
     setIsDragOver(false);
 
-    console.log('🎯 JsCode drop event - Available data types:', e.dataTransfer.types);
-
     // 优先使用不带大括号的格式（针对JsonTree拖拽）
     const noBracesText = e.dataTransfer.getData('text/plain-no-braces') || '';
     const plainText = e.dataTransfer.getData('text/plain') || '';
@@ -353,7 +394,6 @@ export const JsCode: React.FC<CodeEditorProps> = ({
           const docLength = newValue.length;
           const adjustedCursorPos = Math.min(originalCursorPos, docLength);
 
-          console.log('📍 JsCode: Cursor position - original:', originalCursorPos, ', adjusted:', adjustedCursorPos, ', doc length:', docLength);
 
           // 在调整后的光标位置插入文本
           const beforeInsert = newValue.slice(0, adjustedCursorPos);
@@ -363,8 +403,11 @@ export const JsCode: React.FC<CodeEditorProps> = ({
           // 更新内容
           if (isModalOpen) {
             setModalValue(finalValue);
+            // 验证JSON
+            const validation = validateJSON(finalValue);
+            setValidationError(validation.isValid ? null : validation.error || null);
           } else {
-            onChange(finalValue);
+            handleValueChange(finalValue);
           }
 
           // 设置光标位置到插入文本之后
@@ -383,6 +426,13 @@ export const JsCode: React.FC<CodeEditorProps> = ({
       }
     }
   };
+
+  // 初始化时验证初始值
+  useEffect(() => {
+    const validation = validateJSON(value);
+    setValidationError(validation.isValid ? null : validation.error || null);
+    onValidationChange?.(validation.isValid, validation.error);
+  }, [value, onValidationChange]);
 
   // 键盘快捷键处理
   useEffect(() => {
@@ -430,8 +480,8 @@ export const JsCode: React.FC<CodeEditorProps> = ({
           ref={editorRef}
           value={value}
           height="auto"
-          extensions={[javascript({ jsx: true }), createDragExtension()]}
-          onChange={onChange}
+          extensions={[json(), createDragExtension()]}
+          onChange={handleValueChange}
           readOnly={readOnly}
           theme={theme.mode === 'dark' ? 'dark' : 'light'}
           placeholder={placeholder}
@@ -461,7 +511,7 @@ export const JsCode: React.FC<CodeEditorProps> = ({
       <ModalOverlay $visible={isModalOpen} onClick={handleModalCancel}>
         <ModalContainer $visible={isModalOpen} onClick={(e) => e.stopPropagation()}>
           <ModalHeader>
-            <ModalTitle>JavaScript 代码编辑器</ModalTitle>
+            <ModalTitle>JSON 代码编辑器</ModalTitle>
             <CloseButton onClick={handleModalCancel}>×</CloseButton>
           </ModalHeader>
 
@@ -476,7 +526,7 @@ export const JsCode: React.FC<CodeEditorProps> = ({
                 ref={modalEditorRef}
                 value={modalValue}
                 height="100%"
-                extensions={[javascript({ jsx: true }), createDragExtension()]}
+                extensions={[json(), createDragExtension()]}
                 onChange={handleModalValueChange}
                 theme={theme.mode === 'dark' ? 'dark' : 'light'}
                 placeholder={placeholder}
@@ -502,7 +552,14 @@ export const JsCode: React.FC<CodeEditorProps> = ({
           </ModalContent>
 
           <StatusBar>
-            <span>行数: {lineCount}</span>
+            <span>
+              行数: {lineCount} | 
+              {validationError ? (
+                <span style={{ color: '#ff6b6b' }}>✗ 格式错误: {validationError}</span>
+              ) : (
+                <span style={{ color: '#51cf66' }}>✓ JSON格式正确</span>
+              )}
+            </span>
             <span>Ctrl+S 保存 • Esc 取消</span>
           </StatusBar>
 

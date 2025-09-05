@@ -1,13 +1,19 @@
-import { credentialManager, Icon, IDatabaseMetadataOptions, IDatabaseMetadataResult } from '@repo/common';
-import { ConnectTestResult } from '@repo/common';
+import {
+    Icon,
+    credentialManager,
+    IDatabaseMetadataOptions,
+    IDatabaseMetadataResult,
+    IDatabaseExecutionOptions,
+    IDatabaseExecutionResult,
+    ConnectTestResult
+} from '@repo/common';
 import { BaseDatabaseConnect } from '../../base/BaseDatabaseConnect';
 import mysql from "mysql2/promise";
-import { IDatabaseExecutionOptions, IDatabaseExecutionResult } from "@repo/common";
 
 /**
  * 连接操作回调函数类型
  */
-type ConnectionCallback<T> = (connection: mysql.Connection) => Promise<T>;
+// type ConnectionCallback<T> = (connection: mysql.Connection) => Promise<T>;
 
 /**
  * MySQL 数据库连接器类
@@ -35,107 +41,114 @@ export class MySQLConnect extends BaseDatabaseConnect {
         ],
         fields: [
             {
-                displayName: '主机地址',
-                name: 'host',
-                type: 'string' as const,
-                default: 'localhost',
+                label: '主机地址',
+                fieldName: 'host',
                 description: 'MySQL服务器的主机地址',
-                placeholder: 'localhost 或 IP地址',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'localhost',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'localhost 或 IP地址'
+                }
             },
             {
-                displayName: '数据库名',
-                name: 'database',
-                type: 'string' as const,
-                default: '',
-                description: '要连接的数据库名称',
-                required: true,
-                controlType: "input"
-            },
-            {
-                displayName: '用户名',
-                name: 'username',
-                type: 'string' as const,
-                default: '',
-                placeholder: "请输入数据库用户名",
-                description: '数据库用户名',
-                required: true,
-                controlType: "input"
-            },
-            {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as const,
-                default: '',
-                description: '数据库密码',
-                placeholder: "请输入数据库密码",
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                controlType: "input"
-            },
-            {
-                displayName: '端口',
-                name: 'port',
-                type: 'number' as const,
-                default: 3306,
+                label: '端口',
+                fieldName: 'port',
                 description: 'MySQL服务器端口号',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 65535
-                },
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 3306,
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '3306'
+                }
             },
             {
-                displayName: '查询超时(秒)',
-                name: 'queryTimeout',
-                type: 'number' as const,
-                default: 30,
+                label: '数据库名',
+                fieldName: 'database',
+                description: '要连接的数据库名称',
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入数据库名称'
+                }
+            },
+            {
+                label: '用户名',
+                fieldName: 'username',
+                description: '数据库用户名',
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入数据库用户名'
+                }
+            },
+            {
+                label: '密码',
+                fieldName: 'password',
+                description: '数据库密码',
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入数据库密码',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
+            },
+            {
+                label: '查询超时(秒)',
+                fieldName: 'queryTimeout',
                 description: '查询超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 3600
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    default: 30
+                }
             },
             {
-                displayName: '启用SSL',
-                name: 'ssl',
-                type: 'boolean' as const,
-                default: false,
+                label: '启用SSL',
+                fieldName: 'ssl',
                 description: '是否启用SSL连接',
-                controlType: "checkbox"
+                control: {
+                    name: 'switch' as const,
+                    dataType: 'boolean' as const,
+                    default: false,
+                    attributes: [{
+                        text: '开启,关闭'
+                    }]
+                }
             },
-            // {
-            //     displayName: '字符集',
-            //     name: 'charset',
-            //     type: 'options' as const,
-            //     default: 'utf8mb4',
-            //     description: '数据库字符集',
-            //     options: [
-            //         { name: 'UTF-8 (推荐)', value: 'utf8mb4' },
-            //         { name: 'UTF-8', value: 'utf8' },
-            //         { name: 'Latin1', value: 'latin1' },
-            //         { name: 'ASCII', value: 'ascii' }
-            //     ],
-            //     controlType: "select"
-            // },
-
-            // {
-            //     displayName: '连接池大小',
-            //     name: 'poolSize',
-            //     type: 'number' as const,
-            //     default: 10,
-            //     description: '连接池最大连接数',
-            //     typeOptions: {
-            //         minValue: 1,
-            //         maxValue: 100
-            //     },
-            //     controlType: "input"
-            // }
+            {
+                label: '字符集',
+                fieldName: 'charset',
+                description: '数据库字符集',
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    default: 'utf8mb4',
+                    options: [
+                        { name: 'UTF-8 (推荐)', value: 'utf8mb4' },
+                        { name: 'UTF-8', value: 'utf8' },
+                        { name: 'Latin1', value: 'latin1' },
+                        { name: 'ASCII', value: 'ascii' }
+                    ]
+                }
+            },
         ],
         validateConnection: true,
         connectionTimeout: 10000
@@ -214,7 +227,6 @@ export class MySQLConnect extends BaseDatabaseConnect {
     }
 
     async metadata(opts: IDatabaseMetadataOptions): Promise<IDatabaseMetadataResult> {
-        console.log('🔧 [MySQL Node] metadata 方法被调用:', opts);
         try {
             switch (opts.type) {
                 case 'tables':
@@ -238,13 +250,13 @@ export class MySQLConnect extends BaseDatabaseConnect {
         }
     }
 
-     /**
-     * 统一的连接管理函数
-     * 自动处理连接的创建、使用和关闭
-     */
-     private async withConnection<T>(
+    /**
+    * 统一的连接管理函数
+    * 自动处理连接的创建、使用和关闭
+    */
+    private async withConnection<T>(
         datasourceId: string,
-        callback: ConnectionCallback<T>
+        callback: (connection: mysql.Connection) => Promise<T>
     ): Promise<T> {
         let connection: mysql.Connection | null = null;
 
@@ -290,7 +302,7 @@ export class MySQLConnect extends BaseDatabaseConnect {
             }
         }
     }
-    
+
     /**
      * 获取表名列表
      */

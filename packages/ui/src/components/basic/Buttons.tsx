@@ -11,15 +11,10 @@ import { DESIGN_TOKENS } from '../system/tokens';
 // 按钮变体类型 Button Variant Types
 export type ButtonVariant = 'liquid' | 'secondary' | 'success' | 'warning' | 'error' | 'ghost' | 'link' | 'Glass';
 
-// 按钮尺寸类型 Button Size Types
-export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-
 // 按钮属性接口 Button Props Interface
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** 按钮变体 Button variant */
   variant?: ButtonVariant;
-  /** 按钮尺寸 Button size */
-  size?: ButtonSize;
   /** 是否为加载状态 Loading state */
   loading?: boolean;
   /** 是否为全宽按钮 Full width button */
@@ -89,33 +84,41 @@ const getVariantStyles = (variant: ButtonVariant) => {
         }
       `;
     case 'Glass':
-      return css`
-        background: rgba(255, 255, 255, 0.08); 
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 4px;
-        height: 28px;
-        padding: 0px 14px;
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.9);
-        cursor: pointer;
-        backdrop-filter: blur(4px);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      return css<ButtonProps>`
+      background: ${(props) => props.backgroundColor || 'rgba(255, 255, 255, 0.08)'};
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      height: ${(props) => props.height || '28px'};
+      padding: 0px 14px;
+      font-size: 12px;
+      color: ${(props) => props.backgroundColor ? '#fff' : 'rgba(255, 255, 255, 0.9)'};
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      
+      &:hover {
+        background: ${(props) => props.backgroundColor
+            ? `${props.backgroundColor}CC`
+            : 'rgba(255, 255, 255, 0.12)'};
+        border-color: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      
+      &:disabled {
+        background: ${(props) => props.backgroundColor
+            ? `${props.backgroundColor}80`
+            : 'rgba(255, 255, 255, 0.08)'};
+        border-color: rgba(255, 255, 255, 0.15);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        &:hover {
-          background: rgba(255, 255, 255, 0.12);
-          border-color: rgba(255, 255, 255, 0.25);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        &:after {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.15);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        svg {
-          margin-bottom:-2px;
-          margin-right: 6px; 
-        }
-      `;
+        cursor: not-allowed;
+      }
+      
+      svg {
+        margin-bottom: -1px;
+        margin-right: 6px; 
+      }
+    `;
     case 'secondary':
       return css`
         background: ${colors.background};
@@ -126,7 +129,7 @@ const getVariantStyles = (variant: ButtonVariant) => {
           background: ${colors.backgroundHover};
           border-color: ${colors.borderHover};
         }
-      `;
+    `;
 
     case 'success':
       return css`
@@ -193,51 +196,6 @@ const getVariantStyles = (variant: ButtonVariant) => {
   }
 };
 
-// 获取按钮尺寸样式 Get Button Size Styles
-const getSizeStyles = (size: ButtonSize) => {
-  const { sizes, spacing, typography } = DESIGN_TOKENS;
-
-  switch (size) {
-    case 'xs':
-      return css`
-        height: ${sizes.height.xs};
-        padding: 0 ${spacing[2]};
-        font-size: ${typography.fontSize.xs};
-      `;
-
-    case 'sm':
-      return css`
-        height: ${sizes.height.sm};
-        padding: 0 ${spacing[3]};
-        font-size: ${typography.fontSize.sm};
-      `;
-
-    case 'md':
-      return css`
-        height: ${sizes.height.md};
-        padding: 0 ${spacing[4]};
-        font-size: ${typography.fontSize.md};
-      `;
-
-    case 'lg':
-      return css`
-        height: ${sizes.height.lg};
-        padding: 0 ${spacing[5]};
-        font-size: ${typography.fontSize.lg};
-      `;
-
-    case 'xl':
-      return css`
-        height: ${sizes.height.xl};
-        padding: 0 ${spacing[6]};
-        font-size: ${typography.fontSize.xl};
-      `;
-
-    default:
-      return css``;
-  }
-};
-
 const getRadianStyles = (radian: string) => {
   switch (radian) {
     case 'left':
@@ -260,27 +218,13 @@ const getRadianStyles = (radian: string) => {
 
 // 样式化按钮组件 Styled Button Component
 const StyledButton = styled.button.withConfig({
-  shouldForwardProp: (prop) => !['fullWidth', 'variant', 'size', 'loading', 'width', 'backgroundColor', 'height', 'radian', 'iconPosition'].includes(prop),
+  shouldForwardProp: (prop) => !['fullWidth', 'variant', 'loading', 'width', 'backgroundColor', 'height', 'radian', 'iconPosition'].includes(prop),
 }) <ButtonProps>`
-   /* 尺寸样式 Size Styles */
-  ${({ size = 'md' }) => getSizeStyles(size)}
   /* 变体样式 Variant Styles */
   ${({ variant = 'liquid' }) => getVariantStyles(variant)}
   
   ${({ radian }) => radian && getRadianStyles(radian)}
 
-  /* 自定义背景色样式 Custom Background Color */
-  ${({ backgroundColor }) => backgroundColor && css`
-    background: ${backgroundColor} !important;
-    
-    &:hover {
-      ${backgroundColor.includes('gradient')
-      ? `background: ${backgroundColor} !important; filter: brightness(1.2);`
-      : `background: ${backgroundColor}CC !important;`
-    }
-    }
-  `}}
-  
   /* 全宽样式 Full Width */
   ${({ fullWidth }) => fullWidth && css`
     width: 100%;
@@ -329,7 +273,6 @@ const IconContainer = styled.span<{ position: 'left' | 'right' }>`
 export const CoButton: React.FC<ButtonProps> = ({
   children,
   variant = 'liquid',
-  size = 'md',
   loading = false,
   fullWidth = false,
   width,
@@ -344,7 +287,6 @@ export const CoButton: React.FC<ButtonProps> = ({
   return (
     <StyledButton
       variant={variant}
-      size={size}
       // loading={loading}
       fullWidth={fullWidth}
       backgroundColor={backgroundColor}

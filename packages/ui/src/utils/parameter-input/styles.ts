@@ -1,7 +1,6 @@
 // 参数输入组件的样式配置
 import styled from 'styled-components';
 import { ParameterInputVariant } from './types';
-import { BsTransparency } from 'react-icons/bs';
 
 // 样式配置接口
 interface VariantConfig {

@@ -45,11 +45,11 @@ const BaseTextArea = styled.textarea<{ $hasError?: boolean, $isDragOver?: boolea
   };
   
   /* 确保在任何主题下文字都可见 */
-  color: ${({ theme }) => theme?.colors?.textPrimary || theme.mode === 'dark' ? '#f8fafc' : '#0f172a'} !important;
+  color: ${({ theme }) => theme.mode === 'dark' ? '#f8fafc' : '#0f172a'} !important;
   
   &::placeholder {
     color: ${({ theme }) => theme.mode === 'dark' ? '#64748b' : '#94a3b8'};
-    font-size: 14px;
+    font-size: 12px;
   }
 
   &:hover {
@@ -61,7 +61,7 @@ const BaseTextArea = styled.textarea<{ $hasError?: boolean, $isDragOver?: boolea
   /* 增强focus状态的光标和选择可见性 */
   &:focus {
     border-color: ${({ theme, $hasError }) =>
-      $hasError ? '#ff4d4f' : (theme?.colors?.accent || theme.mode === 'dark' 
+      $hasError ? '#ff4d4f' : (theme.mode === 'dark' 
         ? 'rgba(59, 130, 246, 0.6)' 
         : 'rgba(59, 130, 246, 0.5)')
     };
@@ -74,21 +74,21 @@ const BaseTextArea = styled.textarea<{ $hasError?: boolean, $isDragOver?: boolea
     };
     outline: none;
     /* 强制显示光标 */
-    caret-color: ${({ theme }) => theme?.colors?.textPrimary || theme.mode === 'dark' ? '#f8fafc' : '#0f172a'} !important;
+    caret-color: ${({ theme }) => theme.mode === 'dark' ? '#f8fafc' : '#0f172a'} !important;
     /* 确保光标可见性 */
-    -webkit-text-fill-color: ${({ theme }) => theme?.colors?.textPrimary || theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
-    text-fill-color: ${({ theme }) => theme?.colors?.textPrimary || theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
+    -webkit-text-fill-color: ${({ theme }) =>  theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
+    text-fill-color: ${({ theme }) =>  theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
   }
   
   /* 选中文本的样式 */
   &::selection {
-    background-color: ${({ theme }) => theme?.colors?.accent || '#007bff'}40;
-    color: ${({ theme }) => theme?.colors?.textPrimary || theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
+    background-color: ${({ theme }) => '#007bff'}40;
+    color: ${({ theme }) =>  theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
   }
   
   &::-moz-selection {
     background-color: ${({ theme }) => theme?.colors?.accent || '#007bff'}40;
-    color: ${({ theme }) => theme?.colors?.textPrimary || theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
+    color: ${({ theme }) => theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
   }
 
   &:disabled {

@@ -23,39 +23,51 @@ export class KnowledgeBase implements INode {
     detail: INodeDetail = {
         fields: [
             {
-                displayName: '知识库',
-                name: 'kbConfig',
-                type: 'string',
-                default: '',
-                required: true,
-                connectType: "kb",
-                controlType: 'selectconnect',
+                label: '知识库',
+                fieldName: 'kbConfig',
+                connectType: 'kb',
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    }
+                }
             },
             {
-                displayName: '查询',
-                name: 'query',
-                type: 'string',
-                default: '',
-                required: true,
-                placeholder: '请输入您要查询的内容',
-                controlType: 'textarea',
+                label: '查询',
+                fieldName: 'query',
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入您要查询的内容'
+                }
             },
             {
-                displayName: 'topK',
-                name: 'topK',
-                type: 'number',
-                placeholder: '',
-                default: 5,
-                controlType: 'input'
+                label: 'topK',
+                fieldName: 'topK',
+                control: {
+                    name: 'input',
+                    dataType: 'number',
+                    defaultValue: 5,
+                    placeholder: '5'
+                }
             },
             {
-                displayName: '匹配度',
-                name: 'threshold',
-                type: 'string',
-                placeholder: '',
-                default: 0.5,
-                controlType: 'input'
-            },
+                label: '匹配度',
+                fieldName: 'threshold',
+                control: {
+                    name: 'input',
+                    dataType: 'number',
+                    defaultValue: 0.5,
+                    placeholder: '0.5'
+                }
+            }
         ]
     };
 

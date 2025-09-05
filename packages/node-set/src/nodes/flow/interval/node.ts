@@ -16,48 +16,54 @@ export class Interval implements INode {
 	detail: INodeDetail = {
 		fields: [
 			{
-				displayName: 'Notice',
-				name: 'notice',
-				type: 'string',
-				default: 'This workflow will run on the schedule you define here once you activate it. For testing, you can also trigger it manually: by going back to the canvas and clicking \'execute workflow\'',
-				controlType: 'notice'
-			},
-			{
-				displayName: 'Interval',
-				name: 'interval',
-				type: 'number',
-				default: 1,
-				required: true,
-				placeholder: 'Interval value',
-				controlType: 'input',
-				typeOptions: {
-					minValue: 1
+				label: 'Notice',
+				fieldName: 'notice',
+				control: {
+					name: 'note',
+					dataType: 'string',
+					defaultValue: 'This workflow will run on the schedule you define here once you activate it. For testing, you can also trigger it manually: by going back to the canvas and clicking \'execute workflow\''
 				}
 			},
 			{
-				displayName: 'Unit',
-				name: 'unit',
-				type: 'options',
-				options: [
-					{
-						name: 'Seconds',
-						value: 'seconds',
-						description: 'Execute every X seconds'
-					},
-					{
-						name: 'Minutes',
-						value: 'minutes',
-						description: 'Execute every X minutes'
-					},
-					{
-						name: 'Hours',
-						value: 'hours',
-						description: 'Execute every X hours'
-					}
-				],
-				default: 'seconds',
-				required: true,
-				controlType: 'selectwithdesc'
+				label: 'Interval',
+				fieldName: 'interval',
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 1,
+					placeholder: 'Interval value',
+					validation: { required: true },
+					attributes: [{
+						minValue: 1
+					}]
+				}
+			},
+			{
+				label: 'Unit',
+				fieldName: 'unit',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'seconds',
+					validation: { required: true },
+					options: [
+						{
+							name: 'Seconds',
+							value: 'seconds',
+							description: 'Execute every X seconds'
+						},
+						{
+							name: 'Minutes',
+							value: 'minutes',
+							description: 'Execute every X minutes'
+						},
+						{
+							name: 'Hours',
+							value: 'hours',
+							description: 'Execute every X hours'
+						}
+					]
+				}
 			}
 		]
 	};

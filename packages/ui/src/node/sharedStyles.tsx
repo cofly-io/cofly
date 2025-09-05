@@ -81,3 +81,213 @@ export const NodeEmptyStateText = styled.div`
   font-size:12px;
   color: ${({ theme }) => theme.colors.textSecondary};
 `; 
+
+/**********LeftPanel*********************/
+// Left panel specific styles
+export const PreviousNodeSelector = styled.div`
+  margin-bottom: 16px;
+`;
+
+export const SelectorLabel = styled.div`
+  display: inline-block;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: 13px;
+  margin-bottom: 8px;
+`;
+
+export const SelectDropdown = styled.select`
+  border: 1px solid ${({ theme }) => theme.panel.ctlBorder};
+  background: ${({ theme }) => theme.panel.nodeBg};
+  color: ${({ theme }) => theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
+  width: 40%;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 12px;
+  &:focus {
+    outline: none;
+  }
+
+  &:disabled {
+    background: ${({ theme }) => theme.colors.inputBg}80;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    cursor: not-allowed;
+  }
+`;
+
+// JSON/Schema 按钮容器
+export const ButtonGroup = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+`;
+
+// JSON/Schema 按钮样式
+export const DataViewButton = styled.button<{ $active?: boolean }>`
+  background: ${({ theme, $active }) =>
+    $active ? theme.colors.accent : theme.panel.nodeBg
+  };
+  color: ${({ theme, $active }) =>
+    $active ? 'white' : theme.colors.textPrimary
+  };
+  border: 1px solid ${({ theme, $active }) =>
+    $active ? theme.panel.ctlBorder : theme.panel.ctlBorder
+  };
+  border-radius: 2px;
+  padding: 3px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 50px;
+  height:24px;
+
+  &:hover {
+    background: ${({ theme, $active }) =>
+    $active ? theme.colors.accent : theme.colors.buttonHover
+  };
+    border-color: ${({ theme }) => theme.colors.accent};
+  }
+
+  &:disabled {
+    background: ${({ theme }) => theme.colors.inputBg}80;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    border-color: ${({ theme }) => theme.colors.border};
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+`;
+
+// 旋转动画
+export const spinAnimation = `
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+// 添加执行按钮样式
+export const ExecuteButton = styled.button<{ $disabled: boolean }>`
+  ${spinAnimation}
+  
+  background: ${({ theme }) => theme.colors.tertiary};
+  color: ${({ theme }) => theme.colors.accent || '#4fc3f7'};
+  width: 180px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 2px;
+  padding: 8px 16px;
+  cursor: ${({ $disabled }) => $disabled ? 'not-allowed' : 'pointer'};
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  &:hover {
+    opacity: ${({ $disabled }) => $disabled ? 1 : 0.8};
+    transform: ${({ $disabled }) => $disabled ? 'none' : 'translateY(-1px)'};
+  }
+  
+  .loading-icon {
+    animation: spin 1s linear infinite;
+    font-size: 14px;
+  }
+`;
+
+/**********RightPanel*********************/
+// Right panel for current node test output
+export const PanelHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: ${({ theme }) => theme.panel.nodeBg};
+`;
+
+export const ActionContainer = styled.div`
+  padding: 12px 20px 0px 0px;
+  // display: flex;
+  // gap: 8px;
+  // align-items: center;
+`;
+
+export const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+  background: ${({ theme, $variant }) =>
+    $variant === 'primary'
+      ? theme.colors.success || '#2ed573'
+      : theme.panel.panelBg
+  };
+  color: ${({ theme, $variant }) =>
+    $variant === 'primary'
+      ? 'white'
+      : theme.colors.textPrimary
+  };
+  border: 0px solid ${({ theme, $variant }) =>
+    $variant === 'primary'
+      ? 'transparent'
+      : theme.colors.border
+  };
+  border-radius: 2px;
+  padding: 0px 0px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    opacity: 0.8;
+    // transform: translateY(-1px);
+  }
+`;
+
+export const SetMockButton = styled.button`
+  background: transparent;
+  color: ${({ theme }) => theme.colors.accent || '#4fc3f7'};
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  text-decoration: underline;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: ${({ theme }) => theme.colors.accentHover || '#29b6f6'};
+    text-decoration: none;
+  }
+  
+  &:focus {
+    outline: none;
+    text-decoration: none;
+  }
+`;
+
+export const CodeMirrorContainer = styled.div`\r
+  height: 100%;
+  
+  .cm-editor {
+    height: 100%;
+    background: transparent;
+    border: none;
+  }
+  
+  .cm-focused {
+    outline: none;
+  }
+  
+  .cm-content {
+    padding: 8px;
+  }
+  
+  .cm-scroller {
+    font-size: 12px;
+  }
+`;
+
+export const EditModeActions = styled.div`
+  display: flex;
+  gap: 10px;
+  padding: 0px 12px 0px 0px;
+  justify-content: right;
+  margin-top: 12px;
+`;

@@ -16,197 +16,241 @@ export class DingdingRobot implements INode {
     detail: INodeDetail = {
         fields: [
             {
-                displayName: '连接源',
-                name: 'datasource',
-                type: 'string',
-                default: '',
-                required: true,
+                label: '连接源',
+                fieldName: 'datasource',
                 connectType: 'dingding-robot',
-                controlType: 'selectconnect'
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    }
+                }
             },
             {
-                displayName: '消息类型',
-                name: 'messageType',
-                type: 'options',
-                options: [
-                    {
-                        name: '文本消息',
-                        value: 'text',
-                        description: '发送纯文本消息'
-                    },
-                    {
-                        name: '链接消息',
-                        value: 'link',
-                        description: '发送带链接的消息'
-                    },
-                    {
-                        name: 'Markdown消息',
-                        value: 'markdown',
-                        description: '发送Markdown格式消息'
-                    },
-                    {
-                        name: 'ActionCard消息',
-                        value: 'actionCard',
-                        description: '发送可交互的卡片消息'
-                    }
-                ],
-                default: 'text',
-                controlType: 'selectwithdesc'
+                label: '消息类型',
+                fieldName: 'messageType',
+                control: {
+                    name: 'selectwithdesc',
+                    dataType: 'string',
+                    defaultValue: 'text',
+                    options: [
+                        {
+                            name: '文本消息',
+                            value: 'text',
+                            description: '发送纯文本消息'
+                        },
+                        {
+                            name: '链接消息',
+                            value: 'link',
+                            description: '发送带链接的消息'
+                        },
+                        {
+                            name: 'Markdown消息',
+                            value: 'markdown',
+                            description: '发送Markdown格式消息'
+                        },
+                        {
+                            name: 'ActionCard消息',
+                            value: 'actionCard',
+                            description: '发送可交互的卡片消息'
+                        }
+                    ]
+                }
             },
             // 文本消息字段
             {
-                displayName: '消息内容',
-                name: 'content',
-                type: 'string',
-                displayOptions: {
+                label: '消息内容',
+                fieldName: 'content',
+                conditionRules: {
                     showBy: {
                         messageType: ['text']
                     }
                 },
-                default: '',
-                required: true,
-                placeholder: '请输入要发送的文本内容',
-                controlType: 'textarea'
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入要发送的文本内容'
+                }
             },
             // @功能
             {
-                displayName: '@所有人',
-                name: 'atAll',
-                type: 'boolean',
-                displayOptions: {
+                label: '@所有人',
+                fieldName: 'atAll',
+                conditionRules: {
                     showBy: {
                         messageType: ['text', 'markdown']
                     }
                 },
-                default: false,
-                controlType: 'checkbox'
+                control: {
+                    name: 'checkbox',
+                    dataType: 'boolean',
+                    defaultValue: false
+                }
             },
             {
-                displayName: '@指定用户',
-                name: 'atMobiles',
-                type: 'string',
-                displayOptions: {
+                label: '@指定用户',
+                fieldName: 'atMobiles',
+                conditionRules: {
                     showBy: {
                         messageType: ['text', 'markdown']
                     }
                 },
-                default: '',
-                placeholder: '手机号，多个用逗号分隔',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '手机号，多个用逗号分隔'
+                }
             },
             // 链接消息字段
             {
-                displayName: '消息标题',
-                name: 'title',
-                type: 'string',
-                displayOptions: {
+                label: '消息标题',
+                fieldName: 'title',
+                conditionRules: {
                     showBy: {
                         messageType: ['link', 'actionCard']
                     }
                 },
-                default: '',
-                required: true,
-                placeholder: '消息标题',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '消息标题'
+                }
             },
             {
-                displayName: '消息文本',
-                name: 'text',
-                type: 'string',
-                displayOptions: {
+                label: '消息文本',
+                fieldName: 'text',
+                conditionRules: {
                     showBy: {
                         messageType: ['link', 'actionCard']
                     }
                 },
-                default: '',
-                required: true,
-                placeholder: '消息描述文本',
-                controlType: 'textarea'
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '消息描述文本'
+                }
             },
             {
-                displayName: '消息链接',
-                name: 'messageUrl',
-                type: 'string',
-                displayOptions: {
+                label: '消息链接',
+                fieldName: 'messageUrl',
+                conditionRules: {
                     showBy: {
                         messageType: ['link']
                     }
                 },
-                default: '',
-                required: true,
-                placeholder: 'https://example.com',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'https://example.com'
+                }
             },
             {
-                displayName: '图片链接',
-                name: 'picUrl',
-                type: 'string',
-                displayOptions: {
+                label: '图片链接',
+                fieldName: 'picUrl',
+                conditionRules: {
                     showBy: {
                         messageType: ['link']
                     }
                 },
-                default: '',
-                placeholder: '图片URL（可选）',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '图片URL（可选）'
+                }
             },
             // Markdown消息字段
             {
-                displayName: 'Markdown内容',
-                name: 'markdownText',
-                type: 'string',
-                displayOptions: {
+                label: 'Markdown内容',
+                fieldName: 'markdownText',
+                conditionRules: {
                     showBy: {
                         messageType: ['markdown']
                     }
                 },
-                default: '',
-                required: true,
-                placeholder: '支持Markdown格式的文本内容',
-                controlType: 'textarea'
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '支持Markdown格式的文本内容'
+                }
             },
             {
-                displayName: 'Markdown标题',
-                name: 'markdownTitle',
-                type: 'string',
-                displayOptions: {
+                label: 'Markdown标题',
+                fieldName: 'markdownTitle',
+                conditionRules: {
                     showBy: {
                         messageType: ['markdown']
                     }
                 },
-                default: '',
-                required: true,
-                placeholder: 'Markdown消息标题',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'Markdown消息标题'
+                }
             },
             // ActionCard消息字段
             {
-                displayName: '按钮文本',
-                name: 'singleTitle',
-                type: 'string',
-                displayOptions: {
+                label: '按钮文本',
+                fieldName: 'singleTitle',
+                conditionRules: {
                     showBy: {
                         messageType: ['actionCard']
                     }
                 },
-                default: '',
-                required: true,
-                placeholder: '按钮显示文本',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '按钮显示文本'
+                }
             },
             {
-                displayName: '按钮链接',
-                name: 'singleURL',
-                type: 'string',
-                displayOptions: {
+                label: '按钮链接',
+                fieldName: 'singleURL',
+                conditionRules: {
                     showBy: {
                         messageType: ['actionCard']
                     }
                 },
-                default: '',
-                required: true,
-                placeholder: 'https://example.com',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'https://example.com'
+                }
             }
         ]
     };

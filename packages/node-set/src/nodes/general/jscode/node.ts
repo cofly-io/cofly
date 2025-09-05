@@ -16,14 +16,13 @@ export class JsCode implements INode {
 		fields: [
 			// 模式选择器（核心联动字段）
 			{
-				displayName: 'javascript编辑内容',      // 显示名称
-				name: 'code',                 // 字段名
-				type: 'string',   
-				default:'',           // 字段类型
-				typeOptions: {
-                    height: 500
-                },
-				placeholder: `请输入Javascript脚本,最后要return返回数据...
+				label: 'javascript编辑内容',
+				fieldName: 'code',
+				control: {
+					name: 'jscode',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: `请输入Javascript脚本,最后要return返回数据...
 $input.sum = 100;
 let num1 = 5;
 let num2 = 9;
@@ -32,7 +31,10 @@ return $input.sum + sum;
 function addNumbers(a, b) {
 	return a + b;
 }`,
-				controlType: 'jscode',
+					attributes: [{
+						height: 500
+					}]
+				},
 				// AI助手配置
 				AIhelp: {
 					enable: true,

@@ -1,5 +1,5 @@
 import { INode, INodeBasic, ToolMode, INodeDetail, IExecuteOptions } from '@repo/common';
-import { AgentInvokeOptions, mcpManager, AgentInstance, TextMessage, agentManager } from "@repo/engine";
+import { AgentInvokeOptions, TextMessage, agentManager } from "@repo/engine";
 import { credentialManager } from '@repo/common';
 
 export class AiAgentCustom implements INode {
@@ -21,258 +21,282 @@ export class AiAgentCustom implements INode {
     detail: INodeDetail = {
         fields: [
             {
-                displayName: '模型连接',
-                name: 'connectid',
-                type: 'string',
-                default: '',
-                required: true,
-                connectType: "llm",
-                controlType: 'selectconnect',
+                label: '模型连接',
+                fieldName: 'connectid',
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'json',
+                    connectType: "llm",
+                    validation: { required: true },        // 是否必填
+                },
                 // 联动配置：影响表名字段
                 linkage: {
-                    targets: ['model'],
+                    targets: ['models']
                 }
             },
             {
-                displayName: '模型名称',
-                name: 'model',
-                type: 'string',
-                default: '',
-                required: true,
-                placeholder: '',
-                controlType: 'inputselect',
-                // 联动配置：依赖连接源字段
+                label: '模型名称',
+                fieldName: 'models',
+                control: {
+                    name: 'inputselect',
+                    dataType: 'string',
+                    validation: { required: true },        // 是否必填
+                },
                 linkage: {
-                    dependsOn: 'connectid',
-                    fetchMethod: 'fetchConnectDetail',
-                    clearOnChange: true,
+                    dependsOn: 'connectid'
                 }
             },
             {
-                displayName: '问题',
-                name: 'userprompt',
-                type: 'string',
-                default: '',
-                required: true,
-                placeholder: '',
-                controlType: 'textarea'
+                label: '问题',
+                fieldName: 'userprompt',
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    validation: { required: true },        // 是否必填
+                }
             },
             {
-                displayName: '系统提示语',
-                name: 'prompt',
-                type: 'boolean',
-                displayOptions: {
+                label: '系统提示语',
+                fieldName: 'prompt',
+                conditionRules: {             // 显示条件
                     addBy: {
-                        addoptions: ['prompt'],
+                        addoptions: ['addoptions'], // 当mode为htmlToMarkdown时显示
                     },
                 },
-                default: '',
-                controlType: 'textarea'
+                control: {
+                    name: 'textarea',
+                    dataType: 'boolean',
+                }
             },
             {
-                displayName: '工具调用',
-                name: 'mcpMode',
-                type: 'boolean',
-                displayOptions: {
+                label: '工具调用',
+                fieldName: 'mcpMode',
+                conditionRules: {
                     addBy: {
                         addoptions: ['mcpMode'],
                     },
                 },
-                options: [{
-                    name: '提示词',
-                    value: 'prompt',
-                    description: '',
-                },
-                {
-                    name: '函数',
-                    value: 'function',
-                    description: '执行SELECT查询获取数据',
-                }],
-                default: '',
-                controlType: 'select'
-            },
-            {
-                displayName: '联网搜索',
-                name: 'webSearch',
-                type: 'boolean',
-                displayOptions: {
-                    addBy: {
-                        addoptions: ['webSearch'],
-                    },
-                },
-                default: false,
-                controlType: 'switch'
-            },
-            {
-                displayName: '链接访问',
-                name: 'link',
-                type: 'boolean',
-                displayOptions: {
-                    addBy: {
-                        addoptions: ['link'],
-                    },
-                },
-                default: false,
-                controlType: 'switch'
-            },
-            {
-                displayName: '深度思考',
-                name: 'deepThinking',
-                type: 'boolean',
-                displayOptions: {
-                    addBy: {
-                        addoptions: ['deepThinking'],
-                    },
-                },
-                typeOptions: {
-                    showText: ['开启', '关闭']
-                },
-                default: false,
-                controlType: 'switch'
-            },
-            {
-                displayName: "温度控制",
-                name: "tempcontrol",
-                type: "collection",
-                controlType: 'collection',
-                displayOptions: {
-                    addBy: {
-                        addoptions: ['temperature'],
-                    },
-                },
-                options: [
-                    {
-                        displayName: '温度参数',
-                        name: 'temperature',
-                        type: 'number',
-                        default: 0.7,
-                        controlType: 'slider',
-                        typeOptions: {
-                            minValue: 0,
-                            maxValue: 2,
-                            numberPrecision: 2
-                        }
-                    }
-                ],
-                default: ''
-            },
-            {
-                displayName: "高级参数",
-                name: "advancedParam",
-                type: "collection",
-                controlType: 'collection',
-                displayOptions: {
-                    addBy: {
-                        addoptions: ['advancedParam'],
-                    },
-                },
-                options: [
-                    {
-                        displayName: 'minP',
-                        name: 'minP',
-                        type: 'number',
-                        default: 0.05,
-                        controlType: 'slider',
-                        typeOptions: {
-                            minValue: 0,
-                            maxValue: 1,
-                            numberPrecision: 2
-                        }
-                    }, {
-                        displayName: 'topP',
-                        name: 'topP',
-                        type: 'number',
-                        default: 0.90,
-                        controlType: 'slider',
-                        typeOptions: {
-                            minValue: 0,
-                            maxValue: 1,
-                            numberPrecision: 2
-                        }
-                    }, {
-                        displayName: 'topK',
-                        name: 'topK',
-                        type: 'number',
-                        default: 40,
-                        controlType: 'slider',
-                        typeOptions: {
-                            minValue: 0,
-                            maxValue: 120,
-                            numberPrecision: 0
-                        }
-                    },
-                ],
-                default: ''
-            },
-            {
-                displayName: "迭代控制",
-                name: "lterateControl",
-                type: "collection",
-                controlType: 'collection',
-                displayOptions: {
-                    addBy: {
-                        addoptions: ['lterateControl'],
-                    },
-                },
-                options: [
-                    {
-                        displayName: '返回的代数',
-                        name: 'generations',
-                        type: 'number',
-                        default: 1,
-                        controlType: 'input'
-                    }, {
-                        displayName: '最大迭代',
-                        name: 'maxIterations',
-                        type: 'number',
-                        default: 1,
-                        controlType: 'input',
-                    }
-                ],
-                default: ''
-            },
-            {
-                displayName: '操作类型',
-                name: 'addoptions',
-                type: 'options',
-                options: [
-                    {
-                        name: '提示语(系统)',
+                control: {
+                    name: 'select',
+                    dataType: 'string',
+                    options: [{
+                        name: '提示词',
                         value: 'prompt',
+                        description: '',
                     },
                     {
-                        name: '工具调用模式',
-                        value: 'mcpMode',
+                        name: '函数',
+                        value: 'function',
+                        description: '执行SELECT查询获取数据',
+                    }],
+                }
+            },
+            {
+                label: '联网搜索',
+                fieldName: 'webSearch',
+                conditionRules: {             // 显示条件
+                    addBy: {
+                        addoptions: ['webSearch'], // 当mode为htmlToMarkdown时显示
                     },
-                    {
-                        name: '联网搜索',
-                        value: 'webSearch',
+                },
+                control: {
+                    name: 'switch',
+                    dataType: 'boolean',
+                }
+            },
+            {
+                label: '链接访问',
+                fieldName: 'link',
+                conditionRules: {             // 显示条件
+                    addBy: {
+                        addoptions: ['link'], // 当mode为htmlToMarkdown时显示
                     },
-                    {
-                        name: '链接访问',
-                        value: 'link',
+                },
+                control: {
+                    name: 'switch',
+                    dataType: 'boolean',
+                }
+            },
+            {
+                label: '深度思考',
+                fieldName: 'deepThinking',
+                conditionRules: {             // 显示条件
+                    addBy: {
+                        addoptions: ['deepThinking'], // 当mode为htmlToMarkdown时显示
                     },
-                    {
-                        name: '深度思考',
-                        value: 'deepThinking',
+                },
+                control: {
+                    name: 'switch',
+                    dataType: 'boolean',
+                    defaultValue: false,
+                    attributes: [{
+                        text: '开启,关闭',
+                    }],
+                }
+            },
+            {
+                label: '温度控制',
+                fieldName: 'tempcontrol',
+                conditionRules: {             // 显示条件
+                    addBy: {
+                        addoptions: ['tempcontrol'], // 当mode为htmlToMarkdown时显示
                     },
-                    {
-                        name: '温度控制',
-                        value: 'temperature',
+                },
+                control: {
+                    name: 'collection',
+                    dataType: 'options',
+                    options: [
+                        {
+                            label: '温度参数',
+                            fieldName: 'temperature',
+                            control: {
+                                name: 'slider',
+                                dataType: 'number',
+                                defaultValue: 0.7,
+                                attributes: [{
+                                    minValue: 0,
+                                    maxValue: 2,
+                                    numberPrecision: 2
+                                }],
+
+                            }
+                        }
+                    ],
+                },
+            },
+            {
+                label: "高级参数",
+                fieldName: "advancedParam",
+                conditionRules: {             // 显示条件
+                    addBy: {
+                        addoptions: ['advancedParam'], // 当mode为htmlToMarkdown时显示
                     },
-                    {
-                        name: '高级参数',
-                        value: 'advancedParam',
-                    }
-                    ,
-                    {
-                        name: '迭代控制',
-                        value: 'lterateControl',
-                    }
-                ],
-                default: '+ 增加选项',
-                placeholder: '',
-                controlType: 'selectadd'
+                },
+                control: {
+                    name: 'collection',
+                    dataType: 'options',
+                    options: [
+                        {
+                            label: 'minP',
+                            fieldName: 'minP',
+                            control: {
+                                name: 'slider',
+                                dataType: 'number',
+                                defaultValue: 0.05,
+                                attributes: [{
+                                    minValue: 0,
+                                    maxValue: 1,
+                                    numberPrecision: 2
+                                }],
+
+                            }
+                        }, {
+                            label: 'topP',
+                            fieldName: 'topP',
+                            control: {
+                                name: 'slider',
+                                dataType: 'number',
+                                defaultValue: 0.90,
+                                attributes: [{
+                                    minValue: 0,
+                                    maxValue: 1,
+                                    numberPrecision: 2
+                                }],
+
+                            }
+                        }, {
+                            label: 'topK',
+                            fieldName: 'topK',
+                            control: {
+                                name: 'slider',
+                                dataType: 'number',
+                                defaultValue: 40,
+                                attributes: [{
+                                    minValue: 0,
+                                    maxValue: 120,
+                                    numberPrecision: 0
+                                }],
+
+                            }
+                        }
+                    ],
+                },
+            },
+            {
+                label: "迭代控制",
+                fieldName: "lterateControl",
+                conditionRules: {             // 显示条件
+                    addBy: {
+                        addoptions: ['lterateControl'], // 当mode为htmlToMarkdown时显示
+                    },
+                },
+                control: {
+                    name: 'collection',
+                    dataType: 'options',
+                    options: [
+                        {
+                            label: '返回的代数',
+                            fieldName: 'generations',
+                            control: {
+                                name: 'input',
+                                dataType: 'number',
+                                defaultValue: 1
+                            }
+                        }, {
+                            label: '最大迭代',
+                            fieldName: 'maxIterations',
+                            control: {
+                                name: 'input',
+                                dataType: 'number',
+                                defaultValue: 1
+                            }
+                        }
+                    ],
+                },
+            },
+            {
+                label: '',
+                fieldName: 'addoptions',
+                control: {
+                    name: 'selectadd',
+                    dataType: 'multiOptions',
+                    defaultValue: '增加选项',
+                    options: [
+                        {
+                            name: '提示语(系统)',
+                            value: 'prompt',
+                        },
+                        {
+                            name: '工具调用模式',
+                            value: 'mcpMode',
+                        },
+                        {
+                            name: '联网搜索',
+                            value: 'webSearch',
+                        },
+                        {
+                            name: '链接访问',
+                            value: 'link',
+                        },
+                        {
+                            name: '深度思考',
+                            value: 'deepThinking',
+                        },
+                        {
+                            name: '温度控制',
+                            value: 'temperature',
+                        },
+                        {
+                            name: '高级参数',
+                            value: 'advancedParam',
+                        }
+                        ,
+                        {
+                            name: '迭代控制',
+                            value: 'lterateControl',
+                        }
+                    ]
+                }
             },
         ],
     };

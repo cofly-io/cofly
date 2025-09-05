@@ -24,170 +24,214 @@ export class FeishuBitable implements INode {
     detail: INodeDetail = {
         fields: [
             {
-                displayName: '飞书多维表格连接',
-                name: 'credential',
-                type: 'string',
-                required: true,
+                label: '飞书多维表格连接',
+                fieldName: 'credential',
                 description: '选择飞书多维表格连接配置',
                 connectType: 'feishu-bitable',
-                controlType: 'selectconnect',
-                default: ''
-            },
-            {
-                displayName: '操作类型',
-                name: 'operation',
-                type: 'options',
-                required: true,
-                description: '选择要执行的操作类型',
-                options: [
-                    {
-                        name: '查询记录',
-                        value: 'query'
-                    },
-                    {
-                        name: '新增记录',
-                        value: 'create'
-                    },
-                    {
-                        name: '更新记录',
-                        value: 'update'
-                    },
-                    {
-                        name: '删除记录',
-                        value: 'delete'
-                    },
-                    {
-                        name: '批量新增',
-                        value: 'batchCreate'
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
                     }
-                ],
-                default: 'query',
-                controlType: 'select',
-                placeholder: '选择操作类型'
+                }
             },
             {
-                displayName: 'App Token',
-                name: 'appToken',
-                type: 'string',
-                required: true,
+                label: '操作类型',
+                fieldName: 'operation',
+                description: '选择要执行的操作类型',
+                control: {
+                    name: 'select',
+                    dataType: 'string',
+                    defaultValue: 'query',
+                    validation: {
+                        required: true
+                    },
+                    options: [
+                        {
+                            name: '查询记录',
+                            value: 'query'
+                        },
+                        {
+                            name: '新增记录',
+                            value: 'create'
+                        },
+                        {
+                            name: '更新记录',
+                            value: 'update'
+                        },
+                        {
+                            name: '删除记录',
+                            value: 'delete'
+                        },
+                        {
+                            name: '批量新增',
+                            value: 'batchCreate'
+                        }
+                    ],
+                    placeholder: '选择操作类型'
+                }
+            },
+            {
+                label: 'App Token',
+                fieldName: 'appToken',
                 description: '多维表格的App Token，可从多维表格URL中获取',
-                placeholder: '请输入多维表格的App Token',
-                controlType: 'input',
-                default: ''
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入多维表格的App Token'
+                }
             },
             {
-                displayName: 'Table ID',
-                name: 'tableId',
-                type: 'string',
-                required: true,
+                label: 'Table ID',
+                fieldName: 'tableId',
                 description: '数据表的Table ID，可从数据表URL中获取',
-                placeholder: '请输入数据表的Table ID',
-                controlType: 'input',
-                default: ''
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入数据表的Table ID'
+                }
             },
             {
-                displayName: '记录ID',
-                name: 'recordId',
-                type: 'string',
-                required: false,
+                label: '记录ID',
+                fieldName: 'recordId',
                 description: '记录的ID，更新和删除操作时必填',
-                placeholder: '请输入记录ID',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['update', 'delete']
                     }
                 },
-                controlType: 'input',
-                default: ''
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入记录ID'
+                }
             },
             {
-                displayName: '记录数据',
-                name: 'recordData',
-                type: 'string',
-                required: false,
+                label: '记录数据',
+                fieldName: 'recordData',
                 description: '记录的字段数据，JSON格式。新增和更新操作时必填',
-                placeholder: '{"字段名": "字段值"}',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['create', 'update']
                     }
                 },
-                controlType: 'textarea',
-                default: ''
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '{"字段名": "字段值"}'
+                }
             },
             {
-                displayName: '批量记录数据',
-                name: 'batchRecordData',
-                type: 'string',
-                required: false,
+                label: '批量记录数据',
+                fieldName: 'batchRecordData',
                 description: '批量记录的字段数据，JSON数组格式',
-                placeholder: '[{"字段名": "字段值1"}, {"字段名": "字段值2"}]',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['batchCreate']
                     }
                 },
-                controlType: 'textarea',
-                default: ''
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '[{"字段名": "字段值1"}, {"字段名": "字段值2"}]'
+                }
             },
             {
-                displayName: '查询条件',
-                name: 'filter',
-                type: 'string',
-                required: false,
+                label: '查询条件',
+                fieldName: 'filter',
                 description: '查询过滤条件，支持飞书多维表格的过滤语法',
-                placeholder: 'AND(CurrentValue.[字段名]="值")',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['query']
                     }
                 },
-                controlType: 'input',
-                default: ''
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: 'AND(CurrentValue.[字段名]="值")'
+                }
             },
             {
-                displayName: '排序字段',
-                name: 'sort',
-                type: 'string',
-                required: false,
+                label: '排序字段',
+                fieldName: 'sort',
                 description: '排序配置，JSON数组格式',
-                placeholder: '[{"field_name": "字段名", "desc": false}]',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['query']
                     }
                 },
-                controlType: 'textarea',
-                default: ''
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '[{"field_name": "字段名", "desc": false}]'
+                }
             },
             {
-                displayName: '查询数量限制',
-                name: 'pageSize',
-                type: 'number',
-                required: false,
-                default: 100,
+                label: '查询数量限制',
+                fieldName: 'pageSize',
                 description: '单次查询返回的记录数量，最大500',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['query']
                     }
                 },
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'number',
+                    defaultValue: 100,
+                    validation: {
+                        required: false
+                    }
+                }
             },
             {
-                displayName: '分页Token',
-                name: 'pageToken',
-                type: 'string',
-                required: false,
+                label: '分页Token',
+                fieldName: 'pageToken',
                 description: '分页查询的Token，用于获取下一页数据',
-                placeholder: '请输入分页Token',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['query']
                     }
                 },
-                controlType: 'input',
-                default: ''
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入分页Token'
+                }
             }
         ]
     };

@@ -101,13 +101,13 @@ export type {
     ISocialConnect,
        
     // 确保类型选项
-    EnsureTypeOptions,
+    // EnsureTypeOptions,
     
     // 执行相关类型
     IExecuteData,
     IExecuteResult,
     IExecuteOptions,
-    IExecuteSingleFunctions,
+    // IExecuteSingleFunctions,
     
     // 表达式相关类型
     ExpressionString,
@@ -120,7 +120,7 @@ export type {
     FilterValue,
     
     // 函数相关类型
-    FunctionsBase,
+    // FunctionsBase,
     
     // 通用值类型
     GenericValue,
@@ -130,8 +130,8 @@ export type {
     HttpMethod,
     IHttpConnect,
     IHttpConnectConfig,
-    IHttpRequestMethods,
-    IHttpRequestOptions,
+    // IHttpRequestMethods,
+    // IHttpRequestOptions,
     
     // 图标相关类型
     Icon,
@@ -141,14 +141,14 @@ export type {
     IDataObject,
     
     // 显示选项类型
-    IDisplayOptions,
+    // IDisplayOptions,
     
     // 枚举器相关类型
     IEnumeratorData,
     IEnumeratorOptions,
     
     // 获取节点参数选项
-    IGetNodeParameterOptions,
+    // IGetNodeParameterOptions,
     
     // LLM 相关类型
     ILLMMetadataOptions,
@@ -167,24 +167,27 @@ export type {
     INode,
     INodeBasic,
     INodeWebhook,
-    INodeCredentials,
-    INodeCredentialsDetails,
+    // INodeCredentials,
+    // INodeCredentialsDetails,
     INodeDetail,
     INodeExecutionData,
+    ComponentType,
     INodeFields,
+    IControlConfiguration,
+    INodePropertyOption,
     INodeInputConfiguration,
     INodeInputFilter,
     INodeOutputConfiguration,
     INodeParameterResourceLocator,
-    INodeParameters,
+    // INodeParameters,
     // INodePropertyCollection,
-    INodePropertyMode,
+    // INodePropertyMode,
     INodePropertyModeTypeOptions,
     INodePropertyModeValidation,
-    INodePropertyOptions,
+    // INodePropertyOptions,
     INodePropertyRouting,
     //INodePropertyTypeOptions,
-    INodeRequestOutput,
+    // INodeRequestOutput,
     INodeTypeBaseDescription,
     INodes,
     IWebhookMessage,
@@ -192,10 +195,10 @@ export type {
     NodeLinkType,
     AvailableResource,
     NodeParameterValue,
-    NodeParameterValueType,
+    // NodeParameterValueType,
     NodePropertyTypes,
     NodeTestResults,
-    NodeTypeAndVersion,
+    // NodeTypeAndVersion,
     StepType,
     NodeType,
     StatusType,
@@ -218,10 +221,10 @@ export type {
     PluginListOptions,
     
     // 后接收动作类型
-    PostReceiveAction,
+    // PostReceiveAction,
     
     // 代理输入类型
-    ProxyInput,
+    // ProxyInput,
     
     // 相关执行类型
     RelatedExecution,
@@ -255,7 +258,7 @@ export type {
     IVersionedNodeType,
     
     // 工作流相关类型
-    IWorkflowDataProxyData,
+    // IWorkflowDataProxyData,
     IWorkflowLoader,
     IWorkflowMetadata,
     WorkflowActivateMode,

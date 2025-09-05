@@ -20,30 +20,30 @@ export const ConnectParameterInput: React.FC<ConnectParameterInputProps> = ({
 }) => {
   // 将原始 field 转换为统一的 field 格式，补充缺失的属性
   const unifiedField: UnifiedParameterField = {
-    name: field.name,
-    displayName: field.displayName,
-    type: field.type,
-    controlType: field.controlType,
-    default: field.default,
-    options: field.options?.map((opt: any) => {
-      // 类型守卫：检查是否是 INodePropertyOptions
-      if ('value' in opt) {
-        return {
-          name: opt.name || String(opt.value), // 确保 name 不为 undefined
-          value: opt.value,
-          description: (opt as any).description // 可能存在的 description 属性
-        };
-      }
-      // 如果是 INodeFields，直接返回
-      return opt;
-    }),
-    description: field.description,
-    hint: field.hint,
-    placeholder: field.placeholder,
-    required: field.required,
-    isSecure: field.isSecure,
-    typeOptions: (field.typeOptions as any),
-    displayOptions: field.displayOptions
+    fieldName: field.fieldName,
+    label: field.label,
+    // type: field.type,
+    control: field.control,
+    // default: field.default,
+    // options: field.options?.map((opt: any) => {
+    //   // 类型守卫：检查是否是 INodePropertyOptions
+    //   if ('value' in opt) {
+    //     return {
+    //       name: opt.name || String(opt.value), // 确保 name 不为 undefined
+    //       value: opt.value,
+    //       description: (opt as any).description // 可能存在的 description 属性
+    //     };
+    //   }
+    //   // 如果是 INodeFields，直接返回
+    //   return opt;
+    // }),
+    // description: field.description,
+    // hint: field.hint,
+    // placeholder: field.placeholder,
+    // required: field.required,
+    // isSecure: field.isSecure,
+    // typeOptions: (field.typeOptions as any),
+    // displayOptions: field.displayOptions
   };
 
   return (

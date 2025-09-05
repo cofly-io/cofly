@@ -16,95 +16,107 @@ export class FileConverter implements INode {
 	detail: INodeDetail = {
 		fields: [
 			{
-				displayName: '操作类型',
-				name: 'operation',
-				type: 'options',
-				options: [
-					{
-						name: '转换为JSON',
-						value: 'toJson',
-						description: '将输入数据转换为JSON文件',
-					},
-					{
-						name: '转换为文本',
-						value: 'toText',
-						description: '将输入数据转换为文本文件',
-					},
-					{
-						name: '转换为CSV',
-						value: 'toCsv',
-						description: '将输入数据转换为CSV文件',
-					},
-					{
-						name: 'Base64转文件',
-						value: 'base64ToFile',
-						description: '将base64字符串转换为文件',
-					},
-				],
-				default: 'toJson',
-				placeholder: '选择操作类型',
-				controlType: 'selectwithdesc'
+				label: '操作类型',
+				fieldName: 'operation',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'toJson',
+					placeholder: '选择操作类型',
+					options: [
+						{
+							name: '转换为JSON',
+							value: 'toJson',
+							description: '将输入数据转换为JSON文件',
+						},
+						{
+							name: '转换为文本',
+							value: 'toText',
+							description: '将输入数据转换为文本文件',
+						},
+						{
+							name: '转换为CSV',
+							value: 'toCsv',
+							description: '将输入数据转换为CSV文件',
+						},
+						{
+							name: 'Base64转文件',
+							value: 'base64ToFile',
+							description: '将base64字符串转换为文件',
+						},
+					],
+				}
 			},
 			{
-				displayName: '源属性名',
-				name: 'sourceProperty',
-				type: 'string',
-				default: 'data',
-				placeholder: '例如: data',
-				controlType: 'input',
-				displayOptions: {
+				label: '源属性名',
+				fieldName: 'sourceProperty',
+				conditionRules: {
 					showBy: {
 						operation: ['toJson', 'toText', 'toCsv'],
 					},
 				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'data',
+					placeholder: '例如: data'
+				}
 			},
 			{
-				displayName: 'Base64属性名',
-				name: 'base64Property',
-				type: 'string',
-				default: 'data',
-				placeholder: '例如: data',
-				controlType: 'input',
-				displayOptions: {
+				label: 'Base64属性名',
+				fieldName: 'base64Property',
+				conditionRules: {
 					showBy: {
 						operation: ['base64ToFile'],
 					},
 				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'data',
+					placeholder: '例如: data'
+				}
 			},
 			{
-				displayName: '输出文件名',
-				name: 'fileName',
-				type: 'string',
-				default: 'output',
-				placeholder: '例如: output',
-				controlType: 'input'
+				label: '输出文件名',
+				fieldName: 'fileName',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'output',
+					placeholder: '例如: output'
+				}
 			},
 			{
-				displayName: '输出二进制属性名',
-				name: 'binaryPropertyName',
-				type: 'string',
-				default: 'data',
-				placeholder: '例如: data',
-				controlType: 'input'
+				label: '输出二进制属性名',
+				fieldName: 'binaryPropertyName',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'data',
+					placeholder: '例如: data'
+				}
 			},
 			{
-				displayName: '编码格式',
-				name: 'encoding',
-				type: 'options',
-				options: [
-					{ name: 'UTF-8', value: 'utf8' },
-					{ name: 'ASCII', value: 'ascii' },
-					{ name: 'Base64', value: 'base64' },
-					{ name: 'Hex', value: 'hex' },
-				],
-				default: 'utf8',
-				placeholder: '选择编码格式',
-				controlType: 'select',
-				displayOptions: {
+				label: '编码格式',
+				fieldName: 'encoding',
+				conditionRules: {
 					showBy: {
 						operation: ['toJson', 'toText', 'toCsv'],
 					},
 				},
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'utf8',
+					placeholder: '选择编码格式',
+					options: [
+						{ name: 'UTF-8', value: 'utf8' },
+						{ name: 'ASCII', value: 'ascii' },
+						{ name: 'Base64', value: 'base64' },
+						{ name: 'Hex', value: 'hex' },
+					]
+				}
 			}
 		],
 	};

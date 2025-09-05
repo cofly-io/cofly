@@ -32,214 +32,234 @@ export class Crypto implements INode {
 	detail: INodeDetail = {
 		fields: [
 			{
-				displayName: '操作类型',
-				name: 'action',
-				type: 'options',
-				options: [
-					{
-						name: '生成随机字符串',
-						value: 'generate',
-						description: '生成UUID、HEX、BASE64等格式的随机字符串',
-					},
-					{
-						name: '哈希',
-						value: 'hash',
-						description: '使用MD5、SHA256等算法生成哈希值',
-					},
-					{
-						name: 'HMAC',
-						value: 'hmac',
-						description: '使用密钥生成HMAC哈希值',
-					},
-					{
-						name: '数字签名',
-						value: 'sign',
-						description: '使用私钥对数据进行数字签名',
-					}
-				],
-				default: 'hash',
-				placeholder: '选择操作类型',
-				controlType: 'selectwithdesc'
+				label: '操作类型',
+				fieldName: 'action',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'hash',
+					placeholder: '选择操作类型',
+					options: [
+						{
+							name: '生成随机字符串',
+							value: 'generate',
+							description: '生成UUID、HEX、BASE64等格式的随机字符串',
+						},
+						{
+							name: '哈希',
+							value: 'hash',
+							description: '使用MD5、SHA256等算法生成哈希值',
+						},
+						{
+							name: 'HMAC',
+							value: 'hmac',
+							description: '使用密钥生成HMAC哈希值',
+						},
+						{
+							name: '数字签名',
+							value: 'sign',
+							description: '使用私钥对数据进行数字签名',
+						}
+					]
+				}
 			},
 			{
-				displayName: '哈希类型',
-				name: 'hashType',
-				type: 'options',
-				options: [
-					{
-						name: 'MD5',
-						value: 'MD5',
-					},
-					{
-						name: 'SHA256',
-						value: 'SHA256',
-					},
-					{
-						name: 'SHA3-256',
-						value: 'SHA3-256',
-					},
-					{
-						name: 'SHA3-384',
-						value: 'SHA3-384',
-					},
-					{
-						name: 'SHA3-512',
-						value: 'SHA3-512',
-					},
-					{
-						name: 'SHA384',
-						value: 'SHA384',
-					},
-					{
-						name: 'SHA512',
-						value: 'SHA512',
-					}
-				],
-				default: 'SHA256',
-				placeholder: '选择哈希算法',
-				controlType: 'select',
-				displayOptions: {
+				label: '哈希类型',
+				fieldName: 'hashType',
+				conditionRules: {
 					showBy: {
 						action: ['hash', 'hmac']
 					}
+				},
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'SHA256',
+					placeholder: '选择哈希算法',
+					options: [
+						{
+							name: 'MD5',
+							value: 'MD5',
+						},
+						{
+							name: 'SHA256',
+							value: 'SHA256',
+						},
+						{
+							name: 'SHA3-256',
+							value: 'SHA3-256',
+						},
+						{
+							name: 'SHA3-384',
+							value: 'SHA3-384',
+						},
+						{
+							name: 'SHA3-512',
+							value: 'SHA3-512',
+						},
+						{
+							name: 'SHA384',
+							value: 'SHA384',
+						},
+						{
+							name: 'SHA512',
+							value: 'SHA512',
+						}
+					]
 				}
 			},
 			{
-				displayName: '输入值',
-				name: 'value',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '要处理的文本内容',
-				controlType: 'textarea',
-				displayOptions: {
+				label: '输入值',
+				fieldName: 'value',
+				conditionRules: {
 					showBy: {
 						action: ['hash', 'hmac', 'sign']
 					}
+				},
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '要处理的文本内容',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '密钥',
-				name: 'secret',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '用于HMAC的密钥',
-				controlType: 'password',
-				displayOptions: {
+				label: '密钥',
+				fieldName: 'secret',
+				conditionRules: {
 					showBy: {
 						action: ['hmac']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '用于HMAC的密钥',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '私钥',
-				name: 'privateKey',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '用于签名的私钥',
-				controlType: 'textarea',
-				displayOptions: {
+				label: '私钥',
+				fieldName: 'privateKey',
+				conditionRules: {
 					showBy: {
 						action: ['sign']
 					}
+				},
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '用于签名的私钥',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '签名算法',
-				name: 'algorithm',
-				type: 'options',
-				options: supportedAlgorithms.map(alg => ({
-					name: alg.name,
-					value: alg.value,
-				})),
-				default: 'RSA-SHA256',
-				placeholder: '选择签名算法',
-				controlType: 'select',
-				displayOptions: {
+				label: '签名算法',
+				fieldName: 'algorithm',
+				conditionRules: {
 					showBy: {
 						action: ['sign']
 					}
+				},
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'RSA-SHA256',
+					placeholder: '选择签名算法',
+					options: supportedAlgorithms.map(alg => ({
+						name: alg.name,
+						value: alg.value,
+					}))
 				}
 			},
 			{
-				displayName: '编码格式',
-				name: 'encoding',
-				type: 'options',
-				options: [
-					{
-						name: 'HEX',
-						value: 'hex',
-					},
-					{
-						name: 'BASE64',
-						value: 'base64',
-					}
-				],
-				default: 'hex',
-				placeholder: '选择编码格式',
-				controlType: 'select',
-				displayOptions: {
+				label: '编码格式',
+				fieldName: 'encoding',
+				conditionRules: {
 					showBy: {
 						action: ['hash', 'hmac', 'sign']
 					}
+				},
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'hex',
+					placeholder: '选择编码格式',
+					options: [
+						{
+							name: 'HEX',
+							value: 'hex',
+						},
+						{
+							name: 'BASE64',
+							value: 'base64',
+						}
+					]
 				}
 			},
 			{
-				displayName: '生成类型',
-				name: 'generateType',
-				type: 'options',
-				options: [
-					{
-						name: 'UUID',
-						value: 'uuid',
-					},
-					{
-						name: 'HEX',
-						value: 'hex',
-					},
-					{
-						name: 'BASE64',
-						value: 'base64',
-					},
-					{
-						name: 'ASCII',
-						value: 'ascii',
-					}
-				],
-				default: 'uuid',
-				placeholder: '选择生成类型',
-				controlType: 'select',
-				displayOptions: {
+				label: '生成类型',
+				fieldName: 'generateType',
+				conditionRules: {
 					showBy: {
 						action: ['generate']
 					}
+				},
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'uuid',
+					placeholder: '选择生成类型',
+					options: [
+						{
+							name: 'UUID',
+							value: 'uuid',
+						},
+						{
+							name: 'HEX',
+							value: 'hex',
+						},
+						{
+							name: 'BASE64',
+							value: 'base64',
+						},
+						{
+							name: 'ASCII',
+							value: 'ascii',
+						}
+					]
 				}
 			},
 			{
-				displayName: '字符串长度',
-				name: 'stringLength',
-				type: 'number',
-				default: 32,
-				required: true,
-				placeholder: '生成字符串的长度',
-				controlType: 'input',
-				displayOptions: {
+				label: '字符串长度',
+				fieldName: 'stringLength',
+				conditionRules: {
 					showBy: {
 						action: ['generate'],
 						generateType: ['hex', 'base64', 'ascii']
 					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 32,
+					placeholder: '生成字符串的长度',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '输出属性名',
-				name: 'outputProperty',
-				type: 'string',
-				default: 'result',
-				required: true,
-				placeholder: '结果存储的属性名',
-				controlType: 'input'
+				label: '输出属性名',
+				fieldName: 'outputProperty',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'result',
+					placeholder: '结果存储的属性名',
+					validation: { required: true }
+				}
 			}
 		]
 	};

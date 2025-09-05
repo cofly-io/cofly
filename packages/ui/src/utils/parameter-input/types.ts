@@ -9,7 +9,7 @@ export interface LinkageCallbacks {
   // 如果需要其他方法，可以后续添加
 }
 
-// 使用@cofly-ai/interfaces中的INodeFields替代UnifiedParameterField
+// 使用@repo/common中的INodeFields替代UnifiedParameterField
 export type UnifiedParameterField = INodeFields;
 
 export interface UnifiedParameterInputProps {

@@ -26,48 +26,65 @@ export class DingdingRobotConnect extends BaseSocialConnect {
         ],
         fields: [
             {
-                displayName: 'Webhook地址',
-                name: 'webhook',
-                type: 'string' as const,
-                default: '',
+                label: 'Webhook地址',
+                fieldName: 'webhook',
                 description: '钉钉机器人的Webhook地址',
-                placeholder: 'https://oapi.dingtalk.com/robot/send?access_token=your_token',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'https://oapi.dingtalk.com/robot/send?access_token=your_token'
+                }
             },
             {
-                displayName: '加签密钥',
-                name: 'secret',
-                type: 'string' as const,
-                default: '',
+                label: '加签密钥',
+                fieldName: 'secret',
                 description: '钉钉机器人的加签密钥（可选）',
-                placeholder: 'SEC开头的密钥字符串',
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: 'SEC开头的密钥字符串',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '关键词',
-                name: 'keywords',
-                type: 'string' as const,
-                default: '',
+                label: '关键词',
+                fieldName: 'keywords',
                 description: '安全设置关键词，多个用逗号分隔（可选）',
-                placeholder: '告警,通知,提醒',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '告警,通知,提醒'
+                }
             },
             {
-                displayName: '超时时间(秒)',
-                name: 'timeout',
-                type: 'number' as const,
-                default: 30,
+                label: '超时时间(秒)',
+                fieldName: 'timeout',
                 description: '请求超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 300
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 30,
+                    validation: {
+                        required: false,
+                        min: 1,
+                        max: 300
+                    },
+                    placeholder: '30'
+                }
             }
         ],
         validateConnection: true,

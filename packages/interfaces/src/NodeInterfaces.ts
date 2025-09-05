@@ -1,5 +1,4 @@
 // export type CodeAutocompleteTypes = 'function' | 'functionItem';
-import { ConnectType } from './ConnectInterfaces';
 
 export type GenericValue = string | object | number | boolean | undefined | null;
 
@@ -101,13 +100,13 @@ export interface ISourceData {
     previousNodeRun?: number; // If undefined "0" gets used
 }
 
-export type NodeTypeAndVersion = {
-    name: string;
-    type: string;
-    typeVersion: number;
-    disabled: boolean;
-    parameters?: INodeParameters;
-};
+// export type NodeTypeAndVersion = {
+//     name: string;
+//     type: string;
+//     typeVersion: number;
+//     disabled: boolean;
+//     parameters?: INodeParameters;
+// };
 
 export interface IPinData {
     [nodeName: string]: INodeExecutionData[];
@@ -157,39 +156,39 @@ export interface INodeExecutionData {
     };
 }
 
-export interface FunctionsBase {
-    // logger: Logger;
-    getCredentials<T extends object = ICredentialDataDecryptedObject>(
-        type: string,
-        itemIndex?: number,
-    ): Promise<T>;
-    getCredentialsProperties(type: string): INodeFields[];
-    getExecutionId(): string;
-    getNode(): INode;
-    getWorkflow(): IWorkflowMetadata;
-    getWorkflowStaticData(type: string): IDataObject;
-    getTimezone(): string;
-    getRestApiUrl(): string;
-    getInstanceBaseUrl(): string;
-    getInstanceId(): string;
-    getChildNodes(
-        nodeName: string,
-        options?: { includeNodeParameters?: boolean },
-    ): NodeTypeAndVersion[];
-    getParentNodes(nodeName: string): NodeTypeAndVersion[];
-    getKnownNodeTypes(): IDataObject;
-    getMode?: () => WorkflowExecuteMode;
-    getActivationMode?: () => WorkflowActivateMode;
+// export interface FunctionsBase {
+//     // logger: Logger;
+//     getCredentials<T extends object = ICredentialDataDecryptedObject>(
+//         type: string,
+//         itemIndex?: number,
+//     ): Promise<T>;
+//     getCredentialsProperties(type: string): INodeFields[];
+//     getExecutionId(): string;
+//     getNode(): INode;
+//     getWorkflow(): IWorkflowMetadata;
+//     getWorkflowStaticData(type: string): IDataObject;
+//     getTimezone(): string;
+//     getRestApiUrl(): string;
+//     getInstanceBaseUrl(): string;
+//     getInstanceId(): string;
+//     getChildNodes(
+//         nodeName: string,
+//         options?: { includeNodeParameters?: boolean },
+//     ): NodeTypeAndVersion[];
+//     getParentNodes(nodeName: string): NodeTypeAndVersion[];
+//     getKnownNodeTypes(): IDataObject;
+//     getMode?: () => WorkflowExecuteMode;
+//     getActivationMode?: () => WorkflowActivateMode;
 
-    /** @deprecated */
-    prepareOutputData(outputData: INodeExecutionData[]): Promise<INodeExecutionData[][]>;
-}
+//     /** @deprecated */
+//     prepareOutputData(outputData: INodeExecutionData[]): Promise<INodeExecutionData[][]>;
+// }
 
 
 
-type FunctionsBaseWithRequiredKeys<Keys extends keyof FunctionsBase> = FunctionsBase & {
-    [K in Keys]: NonNullable<FunctionsBase[K]>;
-};
+// type FunctionsBaseWithRequiredKeys<Keys extends keyof FunctionsBase> = FunctionsBase & {
+//     [K in Keys]: NonNullable<FunctionsBase[K]>;
+// };
 
 export interface ITaskSubRunMetadata {
     node: string;
@@ -231,42 +230,42 @@ export interface IExecuteData {
     source: ITaskDataConnectionsSource | null;
 }
 
-export interface ProxyInput {
-    all: () => INodeExecutionData[];
-    context: any;
-    first: () => INodeExecutionData | undefined;
-    item: INodeExecutionData | undefined;
-    last: () => INodeExecutionData | undefined;
-    params?: INodeParameters;
-}
+// export interface ProxyInput {
+//     all: () => INodeExecutionData[];
+//     context: any;
+//     first: () => INodeExecutionData | undefined;
+//     item: INodeExecutionData | undefined;
+//     last: () => INodeExecutionData | undefined;
+//     params?: INodeParameters;
+// }
 
-export interface IWorkflowDataProxyData {
-    [key: string]: any;
-    $binary: INodeExecutionData['binary'];
-    $data: any;
-    $env: any;
-    $evaluateExpression: (expression: string, itemIndex?: number) => NodeParameterValueType;
-    $item: (itemIndex: number, runIndex?: number) => IWorkflowDataProxyData;
-    $items: (nodeName?: string, outputIndex?: number, runIndex?: number) => INodeExecutionData[];
-    $json: INodeExecutionData['json'];
-    $node: any;
-    $parameter: INodeParameters;
-    $position: number;
-    $workflow: any;
-    $: any;
-    $input: ProxyInput;
-    $thisItem: any;
-    $thisRunIndex: number;
-    $thisItemIndex: number;
-    $now: any;
-    $today: any;
-    $getPairedItem: (
-        destinationNodeName: string,
-        incomingSourceData: ISourceData | null,
-        pairedItem: IPairedItemData,
-    ) => INodeExecutionData | null;
-    constructor: any;
-}
+// export interface IWorkflowDataProxyData {
+//     [key: string]: any;
+//     $binary: INodeExecutionData['binary'];
+//     $data: any;
+//     $env: any;
+//     // $evaluateExpression: (expression: string, itemIndex?: number) => NodeParameterValueType;
+//     $item: (itemIndex: number, runIndex?: number) => IWorkflowDataProxyData;
+//     $items: (nodeName?: string, outputIndex?: number, runIndex?: number) => INodeExecutionData[];
+//     $json: INodeExecutionData['json'];
+//     $node: any;
+//     $parameter: INodeParameters;
+//     $position: number;
+//     $workflow: any;
+//     $: any;
+//     $input: ProxyInput;
+//     $thisItem: any;
+//     $thisRunIndex: number;
+//     $thisItemIndex: number;
+//     $now: any;
+//     $today: any;
+//     $getPairedItem: (
+//         destinationNodeName: string,
+//         incomingSourceData: ISourceData | null,
+//         pairedItem: IPairedItemData,
+//     ) => INodeExecutionData | null;
+//     constructor: any;
+// }
 
 export type AiEvent =
     | 'ai-messages-retrieved-from-memory'
@@ -293,63 +292,63 @@ type AiEventPayload = {
     nodeType?: string;
 };
 
-type BaseExecutionFunctions = FunctionsBaseWithRequiredKeys<'getMode'> & {
-    continueOnFail(): boolean;
-    setMetadata(metadata: ITaskMetadata): void;
-    evaluateExpression(expression: string, itemIndex: number): NodeParameterValueType;
-    getContext(type: ContextType): IContextObject;
-    getExecuteData(): IExecuteData;
-    getWorkflowDataProxy(itemIndex: number): IWorkflowDataProxyData;
-    //getInputSourceData(inputIndex?: number, connectionType?: NodeConnectionType): ISourceData;
-    getExecutionCancelSignal(): AbortSignal | undefined;
-    onExecutionCancellation(handler: () => unknown): void;
-    logAiEvent(eventName: AiEvent, msg?: string | undefined): void;
-};
+// type BaseExecutionFunctions = FunctionsBaseWithRequiredKeys<'getMode'> & {
+//     continueOnFail(): boolean;
+//     setMetadata(metadata: ITaskMetadata): void;
+//     // evaluateExpression(expression: string, itemIndex: number): NodeParameterValueType;
+//     getContext(type: ContextType): IContextObject;
+//     getExecuteData(): IExecuteData;
+//     // getWorkflowDataProxy(itemIndex: number): IWorkflowDataProxyData;
+//     //getInputSourceData(inputIndex?: number, connectionType?: NodeConnectionType): ISourceData;
+//     getExecutionCancelSignal(): AbortSignal | undefined;
+//     onExecutionCancellation(handler: () => unknown): void;
+//     logAiEvent(eventName: AiEvent, msg?: string | undefined): void;
+// };
 
-export type EnsureTypeOptions = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'json';
-export interface IGetNodeParameterOptions {
-    contextNode?: INode;
-    // make sure that returned value would be of specified type, converts it if needed
-    ensureType?: EnsureTypeOptions;
-    // extract value from regex, works only when parameter type is resourceLocator
-    extractValue?: boolean;
-    // get raw value of parameter with unresolved expressions
-    rawExpressions?: boolean;
-}
+// export type EnsureTypeOptions = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'json';
+// export interface IGetNodeParameterOptions {
+//     contextNode?: INode;
+//     // make sure that returned value would be of specified type, converts it if needed
+//     ensureType?: EnsureTypeOptions;
+//     // extract value from regex, works only when parameter type is resourceLocator
+//     extractValue?: boolean;
+//     // get raw value of parameter with unresolved expressions
+//     rawExpressions?: boolean;
+// }
 
-export type IHttpRequestMethods = 'DELETE' | 'GET' | 'HEAD' | 'PATCH' | 'POST' | 'PUT';
+// export type IHttpRequestMethods = 'DELETE' | 'GET' | 'HEAD' | 'PATCH' | 'POST' | 'PUT';
 
-export interface IHttpRequestOptions {
-    url: string;
-    baseURL?: string;
-    headers?: IDataObject;
-    method?: IHttpRequestMethods;
-    body?: FormData | GenericValue | GenericValue[] | Buffer | URLSearchParams;
-    qs?: IDataObject;
-    arrayFormat?: 'indices' | 'brackets' | 'repeat' | 'comma';
-    auth?: {
-        username: string;
-        password: string;
-        sendImmediately?: boolean;
-    };
-    disableFollowRedirect?: boolean;
-    encoding?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream';
-    skipSslCertificateValidation?: boolean;
-    returnFullResponse?: boolean;
-    ignoreHttpStatusErrors?: boolean;
-    proxy?: {
-        host: string;
-        port: number;
-        auth?: {
-            username: string;
-            password: string;
-        };
-        protocol?: string;
-    };
-    timeout?: number;
-    json?: boolean;
-    abortSignal?: string;//GenericAbortSignal;
-}
+// export interface IHttpRequestOptions {
+//     url: string;
+//     baseURL?: string;
+//     headers?: IDataObject;
+//     method?: IHttpRequestMethods;
+//     body?: FormData | GenericValue | GenericValue[] | Buffer | URLSearchParams;
+//     qs?: IDataObject;
+//     arrayFormat?: 'indices' | 'brackets' | 'repeat' | 'comma';
+//     auth?: {
+//         username: string;
+//         password: string;
+//         sendImmediately?: boolean;
+//     };
+//     disableFollowRedirect?: boolean;
+//     encoding?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream';
+//     skipSslCertificateValidation?: boolean;
+//     returnFullResponse?: boolean;
+//     ignoreHttpStatusErrors?: boolean;
+//     proxy?: {
+//         host: string;
+//         port: number;
+//         auth?: {
+//             username: string;
+//             password: string;
+//         };
+//         protocol?: string;
+//     };
+//     timeout?: number;
+//     json?: boolean;
+//     abortSignal?: string;//GenericAbortSignal;
+// }
 
 /**
  * 所有连接点类型集合
@@ -366,7 +365,7 @@ export const NodeLink = {
 export type NodeLinkType =
     (typeof NodeLink)[keyof typeof NodeLink];
 
-export interface INodePropertyOptions {
+export interface INodePropertyOption {
     name: string;
     value: string;
     action?: string;
@@ -429,18 +428,18 @@ export type AssignmentCollectionValue = {
     //assignments: AssignmentValue[];
 };
 
-export type NodeParameterValueType =
-    // TODO: Later also has to be possible to add multiple ones with the name name. So array has to be possible
-    | NodeParameterValue
-    | INodeParameters
-    | INodeParameterResourceLocator
-    | ResourceMapperValue
-    | FilterValue
-    | AssignmentCollectionValue
-    | NodeParameterValue[]
-    | INodeParameters[]
-    | INodeParameterResourceLocator[]
-    | ResourceMapperValue[];
+// export type NodeParameterValueType =
+//     // TODO: Later also has to be possible to add multiple ones with the name name. So array has to be possible
+//     | NodeParameterValue
+//     | INodeParameters
+//     | INodeParameterResourceLocator
+//     | ResourceMapperValue
+//     | FilterValue
+//     | AssignmentCollectionValue
+//     | NodeParameterValue[]
+//     | INodeParameters[]
+//     | INodeParameterResourceLocator[]
+//     | ResourceMapperValue[];
 
 export type OnError = 'continueErrorOutput' | 'continueRegularOutput' | 'stopWorkflow';
 
@@ -450,16 +449,16 @@ export type AvailableResource =
     | 'connect'
     | 'workflow';
 
-export interface INodeParameters {
-    [key: string]: NodeParameterValueType;
-}
-export interface INodeCredentials {
-    [key: string]: INodeCredentialsDetails;
-}
-export interface INodeCredentialsDetails {
-    id: string | null;
-    name: string;
-}
+// export interface INodeParameters {
+//     [key: string]: NodeParameterValueType;
+// }
+// export interface INodeCredentials {
+//     [key: string]: INodeCredentialsDetails;
+// }
+// export interface INodeCredentialsDetails {
+//     id: string | null;
+//     name: string;
+// }
 
 export interface IWebhookMessage {
     workflowId: string;
@@ -512,19 +511,15 @@ export interface INodeWebhook extends INodeBasic {
 //     typeValidation?: 'strict' | 'loose' | {}; // default = strict, `| {}` is a TypeScript trick to allow custom strings (expressions), but still give autocomplete
 // };
 
-export interface IDisplayOptions {
+export interface IConditionRules {
     hide?: {
-        //[key: string]: Array<NodeParameterValue | DisplayCondition> | undefined;
+        [key: string]: Array<string> | undefined;
     };
     showBy?: {
-        // '@version'?: Array<number | DisplayCondition>;
-        // '@tool'?: boolean[];
-        // [key: string]: Array<NodeParameterValue | DisplayCondition> | undefined;
+        [key: string]: Array<string> | undefined;
     };
     addBy?: {
-        // '@version'?: Array<number | DisplayCondition>;
-        // '@tool'?: boolean[];
-        // [key: string]: Array<NodeParameterValue | DisplayCondition> | undefined;
+        [key: string]: Array<string> | undefined;
     };
 
     hideOnCloud?: boolean;
@@ -554,26 +549,26 @@ export type FieldTypeMap = {
 
 export type FieldType = keyof FieldTypeMap;
 
-export interface IExecuteSingleFunctions extends BaseExecutionFunctions {
-    //getInputData(inputIndex?: number, connectionType?: NodeConnectionType): INodeExecutionData;
-    getItemIndex(): number;
-    getNodeParameter(
-        parameterName: string,
-        fallbackValue?: any,
-        options?: IGetNodeParameterOptions,
-    ): NodeParameterValueType | object;
-}
+// export interface IExecuteSingleFunctions extends BaseExecutionFunctions {
+//     //getInputData(inputIndex?: number, connectionType?: NodeConnectionType): INodeExecutionData;
+//     getItemIndex(): number;
+//     getNodeParameter(
+//         parameterName: string,
+//         fallbackValue?: any,
+//         options?: IGetNodeParameterOptions,
+//     ): NodeParameterValueType | object;
+// }
 
-export interface INodeRequestOutput {
-    maxResults?: number | string;
-    postReceive?: PostReceiveAction[];
-}
+// export interface INodeRequestOutput {
+//     maxResults?: number | string;
+//     postReceive?: PostReceiveAction[];
+// }
 
-export type PostReceiveAction =
-    | ((
-        this: IExecuteSingleFunctions,
-        items: INodeExecutionData[],
-    ) => Promise<INodeExecutionData[]>)
+// export type PostReceiveAction =
+//     | ((
+//         this: IExecuteSingleFunctions,
+//         items: INodeExecutionData[],
+//     ) => Promise<INodeExecutionData[]>)
 
 
 export type NodeGroupType = 'input' | 'output' | 'organization' | 'schedule' | 'transform' | 'trigger';
@@ -603,7 +598,7 @@ export interface IEnumeratorData {
     eof: boolean;
 }
 
-export interface ICatalog{
+export interface ICatalog {
     id: CatalogType;           // 分类唯一标识符
     name: string;         // 分类名称
     description: string;  // 分类描述
@@ -657,38 +652,75 @@ export interface INodeDetail {//extends INodeTypeBaseDescription {
 
 // 联动配置接口
 export interface IFieldLinkageConfig {
-    // 依赖配置 - 当前字段依赖其他字段
     dependsOn?: string;                    // 依赖的字段名
-    fetchMethod?: string;                  // 数据获取方法名 (如: 'fetchConnectDetail')
-    clearOnChange?: boolean;               // 依赖字段变化时是否清空当前值
-    enableWhen?: (value: any) => boolean;  // 何时启用当前字段的函数,只有满足特定条件时才允许用户操作
-
-    // 影响配置 - 当前字段影响其他字段
     targets?: string[];                    // 影响的目标字段名列表
-    trigger?: 'onChange' | 'onBlur';       // 触发时机
+    trigger?: 'onclick' | 'onChange' | 'onBlur';       // 触发时机
+}
+
+export type ComponentType =
+    | 'button'
+    | 'card'
+    | 'checkbox'
+    | 'jscode'
+    | 'cmdcode'
+    | 'input'
+    | 'select'
+    | 'selectfilter'
+    | 'selectwithdesc'
+    | 'inputselect'
+    | 'selectconnect'
+    | 'selectadd'
+    | 'jsoncode'
+    | 'slider'
+    | 'switch'
+    | 'sqlcode'
+    | 'sqltext'
+    | 'note'
+    | 'textarea'
+    | 'collection';
+
+export interface IComponentAttributes {
+    [key: string]: any;
+    style?: {
+        [cssProperty: string]: string | number;
+    };
+}
+export interface IControlConfiguration {
+    name: ComponentType;
+    dataType: NodePropertyTypes;
+    connectType?: string;
+    defaultValue?: GenericValue;
+    placeholder?: string;
+    validation?: IValidationRules    
+    //下拉框内容
+    options?: Array<INodePropertyOption | INodeFields>;  
+    //控件额外的属性
+    attributes?: IComponentAttributes[];
+}
+
+export interface IValidationRules {
+    required?: boolean;
+    pattern?: {
+        value: string | RegExp;
+        message?: string;
+    };
+    min?: number | { value: number; message?: string };
+    max?: number | { value: number; message?: string };
 }
 
 export interface INodeFields {
-    displayName: string;
-    name: string;
-    type: NodePropertyTypes;
-    default: NodeParameterValueType;
+    label: string;
+    fieldName: string;
     description?: string;
-    hint?: string;
-    disabledOptions?: IDisplayOptions;
-    displayOptions?: IDisplayOptions;
-    options?: Array<INodePropertyOptions | INodeFields>; //INodePropertyCollection
-    placeholder?: string;
-    required?: boolean;
-    // routing?: INodePropertyRouting;
-    isSecure?: boolean;
-    connectType?: string;//即connectID
-    modes?: INodePropertyMode[];
-    controlType?: string;
+    tooltip?: string;
+    //根据控件的交互来显示或者隐藏、增加对应的控件
+    conditionRules?: IConditionRules;
+    //即connect的Ctype
+    connectType?: string;
+    // 渲染对应的控件
+    control: IControlConfiguration;
     // 新增：联动配置
     linkage?: IFieldLinkageConfig;
-    // 类型选项配置
-    typeOptions?: INodePropertyModeTypeOptions;
     // 新增：AI助手相关配置
     AIhelp?: IAIhelp;
 }
@@ -706,7 +738,6 @@ export interface INodePropertyModeTypeOptions {
     numberPrecision?: number;
     showText?: [string, string];
     password?: boolean;
-
     // searchListMethod?: string; // Supported by: options
     // searchFilterRequired?: boolean;
     // searchable?: boolean;
@@ -749,32 +780,32 @@ export interface IVersionedNodeType {
     execute(...args: any[]): Promise<any>;
 }
 
-export interface INodePropertyMode {
-    displayName: string;
-    name: string;
-    type: 'string' | 'list';
-    hint?: string;
-    validation?: Array<
-        INodePropertyModeValidation | { (this: IExecuteSingleFunctions, value: string): void }
-    >;
-    placeholder?: string;
-    url?: string;
-    //extractValue?: INodePropertyValueExtractor;
-    initType?: string;
-    entryTypes?: {
-        [name: string]: {
-            selectable?: boolean;
-            hidden?: boolean;
-            queryable?: boolean;
-            data?: {
-                request?: IHttpRequestOptions;
-                output?: INodeRequestOutput;
-            };
-        };
-    };
-    //search?: INodePropertyRouting;
-    typeOptions?: INodePropertyModeTypeOptions;
-}
+// export interface INodePropertyMode {
+//     displayName: string;
+//     name: string;
+//     type: 'string' | 'list';
+//     hint?: string;
+//     validation?: Array<
+//         INodePropertyModeValidation | { (this: IExecuteSingleFunctions, value: string): void }
+//     >;
+//     placeholder?: string;
+//     url?: string;
+//     //extractValue?: INodePropertyValueExtractor;
+//     initType?: string;
+//     entryTypes?: {
+//         [name: string]: {
+//             selectable?: boolean;
+//             hidden?: boolean;
+//             queryable?: boolean;
+//             data?: {
+//                 request?: IHttpRequestOptions;
+//                 output?: INodeRequestOutput;
+//             };
+//         };
+//     };
+//     //search?: INodePropertyRouting;
+//     typeOptions?: INodePropertyModeTypeOptions;
+// }
 
 export interface IExecuteOptions {
     /**
@@ -809,4 +840,16 @@ export interface IExecuteOptions {
     state?: Map<string, any>;
     step?: any;
     publish?: any;
+
+    /**
+     * 连接配置映射，用于获取连接实例的配置信息
+     * key为连接实例ID，value为连接配置信息
+     */
+    connectConfigs?: Record<string, {
+        id: string;
+        name: string;
+        ctype: string;
+        nodeinfo: Record<string, any>;
+        description?: string;
+    }>;
 }

@@ -21,261 +21,278 @@ export class Merge implements INode {
 		fields: [
 			// 合并模式选择
 			{
-				displayName: '合并模式',
-				name: 'mode',
-				type: 'options',
-				options: [
-					{
-						name: '追加模式',
-						value: 'append',
-						description: '将所有输入的数据项依次输出',
-					},
-					{
-						name: '字段匹配合并',
-						value: 'combineByFields',
-						description: '根据指定字段匹配合并数据',
-					},
-					{
-						name: '位置合并',
-						value: 'combineByPosition',
-						description: '根据数据项的位置顺序合并',
-					},
-					{
-						name: '全组合',
-						value: 'combineAll',
-						description: '生成所有可能的数据组合（笛卡尔积）',
-					},
-					{
-						name: '选择分支',
-						value: 'chooseBranch',
-						description: '选择特定分支的数据输出',
-					},
-				],
-				default: 'append',
-				required: true,
-				controlType: 'selectwithdesc'
+				label: '合并模式',
+				fieldName: 'mode',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'append',
+					validation: { required: true },
+					options: [
+						{
+							name: '追加模式',
+							value: 'append',
+							description: '将所有输入的数据项依次输出',
+						},
+						{
+							name: '字段匹配合并',
+							value: 'combineByFields',
+							description: '根据指定字段匹配合并数据',
+						},
+						{
+							name: '位置合并',
+							value: 'combineByPosition',
+							description: '根据数据项的位置顺序合并',
+						},
+						{
+							name: '全组合',
+							value: 'combineAll',
+							description: '生成所有可能的数据组合（笛卡尔积）',
+						},
+						{
+							name: '选择分支',
+							value: 'chooseBranch',
+							description: '选择特定分支的数据输出',
+						},
+					]
+				}
 			},
 
 			// 字段匹配合并配置
 			{
-				displayName: '匹配字段',
-				name: 'matchFields',
-				type: 'string',
-				displayOptions: {
+				label: '匹配字段',
+				fieldName: 'matchFields',
+				conditionRules: {
 					showBy: {
 						mode: ['combineByFields'],
 					},
 				},
-				default: '',
-				required: true,
-				placeholder: '例如: id,name (多个字段用逗号分隔)',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '例如: id,name (多个字段用逗号分隔)',
+					validation: { required: true }
+				}
 			},
 			{
-				displayName: '连接类型',
-				name: 'joinType',
-				type: 'options',
-				displayOptions: {
+				label: '连接类型',
+				fieldName: 'joinType',
+				conditionRules: {
 					showBy: {
 						mode: ['combineByFields'],
 					},
 				},
-				options: [
-					{
-						name: '内连接',
-						value: 'inner',
-						description: '只保留匹配的数据项',
-					},
-					{
-						name: '左连接',
-						value: 'left',
-						description: '保留第一个输入的所有数据，匹配第二个输入',
-					},
-					{
-						name: '右连接',
-						value: 'right',
-						description: '保留第二个输入的所有数据，匹配第一个输入',
-					},
-					{
-						name: '外连接',
-						value: 'outer',
-						description: '保留所有数据，匹配的合并，不匹配的单独保留',
-					},
-				],
-				default: 'inner',
-				controlType: 'selectwithdesc'
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'inner',
+					options: [
+						{
+							name: '内连接',
+							value: 'inner',
+							description: '只保留匹配的数据项',
+						},
+						{
+							name: '左连接',
+							value: 'left',
+							description: '保留第一个输入的所有数据，匹配第二个输入',
+						},
+						{
+							name: '右连接',
+							value: 'right',
+							description: '保留第二个输入的所有数据，匹配第一个输入',
+						},
+						{
+							name: '外连接',
+							value: 'outer',
+							description: '保留所有数据，匹配的合并，不匹配的单独保留',
+						},
+					]
+				}
 			},
 
 			// 位置合并配置
 			{
-				displayName: '填充模式',
-				name: 'fillMode',
-				type: 'options',
-				displayOptions: {
+				label: '填充模式',
+				fieldName: 'fillMode',
+				conditionRules: {
 					showBy: {
 						mode: ['combineByPosition'],
 					},
 				},
-				options: [
-					{
-						name: '空值填充',
-						value: 'null',
-						description: '较短的数据用null填充',
-					},
-					{
-						name: '重复最后值',
-						value: 'repeat',
-						description: '重复最后一个值进行填充',
-					},
-					{
-						name: '跳过空值',
-						value: 'skip',
-						description: '跳过没有对应数据的位置',
-					},
-				],
-				default: 'null',
-				controlType: 'selectwithdesc'
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'null',
+					options: [
+						{
+							name: '空值填充',
+							value: 'null',
+							description: '较短的数据用null填充',
+						},
+						{
+							name: '重复最后值',
+							value: 'repeat',
+							description: '重复最后一个值进行填充',
+						},
+						{
+							name: '跳过空值',
+							value: 'skip',
+							description: '跳过没有对应数据的位置',
+						},
+					]
+				}
 			},
 
 			// 选择分支配置
 			{
-				displayName: '选择分支',
-				name: 'branchIndex',
-				type: 'number',
-				displayOptions: {
+				label: '选择分支',
+				fieldName: 'branchIndex',
+				conditionRules: {
 					showBy: {
 						mode: ['chooseBranch'],
 					},
 				},
-				default: 0,
-				required: true,
-				placeholder: '分支索引（从0开始）',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 0,
+					placeholder: '分支索引（从0开始）',
+					validation: { required: true }
+				}
 			},
 
 			// 输出配置
 			{
-				displayName: '输出数据来源',
-				name: 'outputDataFrom',
-				type: 'options',
-				displayOptions: {
+				label: '输出数据来源',
+				fieldName: 'outputDataFrom',
+				conditionRules: {
 					showBy: {
 						mode: ['combineByFields'],
 					},
 				},
-				options: [
-					{
-						name: '合并数据',
-						value: 'both',
-						description: '输出合并后的数据',
-					},
-					{
-						name: '仅输入1',
-						value: 'input1',
-						description: '只输出第一个输入的数据',
-					},
-					{
-						name: '仅输入2',
-						value: 'input2',
-						description: '只输出第二个输入的数据',
-					},
-				],
-				default: 'both',
-				controlType: 'selectwithdesc'
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'both',
+					options: [
+						{
+							name: '合并数据',
+							value: 'both',
+							description: '输出合并后的数据',
+						},
+						{
+							name: '仅输入1',
+							value: 'input1',
+							description: '只输出第一个输入的数据',
+						},
+						{
+							name: '仅输入2',
+							value: 'input2',
+							description: '只输出第二个输入的数据',
+						},
+					]
+				}
 			},
 
 			// 冲突处理
 			{
-				displayName: '字段冲突处理',
-				name: 'conflictResolution',
-				type: 'options',
-				displayOptions: {
+				label: '字段冲突处理',
+				fieldName: 'conflictResolution',
+				conditionRules: {
 					showBy: {
 						mode: ['combineByFields', 'combineByPosition', 'combineAll'],
 					},
 				},
-				options: [
-					{
-						name: '使用输入1的值',
-						value: 'input1',
-						description: '当字段名冲突时，使用第一个输入的值',
-					},
-					{
-						name: '使用输入2的值',
-						value: 'input2',
-						description: '当字段名冲突时，使用第二个输入的值',
-					},
-					{
-						name: '添加后缀',
-						value: 'suffix',
-						description: '为冲突字段添加_1、_2后缀',
-					},
-					{
-						name: '合并数组',
-						value: 'array',
-						description: '将冲突值合并为数组',
-					},
-				],
-				default: 'input2',
-				controlType: 'selectwithdesc'
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'input2',
+					options: [
+						{
+							name: '使用输入1的值',
+							value: 'input1',
+							description: '当字段名冲突时，使用第一个输入的值',
+						},
+						{
+							name: '使用输入2的值',
+							value: 'input2',
+							description: '当字段名冲突时，使用第二个输入的值',
+						},
+						{
+							name: '添加后缀',
+							value: 'suffix',
+							description: '为冲突字段添加_1、_2后缀',
+						},
+						{
+							name: '合并数组',
+							value: 'array',
+							description: '将冲突值合并为数组',
+						},
+					]
+				}
 			},
 
 			// 高级选项
 			{
-				displayName: '忽略大小写',
-				name: 'ignoreCase',
-				type: 'boolean',
-				displayOptions: {
+				label: '忽略大小写',
+				fieldName: 'ignoreCase',
+				conditionRules: {
 					showBy: {
 						mode: ['combineByFields'],
 					},
 				},
-				default: false,
-				controlType: 'checkbox'
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: false
+				}
 			},
 			{
-				displayName: '多重匹配处理',
-				name: 'multipleMatches',
-				type: 'options',
-				displayOptions: {
+				label: '多重匹配处理',
+				fieldName: 'multipleMatches',
+				conditionRules: {
 					showBy: {
 						mode: ['combineByFields'],
 					},
 				},
-				options: [
-					{
-						name: '包含所有匹配',
-						value: 'all',
-						description: '输出所有匹配的组合',
-					},
-					{
-						name: '仅第一个匹配',
-						value: 'first',
-						description: '每个数据项只输出第一个匹配',
-					},
-				],
-				default: 'all',
-				controlType: 'select'
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'all',
+					options: [
+						{
+							name: '包含所有匹配',
+							value: 'all',
+							description: '输出所有匹配的组合',
+						},
+						{
+							name: '仅第一个匹配',
+							value: 'first',
+							description: '每个数据项只输出第一个匹配',
+						},
+					]
+				}
 			},
 			{
-				displayName: '添加来源字段',
-				name: 'addSourceField',
-				type: 'boolean',
-				default: false,
-				controlType: 'checkbox'
+				label: '添加来源字段',
+				fieldName: 'addSourceField',
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: false
+				}
 			},
 			{
-				displayName: '来源字段名',
-				name: 'sourceFieldName',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						addSourceField: [true],
-					},
-				},
-				default: '_source',
-				placeholder: '来源字段的名称',
-				controlType: 'input'
+				label: '来源字段名',
+				fieldName: 'sourceFieldName',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '_source',
+					placeholder: '来源字段的名称'
+				}
 			},
 		],
 	};

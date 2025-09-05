@@ -14,150 +14,160 @@ export class Regular implements INode {
     };
 
     detail: INodeDetail = {
-        fields: [
-            {
-                displayName: '内容',
-                name: 'content',
-                type: 'string',
-                default: '',
-                required: true,
-                placeholder: '请输入要匹配的文本内容...',
-                controlType: 'textarea'
-            },
-            {
-                displayName: '匹配类型',
-                name: 'matchType',
-                type: 'options',
-                options: [
-                    {
-                        name: 'JSON',
-                        value: 'json',
-                        description: '匹配JSON对象、数组、字符串等',
-                    },
-                    {
-                        name: 'HTML',
-                        value: 'html',
-                        description: '匹配HTML标签、属性、文本内容等',
-                    },
-                    {
-                        name: 'JavaScript',
-                        value: 'javascript',
-                        description: '匹配JS函数、变量、注释等',
-                    },
-                    {
-                        name: 'Java',
-                        value: 'java',
-                        description: '匹配Java类、方法、包名等',
-                    },
-                    {
-                        name: 'Go',
-                        value: 'go',
-                        description: '匹配Go函数、结构体、包等',
-                    },
-                    {
-                        name: 'Python',
-                        value: 'python',
-                        description: '匹配Python函数、类、导入等',
-                    },
-                    {
-                        name: 'URL',
-                        value: 'url',
-                        description: '匹配URL链接',
-                    },
-                    {
-                        name: '邮箱',
-                        value: 'email',
-                        description: '匹配邮箱地址',
-                    },
-                    {
-                        name: '手机号',
-                        value: 'phone',
-                        description: '匹配中国手机号码',
-                    },
-                    {
-                        name: 'IP地址',
-                        value: 'ip',
-                        description: '匹配IPv4地址',
-                    },
-                    {
-                        name: '日期时间',
-                        value: 'datetime',
-                        description: '匹配常见日期时间格式',
-                    },
-                    {
-                        name: '自定义正则',
-                        value: 'custom',
-                        description: '使用自定义正则表达式',
-                    }
-                ],
-                default: 'json',
-                placeholder: '选择匹配类型',
-                controlType: 'selectwithdesc'
-            },
-            {
-                displayName: '自定义正则表达式',
-                name: 'customRegex',
-                type: 'string',
-                default: '',
-                required: true,
-                placeholder: '例如: \\d+|[a-zA-Z]+',
-                controlType: 'input',
-                displayOptions: {
-                    showBy: {
-                        matchType: ['custom']
-                    }
-                }
-            },
-            {
-                displayName: '匹配模式',
-                name: 'matchMode',
-                type: 'options',
-                options: [
-                    {
-                        name: '全部匹配',
-                        value: 'all',
-                        description: '返回所有匹配结果',
-                    },
-                    {
-                        name: '第一个匹配',
-                        value: 'first',
-                        description: '只返回第一个匹配结果',
-                    },
-                    {
-                        name: '最后一个匹配',
-                        value: 'last',
-                        description: '只返回最后一个匹配结果',
-                    }
-                ],
-                default: 'all',
-                placeholder: '选择匹配模式',
-                controlType: 'select'
-            },
-            {
-                displayName: '输出格式',
-                name: 'outputFormat',
-                type: 'options',
-                options: [
-                    {
-                        name: '数组',
-                        value: 'array',
-                        description: '以数组形式返回匹配结果',
-                    },
-                    {
-                        name: '字符串',
-                        value: 'string',
-                        description: '以换行分隔的字符串返回',
-                    },
-                    {
-                        name: '详细信息',
-                        value: 'detail',
-                        description: '返回匹配位置和内容的详细信息',
-                    }
-                ],
-                default: 'array',
-                placeholder: '选择输出格式',
-                controlType: 'select'
-            }
+		fields: [
+			{
+				label: '内容',
+				fieldName: 'content',
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '请输入要匹配的文本内容...',
+					validation: { required: true }
+				}
+			},
+			{
+				label: '匹配类型',
+				fieldName: 'matchType',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'json',
+					placeholder: '选择匹配类型',
+					options: [
+						{
+							name: 'JSON',
+							value: 'json',
+							description: '匹配JSON对象、数组、字符串等',
+						},
+						{
+							name: 'HTML',
+							value: 'html',
+							description: '匹配HTML标签、属性、文本内容等',
+						},
+						{
+							name: 'JavaScript',
+							value: 'javascript',
+							description: '匹配JS函数、变量、注释等',
+						},
+						{
+							name: 'Java',
+							value: 'java',
+							description: '匹配Java类、方法、包名等',
+						},
+						{
+							name: 'Go',
+							value: 'go',
+							description: '匹配Go函数、结构体、包等',
+						},
+						{
+							name: 'Python',
+							value: 'python',
+							description: '匹配Python函数、类、导入等',
+						},
+						{
+							name: 'URL',
+							value: 'url',
+							description: '匹配URL链接',
+						},
+						{
+							name: '邮箱',
+							value: 'email',
+							description: '匹配邮箱地址',
+						},
+						{
+							name: '手机号',
+							value: 'phone',
+							description: '匹配中国手机号码',
+						},
+						{
+							name: 'IP地址',
+							value: 'ip',
+							description: '匹配IPv4地址',
+						},
+						{
+							name: '日期时间',
+							value: 'datetime',
+							description: '匹配常见日期时间格式',
+						},
+						{
+							name: '自定义正则',
+							value: 'custom',
+							description: '使用自定义正则表达式',
+						}
+					]
+				}
+			},
+			{
+				label: '自定义正则表达式',
+				fieldName: 'customRegex',
+				conditionRules: {
+					showBy: {
+						matchType: ['custom']
+					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '例如: \\d+|[a-zA-Z]+',
+					validation: { required: true }
+				}
+			},
+			{
+				label: '匹配模式',
+				fieldName: 'matchMode',
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'all',
+					placeholder: '选择匹配模式',
+					options: [
+						{
+							name: '全部匹配',
+							value: 'all',
+							description: '返回所有匹配结果',
+						},
+						{
+							name: '第一个匹配',
+							value: 'first',
+							description: '只返回第一个匹配结果',
+						},
+						{
+							name: '最后一个匹配',
+							value: 'last',
+							description: '只返回最后一个匹配结果',
+						}
+					]
+				}
+			},
+			{
+				label: '输出格式',
+				fieldName: 'outputFormat',
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'array',
+					placeholder: '选择输出格式',
+					options: [
+						{
+							name: '数组',
+							value: 'array',
+							description: '以数组形式返回匹配结果',
+						},
+						{
+							name: '字符串',
+							value: 'string',
+							description: '以换行分隔的字符串返回',
+						},
+						{
+							name: '详细信息',
+							value: 'detail',
+							description: '返回匹配位置和内容的详细信息',
+						}
+					]
+				}
+			}
         ]
     };
 

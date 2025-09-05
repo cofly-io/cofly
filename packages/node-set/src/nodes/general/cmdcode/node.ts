@@ -16,23 +16,27 @@ export class CmdCode implements INode {
 	detail: INodeDetail = {
 		fields: [
 			{
-				displayName: 'Command命令',      // 显示名称
-				name: 'command',                 // 字段名
-				type: 'string',              // 字段类型
-				placeholder: '请输入命令...\nwindows例如:\ndir && echo hello\nLinux例如:\necho "Hello World"\nls -la\nnpm install\ngit status',   // 描述
-				default: ``,
-				controlType: 'cmdcode'
+				label: 'Command命令',
+				fieldName: 'command',
+				control: {
+					name: 'cmdcode',
+					dataType: 'string',
+					defaultValue: ``,
+					placeholder: '请输入命令...\nwindows例如:\ndir && echo hello\nLinux例如:\necho "Hello World"\nls -la\nnpm install\ngit status'
+				}
 			},
 			{
-				displayName: '工作目录',      // 显示名称
-				name: 'dir',                 // 字段名
-				type: 'string',              // 字段类型
-				placeholder: '请输入工作目录路径，例如d:\，留空则使用当前目录',   // 描述
-				default: '',
-				typeOptions: {
-					height: 200,
-				},
-				controlType: 'input'
+				label: '工作目录',
+				fieldName: 'dir',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '请输入工作目录路径，例如d:\，留空则使用当前目录',
+					attributes: [{
+						height: 200
+					}]
+				}
 			}
 		],
 	};

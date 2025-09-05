@@ -27,150 +27,170 @@ export class OracleConnect extends BaseDatabaseConnect {
         ],
         fields: [
             {
-                displayName: '主机地址',
-                name: 'host',
-                type: 'string' as const,
-                default: 'localhost',
+                label: '主机地址',
+                fieldName: 'host',
                 description: 'Oracle服务器的主机地址',
-                placeholder: 'localhost 或 IP地址',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'localhost',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'localhost 或 IP地址'
+                }
             },
             {
-                displayName: '端口',
-                name: 'port',
-                type: 'number' as const,
-                default: 1521,
+                label: '端口',
+                fieldName: 'port',
                 description: 'Oracle服务器端口号',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 65535
-                },
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 1521,
+                    validation: {
+                        required: true
+                    }
+                }
             },
             {
-                displayName: '连接类型',
-                name: 'connectionType',
-                type: 'options' as const,
-                default: 'sid',
+                label: '连接类型',
+                fieldName: 'connectionType',
                 description: 'Oracle连接类型',
-                options: [
-                    { name: 'SID', value: 'sid' },
-                    { name: 'Service Name', value: 'service' },
-                    { name: 'TNS', value: 'tns' }
-                ],
-                controlType: "select"
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'sid',
+                    options: [
+                        { name: 'SID', value: 'sid' },
+                        { name: 'Service Name', value: 'service' },
+                        { name: 'TNS', value: 'tns' }
+                    ]
+                }
             },
             {
-                displayName: 'SID/服务名',
-                name: 'sid',
-                type: 'string' as const,
-                default: 'ORCL',
+                label: 'SID/服务名',
+                fieldName: 'sid',
                 description: 'Oracle SID或服务名',
-                placeholder: 'ORCL, XE, XEPDB1等',
-                required: true,
-                controlType: "input",
-                displayOptions: {
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'ORCL',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'ORCL, XE, XEPDB1等'
+                },
+                conditionRules: {
                     showBy: {
                         connectionType: ['sid', 'service']
                     }
                 }
             },
             {
-                displayName: 'TNS连接字符串',
-                name: 'tnsConnectString',
-                type: 'string' as const,
-                default: '',
+                label: 'TNS连接字符串',
+                fieldName: 'tnsConnectString',
                 description: 'TNS连接字符串',
-                placeholder: '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SID=ORCL)))',
-                required: true,
-                controlType: "textarea",
-                displayOptions: {
+                control: {
+                    name: 'textarea' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SID=ORCL)))'
+                },
+                conditionRules: {
                     showBy: {
                         connectionType: ['tns']
                     }
                 }
             },
             {
-                displayName: '用户名',
-                name: 'username',
-                type: 'string' as const,
-                default: '',
-                placeholder: "请输入数据库用户名",
+                label: '用户名',
+                fieldName: 'username',
                 description: '数据库用户名',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入数据库用户名'
+                }
             },
             {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as const,
-                default: '',
+                label: '密码',
+                fieldName: 'password',
                 description: '数据库密码',
-                placeholder: "请输入数据库密码",
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入数据库密码',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '角色',
-                name: 'role',
-                type: 'options' as const,
-                default: 'normal',
+                label: '角色',
+                fieldName: 'role',
                 description: 'Oracle连接角色',
-                options: [
-                    { name: '普通用户', value: 'normal' },
-                    { name: 'SYSDBA', value: 'sysdba' },
-                    { name: 'SYSOPER', value: 'sysoper' }
-                ],
-                controlType: "select"
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'normal',
+                    options: [
+                        { name: '普通用户', value: 'normal' },
+                        { name: 'SYSDBA', value: 'sysdba' },
+                        { name: 'SYSOPER', value: 'sysoper' }
+                    ]
+                }
             },
             {
-                displayName: '启用SSL',
-                name: 'ssl',
-                type: 'boolean' as const,
-                default: false,
+                label: '启用SSL',
+                fieldName: 'ssl',
                 description: '是否启用SSL连接',
-                controlType: "switch"
+                control: {
+                    name: 'switch' as const,
+                    dataType: 'boolean' as const,
+                    defaultValue: false
+                }
             },
             // {
-            //     displayName: '连接池大小',
-            //     name: 'poolSize',
-            //     type: 'number' as const,
-            //     default: 10,
+            //     label: '连接池大小',
+            //     fieldName: 'poolSize',
             //     description: '连接池最大连接数',
-            //     typeOptions: {
-            //         minValue: 1,
-            //         maxValue: 100
-            //     },
-            //     controlType: "input"
+            //     control: {
+            //         name: 'input' as const,
+            //         dataType: 'number' as const,
+            //         defaultValue: 10
+            //     }
             // },
             // {
-            //     displayName: '连接超时(秒)',
-            //     name: 'connectionTimeout',
-            //     type: 'number' as const,
-            //     default: 30,
+            //     label: '连接超时(秒)',
+            //     fieldName: 'connectionTimeout',
             //     description: '连接超时时间，单位：秒',
-            //     typeOptions: {
-            //         minValue: 1,
-            //         maxValue: 300
-            //     },
-            //     controlType: "input"
+            //     control: {
+            //         name: 'input' as const,
+            //         dataType: 'number' as const,
+            //         defaultValue: 30
+            //     }
             // },
             // {
-            //     displayName: '语句超时(秒)',
-            //     name: 'statementTimeout',
-            //     type: 'number' as const,
-            //     default: 30,
+            //     label: '语句超时(秒)',
+            //     fieldName: 'statementTimeout',
             //     description: 'SQL语句执行超时时间，单位：秒',
-            //     typeOptions: {
-            //         minValue: 1,
-            //         maxValue: 3600
-            //     },
-            //     controlType: "input"
+            //     control: {
+            //         name: 'input' as const,
+            //         dataType: 'number' as const,
+            //         defaultValue: 30
+            //     }
             // }
         ],
         validateConnection: true,

@@ -19,30 +19,30 @@ export class AmapWeather implements INode {
         // description: config.description,
         // inputs: [NodeConnectionTypes.Main],
         // outputs: [NodeConnectionTypes.Main],
-        fields: [
-            {
-                displayName: 'API Key',
-                name: 'apiKey',
-                type: 'string',
-                default: '',
-                required: true,
-                placeholder: '',
-                description:
-                    'Amap Weather API using a simple API key.',
-                controlType: 'input'
-            },
-            {
-                displayName: 'City Code',
-                name: 'cityCode',
-                type: 'string',
-                default: "",
-                required: true,
-                placeholder: '',
-                description:
-                    'City code for query',
-                controlType: 'input'
-            },
-        ],
+		fields: [
+			{
+				label: 'API Key',
+				fieldName: 'apiKey',
+				description: 'Amap Weather API using a simple API key.',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true }
+				}
+			},
+			{
+				label: 'City Code',
+				fieldName: 'cityCode',
+				description: 'City code for query',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true }
+				}
+			},
+		],
     };
 
     async execute(opts: IExecuteOptions): Promise<string> {

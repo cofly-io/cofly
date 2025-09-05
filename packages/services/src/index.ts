@@ -14,7 +14,6 @@ import { DefaultPluginLoader } from "@/DefaultPluginLoader";
 import { DefaultTeamLoader } from "@/DefaultTeamLoader";
 import { DefaultAgenticLoader } from "@/DefaultAgenticLoader";
 import { DefaultAgentThreadLoader } from "@/DefaultAgentThreadLoader";
-import { KnowledgeBaseLoader } from "@repo/knowledge-base";
 
 declare global {
     var __containerInited: boolean | false;
@@ -33,7 +32,6 @@ export async function initializeContainers() {
     teamManager.bind(DefaultTeamLoader);
     agenticConfigManager.bind(DefaultAgenticLoader);
     agenticThreadManager.bind(DefaultAgentThreadLoader);
-    knowledgeBaseManager.bind(KnowledgeBaseLoader);
 
     globalThis.__containerInited = true;
 }

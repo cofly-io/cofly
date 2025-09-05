@@ -27,120 +27,150 @@ export class FTPConnect extends BaseOthersConnect {
         ],
         fields: [
             {
-                displayName: '协议类型',
-                name: 'protocol',
-                type: 'options' as const,
-                default: 'ftp',
+                label: '协议类型',
+                fieldName: 'protocol',
                 description: '选择文件传输协议',
-                options: [
-                    { name: 'FTP', value: 'ftp' },
-                    { name: 'SFTP', value: 'sftp' }
-                ],
-                required: true,
-                controlType: "select"
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'ftp',
+                    validation: {
+                        required: true
+                    },
+                    options: [
+                        { name: 'FTP', value: 'ftp' },
+                        { name: 'SFTP', value: 'sftp' }
+                    ]
+                }
             },
             {
-                displayName: '主机地址',
-                name: 'host',
-                type: 'string' as const,
-                default: '',
+                label: '主机地址',
+                fieldName: 'host',
                 description: 'FTP服务器的主机地址',
-                placeholder: 'ftp.example.com 或 IP地址',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'ftp.example.com 或 IP地址'
+                }
             },
             {
-                displayName: '端口',
-                name: 'port',
-                type: 'number' as const,
-                default: 21,
+                label: '端口',
+                fieldName: 'port',
                 description: 'FTP服务器端口号 (FTP: 21, SFTP: 22)',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 65535
-                },
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 21,
+                    validation: {
+                        required: true,
+                        min: 1,
+                        max: 65535
+                    },
+                    placeholder: '21'
+                }
             },
             {
-                displayName: '用户名',
-                name: 'username',
-                type: 'string' as const,
-                default: '',
-                placeholder: "请输入FTP用户名",
+                label: '用户名',
+                fieldName: 'username',
                 description: 'FTP用户名',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入FTP用户名'
+                }
             },
             {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as const,
-                default: '',
+                label: '密码',
+                fieldName: 'password',
                 description: 'FTP密码',
-                placeholder: "请输入FTP密码",
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入FTP密码',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '私钥',
-                name: 'privateKey',
-                type: 'string' as const,
-                default: '',
+                label: '私钥',
+                fieldName: 'privateKey',
                 description: 'SFTP私钥内容 (仅SFTP需要)',
-                placeholder: "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         protocol: ['sftp']
                     }
                 },
-                controlType: "textarea"
+                control: {
+                    name: 'textarea' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    placeholder: '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----'
+                }
             },
             {
-                displayName: '私钥密码',
-                name: 'passphrase',
-                type: 'string' as const,
-                default: '',
+                label: '私钥密码',
+                fieldName: 'passphrase',
                 description: '私钥密码 (如果私钥有密码保护)',
-                placeholder: "私钥密码",
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         protocol: ['sftp']
                     }
                 },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '私钥密码',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '连接超时(秒)',
-                name: 'connectionTimeout',
-                type: 'number' as const,
-                default: 30,
+                label: '连接超时(秒)',
+                fieldName: 'connectionTimeout',
                 description: '连接超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 300
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 30,
+                    validation: {
+                        min: 1,
+                        max: 300
+                    },
+                    placeholder: '30'
+                }
             },
             {
-                displayName: '启用被动模式',
-                name: 'passive',
-                type: 'boolean' as const,
-                default: true,
+                label: '启用被动模式',
+                fieldName: 'passive',
                 description: '是否启用被动模式 (推荐)',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         protocol: ['ftp']
                     }
                 },
-                controlType: "checkbox"
+                control: {
+                    name: 'checkbox' as const,
+                    dataType: 'boolean' as const,
+                    defaultValue: true
+                }
             }
         ],
         validateConnection: true,

@@ -8,106 +8,19 @@ import {
   OutputContainer,
   OutputContainerContent,
   NodeEmptyState,
-  NodeEmptyStateText
+  NodeEmptyStateText,
+  PanelHeader,
+  ActionContainer,
+  ActionButton,
+  SetMockButton,
+  CodeMirrorContainer,
+  EditModeActions,
+  ButtonGroup,
+  DataViewButton
 } from './sharedStyles';
-import { CoButton } from '../components/basic/Buttons';
 import { RiFileEditLine } from "react-icons/ri";
 import { JsonTree } from '../components/basic/JsonTree';
 
-
-// Right panel for current node test output
-const PanelHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: ${({ theme }) => theme.panel.nodeBg};
-`;
-
-const ActionContainer = styled.div`
-  padding: 12px 20px 0px 0px;
-  // display: flex;
-  // gap: 8px;
-  // align-items: center;
-`;
-
-const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  background: ${({ theme, $variant }) =>
-    $variant === 'primary'
-      ? theme.colors.success || '#2ed573'
-      : theme.panel.panelBg
-  };
-  color: ${({ theme, $variant }) =>
-    $variant === 'primary'
-      ? 'white'
-      : theme.colors.textPrimary
-  };
-  border: 0px solid ${({ theme, $variant }) =>
-    $variant === 'primary'
-      ? 'transparent'
-      : theme.colors.border
-  };
-  border-radius: 2px;
-  padding: 0px 0px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    opacity: 0.8;
-    // transform: translateY(-1px);
-  }
-`;
-
-const SetMockButton = styled.button`
-  background: transparent;
-  color: ${({ theme }) => theme.colors.accent || '#4fc3f7'};
-  border: none;
-  padding: 4px 8px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 13px;
-  text-decoration: underline;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    color: ${({ theme }) => theme.colors.accentHover || '#29b6f6'};
-    text-decoration: none;
-  }
-  
-  &:focus {
-    outline: none;
-    text-decoration: none;
-  }
-`;
-
-const CodeMirrorContainer = styled.div`
-  height: 100%;
-  
-  .cm-editor {
-    height: 100%;
-    background: transparent;
-    border: none;
-  }
-  
-  .cm-focused {
-    outline: none;
-  }
-  
-  .cm-content {
-    padding: 8px;
-  }
-  
-  .cm-scroller {
-    font-size: 12px;
-  }
-`;
-
-const EditModeActions = styled.div`
-  display: flex;
-  gap: 10px;
-  padding: 0px 12px 0px 0px;
-  justify-content: right;
-  margin-top: 12px;
-`;
 
 // 修复JSON格式：添加双引号到键名
 const fixJsonFormat = (str: string) => {
@@ -159,7 +72,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   isNodeTesting,
   nodeTestEventId
 }) => {
-
+  // const { themeMode } = useTheme();
   const [CodeMirror, setCodeMirror] = useState<any>(null);
   const [jsonExtension, setJsonExtension] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
@@ -380,9 +293,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         setIsEditMode(false);
         console.log('💾 [RightPanel] 本地状态已更新:', parsedData);
 
-        // 🎯 更新到nodesTestResultsMap，直接存储 rundata
-        updateStoredData(parsedData);
-        console.log('✅ Mock数据已保存到nodesTestResultsMap (rundata):', parsedData);
+        // 🎯 更新到nodesTestResultsMap，需要包装成正确的格式
+        const wrappedData = {
+          data: parsedData,
+          success: true
+        };
+        updateStoredData(wrappedData);
+        console.log('✅ Mock数据已保存到nodesTestResultsMap (wrapped format):', wrappedData);
 
         // 🎯 强制刷新数据显示
         setTimeout(() => {
@@ -419,12 +336,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     const storedData = getStoredData();
     if (storedData) {
       // 检查是否是新格式 {data: outputData, success: true}
-      if (storedData.success === true && storedData.data) {
-        // 返回完整的格式，包含 data 和 success
-        return JSON.stringify({
-          data: storedData.data,
-          success: storedData.success
-        }, null, 2);
+      if (storedData.success === true && storedData.data !== undefined) {
+        // 返回 data 部分作为显示内容
+        return JSON.stringify(storedData.data, null, 2);
       }
       // 兼容旧格式，直接返回数据
       return JSON.stringify(storedData, null, 2);
@@ -467,18 +381,18 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <EditModeActions>
-            <CoButton variant="Glass" backgroundColor='#35B5EF80' onClick={handleSaveMockData}>
-              保存
-            </CoButton>
-            <CoButton variant="Glass" onClick={handleCancelEdit}>
-              取消
-            </CoButton>
-            {/* <ActionButton $variant="primary" onClick={handleSaveMockData}>
-              保存
-            </ActionButton>
-            <ActionButton $variant="secondary" onClick={handleCancelEdit}>
-              取消
-            </ActionButton> */}
+            <ButtonGroup>
+              <DataViewButton $active={true}
+              onClick={handleSaveMockData}
+              >
+              确 定
+              </DataViewButton>
+              <DataViewButton
+              onClick={handleCancelEdit}
+              >
+                取 消
+              </DataViewButton>
+            </ButtonGroup>
           </EditModeActions>
           <div style={{ flex: 1 }}>
             {isClient && CodeMirror && jsonExtension ? (

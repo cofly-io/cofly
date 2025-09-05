@@ -5,46 +5,60 @@ import { EconomicalLLMTester, TestLevel } from './llm-tester-economical';
  * 创建API Key字段配置
  */
 export const createApiKeyField = (placeholder = ''): IConnectField => ({
-  displayName: 'API Key',
-  name: 'apiKey',
-  type: 'string',
-  default: '',
+  label: 'API Key',
+  fieldName: 'apiKey',
   description: 'API密钥',
-  placeholder,
-  typeOptions: { password: true },
-  isSecure: true,
-  required: true,
-  controlType: 'input'
+  control: {
+    name: 'input' as const,
+    dataType: 'string' as const,
+    defaultValue: '',
+    validation: {
+      required: true
+    },
+    placeholder,
+    attributes: [{
+      type: 'password'
+    }]
+  }
 });
 
 /**
  * 创建Secret Key字段配置（百度千帆专用）
  */
 export const createSecretKeyField = (placeholder = ''): IConnectField => ({
-  displayName: 'Secret Key',
-  name: 'secretKey',
-  type: 'string',
-  default: '',
+  label: 'Secret Key',
+  fieldName: 'secretKey',
   description: 'Secret Key密钥',
-  placeholder,
-  typeOptions: { password: true },
-  isSecure: true,
-  required: true,
-  controlType: 'input'
+  control: {
+    name: 'input' as const,
+    dataType: 'string' as const,
+    defaultValue: '',
+    validation: {
+      required: true
+    },
+    placeholder,
+    attributes: [{
+      type: 'password'
+    }]
+  }
 });
 
 /**
  * 创建Group ID字段配置（MiniMax专用）
  */
 export const createGroupIdField = (placeholder = ''): IConnectField => ({
-  displayName: 'Group ID',
-  name: 'groupId',
-  type: 'string',
-  default: '',
+  label: 'Group ID',
+  fieldName: 'groupId',
   description: 'Group ID',
-  placeholder,
-  required: true,
-  controlType: 'input'
+  control: {
+    name: 'input' as const,
+    dataType: 'string' as const,
+    defaultValue: '',
+    validation: {
+      required: true
+    },
+    placeholder
+  }
 });
 
 /**
@@ -52,13 +66,15 @@ export const createGroupIdField = (placeholder = ''): IConnectField => ({
  * @param defaultUrl - 默认URL
  */
 export const createBaseUrlField = (defaultUrl: string): IConnectField => ({
-  displayName: '基础URL',
-  name: 'baseUrl',
-  type: 'string',
-  default: defaultUrl,
+  label: '基础URL',
+  fieldName: 'baseUrl',
   description: 'API基础URL',
-  placeholder: defaultUrl,
-  controlType: 'input'
+  control: {
+    name: 'input' as const,
+    dataType: 'string' as const,
+    defaultValue: defaultUrl,
+    placeholder: defaultUrl
+  }
 });
 
 /**

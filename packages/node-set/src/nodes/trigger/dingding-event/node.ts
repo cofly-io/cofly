@@ -16,14 +16,16 @@ export class DingdingEvent implements INode{
 	detail: INodeDetail = {
 		fields: [
             {
-                displayName: '钉钉连接',
-                name: 'credential',
-                type: 'string',
-                required: true,
-                connectType: 'dingding',
-                default: '',
+                label: '钉钉连接',
+                fieldName: 'credential',
                 description: '选择钉钉连接配置',
-                controlType: 'selectconnect'
+                connectType: 'dingding',
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    validation: { required: true },
+                    defaultValue: ''
+                }
             },
 		],
 	};

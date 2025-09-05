@@ -1,22 +1,21 @@
 import {
     Icon,
-    NodePropertyTypes,
-    IDisplayOptions,
-    NodeParameterValueType,
-    INodePropertyModeTypeOptions
+    IConditionRules,
+    INodePropertyOption,
+    IControlConfiguration,
 } from './NodeInterfaces';
 import { ApiResponse } from "./SystemInterfaces";
 
 // 临时的ModelInfo类型定义，实际定义已迁移到@repo/common
 export interface ModelInfo {
-  id: string;
-  name: string;
-  group?: string;
-  provider?: string;
-  description?: string;
-  maxTokens?: number;
-  supportedFeatures?: string[];
-  tags?: string[];
+    id: string;
+    name: string;
+    group?: string;
+    provider?: string;
+    description?: string;
+    maxTokens?: number;
+    supportedFeatures?: string[];
+    tags?: string[];
 }
 
 export type ConnectType =
@@ -33,7 +32,7 @@ export type ConnectType =
     | 'other';
 
 // 连接分类常量定义
- export const ConnectCategory= {
+export const ConnectCategory = {
     llm: {
         name: '通用大模型',
         desc: 'deepseek、Qwen、ChatGPT、Claude、Gemini等对话式AI模型或嵌入模型'
@@ -66,7 +65,7 @@ export type ConnectType =
 
 export type ConnectCategoryType =
     (typeof ConnectCategory)[keyof typeof ConnectCategory];
-    
+
 // ============== 基础接口 ==============
 /**
  * 连接状态
@@ -77,23 +76,14 @@ export type ConnectStatus = 'connected' | 'disconnected' | 'testing' | 'error';
  * 连接字段定义（类似于 INodeFields）
  */
 export interface IConnectField {
-    displayName: string;
-    name: string;
-    type: NodePropertyTypes;
-    //typeOptions?: INodePropertyTypeOptions;
-    default?: NodeParameterValueType;
+    label: string;
+    fieldName: string;
     description?: string;
-    hint?: string;
-    placeholder?: string;
-    required?: boolean;
-    displayOptions?: IDisplayOptions;
-    options?: Array<{ name?: string; value: string }>;// | number | boolean
-    // 连接特有的属性
-    isSecure?: boolean;  // 是否为敏感信息（如密码）
-    testConnection?: boolean;  // 是否参与连接测试
-    controlType?: string;  // UI控件类型
-    typeOptions?: INodePropertyModeTypeOptions;
-
+    tooltip?: string;
+    conditionRules?: IConditionRules;
+    options?: Array<INodePropertyOption | IConnectField>; //INodePropertyCollection 
+    connectType?: string;
+    control: IControlConfiguration;
 }
 
 /**
@@ -420,7 +410,7 @@ export interface ILLMMetadataOptions {
         apiKey?: string;
         baseUrl?: string;
     };
-    search?:string;
+    search?: string;
 }
 
 export interface ILLMExecuteOptions {

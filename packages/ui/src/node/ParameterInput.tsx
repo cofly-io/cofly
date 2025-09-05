@@ -1,53 +1,12 @@
 "use client";
 
 import React from 'react';
-import { UnifiedParameterInput, type UnifiedParameterField, type LinkageCallbacks } from '../utils/UnifiedParameterInput';
-import type { NodePropertyTypes,INodeFields } from '@repo/common';
+import { UnifiedParameterInput } from '../utils/parameter-input/UnifiedParameterInput';
+import type { UnifiedParameterField, LinkageCallbacks } from '../utils/parameter-input/types';
+import type { INodeFields } from '@repo/common';
 
 interface ParameterInputProps {
   parameter:INodeFields;
-  // parameter: {
-  //   name: string;
-  //   displayName: string;
-  //   type: string;
-  //   controlType?: string;
-  //   default?: any;
-  //   options?: { name: string; value: any; description?: string }[];
-  //   description?: string;
-  //   placeholder?: string;
-  //   ConnectType?: string; // 添加ConnectType支持
-  //   displayOptions?: {
-  //     show?: {
-  //       [key: string]: string[];
-  //     };
-  //     hide?: {
-  //       [key: string]: string[];
-  //     };
-  //     addBy?: {
-  //       [key: string]: string[];
-  //     };
-  //   };
-  //   // 新增：联动配置支持
-  //   linkage?: {
-  //     dependsOn?: string;
-  //     fetchMethod?: string;
-  //     clearOnChange?: boolean;
-  //     enableWhen?: (value: any) => boolean;
-  //     targets?: string[];
-  //     trigger?: 'onChange' | 'onBlur';
-  //   };
-  //   // 新增：typeOptions支持
-  //    typeOptions?: {
-  //      password?: boolean;
-  //      minValue?: number;
-  //      maxValue?: number;
-  //      numberPrecision?: number;
-  //      size?: 'small' | 'medium' | 'large';
-  //      showText?: [string, string]; // [开启文本, 关闭文本]
-  //    };
-  //    // 新增：required支持
-  //    required?: boolean;
-  //  };
   value: any;
   onChange: (name: string, value: any) => void;
   formValues?: Record<string, any>;
@@ -102,43 +61,26 @@ export const ParameterInput: React.FC<ParameterInputProps> = ({
 }) => {
  // 将原始 parameter 转换为统一的 field 格式
   const unifiedField: UnifiedParameterField = {
-    name: parameter.name,
-    displayName: parameter.displayName,
-    type: parameter.type as NodePropertyTypes,
-    controlType: parameter.controlType,
-    default: parameter.default,
-    options: parameter.options,
+    fieldName: parameter.fieldName,
+    label: parameter.label,
     description: parameter.description,
-    displayOptions: parameter.displayOptions,
-    connectType: parameter.connectType, // 传递connectType
-    linkage: parameter.linkage, // 传递联动配置
-    AIhelp: (parameter as any).AIhelp, // 传递AIhelp配置
-    // Node 变体的默认值
-    hint: undefined,
-    placeholder: parameter.placeholder, // 传递placeholder属性
-    required: (parameter as any).required || false,
-    isSecure: false,
-    typeOptions: (parameter as any).typeOptions
+    tooltip: parameter.tooltip,
+    conditionRules: parameter.conditionRules,
+    control: parameter.control,
+    linkage: parameter.linkage,
+    AIhelp: parameter.AIhelp
   };
 
   // 转换所有参数为统一格式
   const allFields: UnifiedParameterField[] = allParameters.map(param => ({
-    name: param.name,
-    displayName: param.displayName,
-    type: param.type as NodePropertyTypes,
-    controlType: param.controlType,
-    default: param.default,
-    options: param.options,
+    fieldName: param.fieldName,
+    label: param.label,
     description: param.description,
-    displayOptions: param.displayOptions,
-    connectType: param.connectType,
+    tooltip: param.tooltip,
+    conditionRules: param.conditionRules,
+    control: param.control,
     linkage: param.linkage,
-    AIhelp: (param as any).AIhelp, // 传递AIhelp配置
-    hint: undefined,
-    placeholder: param.placeholder,
-    required: (param as any).required || false,
-    isSecure: false,
-    typeOptions: (param as any).typeOptions
+    AIhelp: param.AIhelp
   }));
 
   return (

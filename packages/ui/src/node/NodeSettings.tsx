@@ -416,23 +416,6 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
     setnodeIcon(getThemeIcon(node.data.icon, themeMode, node.data.kind, node.data.catalog) || '/nodes/default/default.svg');
   }, [themeMode, node.data.icon, node.data.kind, node.data.catalog]);
 
-  // // 创建一个ref来跟踪上次的lastTestResult，记录日志（不再需要重置状态，因为状态由父组件管理）
-  // const lastTestResultRef = useRef(lastTestResult);
-  // useEffect(() => {
-  //   console.log('🔄 [NodeSettings] lastTestResult useEffect triggered:', {
-  //     lastTestResult: lastTestResult ? 'has result' : 'no result',
-  //     lastTestResultRef: lastTestResultRef.current ? 'has ref' : 'no ref',
-  //     isNodeTesting,
-  //     hasChanged: lastTestResult !== lastTestResultRef.current,
-  //     nodeTestEventId
-  //   });
-
-  //   if (lastTestResult && lastTestResult !== lastTestResultRef.current && isNodeTesting) {
-  //     console.log('✅ [NodeSettings] New test result received while testing');
-  //   }
-  //   lastTestResultRef.current = lastTestResult;
-  // }, [lastTestResult, isNodeTesting, nodeTestEventId]);
-
   // 优化: 使用useMemo初始化nodeValues，避免每次渲染重新计算
   const initialNodeValues = useMemo(() => {
     const initialValues: Record<string, any> = {};
@@ -441,15 +424,15 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
       let value;
 
       // 优先级：savedValues > node.data > param.default
-      if (savedValues[param.name] !== undefined) {
-        value = savedValues[param.name];
-      } else if (node.data?.[param.name] !== undefined) {
-        value = node.data[param.name];
+      if (savedValues[param.fieldName] !== undefined) {
+        value = savedValues[param.fieldName];
+      } else if (node.data?.[param.fieldName] !== undefined) {
+        value = node.data[param.fieldName];
       } else {
-        value = param.default;
+        value = param.control.defaultValue;
       }
 
-      initialValues[param.name] = value;
+      initialValues[param.fieldName] = value;
     });
 
     return initialValues;
@@ -616,12 +599,12 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
     // 辅助函数：检查值是否为默认值
     const isDefaultValue = (fieldName: string, value: any): boolean => {
       // 查找对应的字段配置
-      const field = parameters.find(param => param.name === fieldName);
-      if (!field || field.default === undefined) {
+      const field = parameters.find(param => param.fieldName === fieldName);
+      if (!field || field.control.defaultValue === undefined) {
         return false;
       }
 
-      const isDefault = JSON.stringify(value) === JSON.stringify(field.default);
+      const isDefault = JSON.stringify(value) === JSON.stringify(field.control.defaultValue);
       //console.log('检查默认值:', fieldName, '当前值:', value, '默认值:', field.default, '是否为默认:', isDefault);
       return isDefault;
     };
@@ -630,13 +613,13 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
     Object.entries(nodeValues).forEach(([fieldName, value]) => {
       if (value !== undefined) {
         // 查找字段配置以确定类型
-        const fieldConfig = parameters.find(param => param.name === fieldName);
+        const fieldConfig = parameters.find(param => param.fieldName === fieldName);
 
         let convertedValue: any;
 
         if (fieldConfig) {
           // 根据字段配置进行类型转换
-          switch (fieldConfig.type) {
+          switch (fieldConfig.control.dataType) {
             case 'number':
               convertedValue = typeof value === 'string' ? parseFloat(value) : value;
               break;
@@ -781,14 +764,14 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
 
       // 如果不存在，则从 node.detail.fields 中查找
       if (isRequired === undefined && node?.data?.detail?.fields) {
-        const fieldDef = node.data.detail.fields.find((f: any) => f.name === param.name);
+        const fieldDef = node.data.detail.fields.find((f: any) => f.name === param.fieldName);
         isRequired = fieldDef?.required || false;
       }
 
       // 如果还是找不到，根据节点类型和字段名进行特殊处理
       if (isRequired === undefined) {
         // 对于 jscode 节点的 code 字段，默认为必填
-        if (node?.data?.kind === 'jscode' && param.name === 'code') {
+        if (node?.data?.kind === 'jscode' && param.fieldName === 'code') {
           isRequired = true;
         }
         // 可以在这里添加其他节点类型的特殊处理
@@ -798,10 +781,10 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
       }
 
       if (isRequired) {
-        const value = nodeValues[param.name];
+        const value = nodeValues[param.fieldName];
         if (!value || (typeof value === 'string' && value.trim() === '')) {
-          errorFields.add(param.name);
-          errorNames.push(param.displayName);
+          errorFields.add(param.fieldName);
+          errorNames.push(param.label);
         }
       }
     });
@@ -996,9 +979,9 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
                 {parameters.map(param => {
                   return (
                     <ParameterInput
-                      key={param.name}
+                      key={param.fieldName}
                       parameter={param}
-                      value={nodeValues[param.name]}
+                      value={nodeValues[param.fieldName]}
                       onChange={handleValueChange}
                       formValues={nodeValues}
                       onExpandModeChange={handleExpandModeChange}
@@ -1031,13 +1014,13 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
                 ) : (
                   <>
                     <SiSpeedtest />
-                    节点测试
+                    节点调试
                   </>
                 )}
               </TestButton>
               <CommonBtnContainer>
                 <CoButton variant='Glass'
-                  backgroundColor={themeMode === 'light' ? '#bfbfbf' : undefined}
+                  backgroundColor={themeMode === 'light' ? '#7a7878' : undefined}
                   onClick={handleCancel}><MdCancel />取消</CoButton>
                 <CoButton
                   variant='Glass'

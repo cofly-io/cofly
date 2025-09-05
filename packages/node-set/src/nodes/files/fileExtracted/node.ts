@@ -25,146 +25,169 @@ export class FileExtracted implements INode {
 		fields: [
 
 			{
-				displayName: '操作类型',
-				name: 'operation',
-				type: 'options',
-				//noDataExpression: true,
-				options: [
-					{
-						name: '从JSON提取',
-						value: 'fromJson',
-						description: '从JSON文件中提取数据',
-					},
-					{
-						name: '从文本提取',
-						value: 'fromText',
-						description: '从文件中提取文本内容',
-					},
-					{
-						name: '从CSV提取',
-						value: 'fromCsv',
-						description: '从CSV文件中提取数据',
-					},
-					{
-						name: '文件转Base64',
-						value: 'fileToBase64',
-						description: '将文件转换为base64字符串',
-					},
-				],
-				default: 'fromJson',
-				placeholder: '选择操作类型',
-				controlType: 'selectwithdesc'
+				label: '操作类型',
+				fieldName: 'operation',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'fromJson',
+					placeholder: '选择操作类型',
+					options: [
+						{
+							name: '从JSON提取',
+							value: 'fromJson',
+							description: '从JSON文件中提取数据',
+						},
+						{
+							name: '从文本提取',
+							value: 'fromText',
+							description: '从文件中提取文本内容',
+						},
+						{
+							name: '从CSV提取',
+							value: 'fromCsv',
+							description: '从CSV文件中提取数据',
+						},
+						{
+							name: '文件转Base64',
+							value: 'fileToBase64',
+							description: '将文件转换为base64字符串',
+						},
+					],
+				}
 			},
 			{
-				displayName: '二进制流输入',
-				name: 'binaryPropertyName',
-				type: 'string',
-				default: 'data',
-				required: true,
+				label: '二进制流输入',
+				fieldName: 'binaryPropertyName',
 				description: '包含文件数据的属性路径，支持嵌套访问、数组索引和通配符',
-				placeholder: '例如: data 或 {{ $.文件读写.json.files[0].data }} 或 {{ $.文件读写.json.files[*].data }}',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'data',
+					placeholder: '例如: data 或 {{ $.文件读写.json.files[0].data }} 或 {{ $.文件读写.json.files[*].data }}',
+					validation: { required: true }
+				}
 			},
 			{
-				displayName: '输出属性名',
-				name: 'outputProperty',
-				type: 'string',
-				default: 'data',
-				required: true,
+				label: '输出属性名',
+				fieldName: 'outputProperty',
 				description: 'Name of the output property to store extracted data',
-				placeholder: '例如: data',
-				controlType: 'input',
-				displayOptions: {
+				conditionRules: {
 					showBy: {
 						operation: ['fromJson', 'fromText', 'fromCsv'],
 					},
 				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'data',
+					placeholder: '例如: data',
+					validation: { required: true }
+				}
 			},
 			{
-				displayName: 'Base64输出属性名',
-				name: 'base64OutputProperty',
-				type: 'string',
-				default: 'base64',
-				required: true,
+				label: 'Base64输出属性名',
+				fieldName: 'base64OutputProperty',
 				description: 'Name of the output property to store base64 string',
-				placeholder: '例如: base64',
-				controlType: 'input',
-				displayOptions: {
+				conditionRules: {
 					showBy: {
 						operation: ['fileToBase64'],
 					},
 				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'base64',
+					placeholder: '例如: base64',
+					validation: { required: true }
+				}
 			},
 			{
-				displayName: '编码格式',
-				name: 'encoding',
-				type: 'options',
-				options: [
-					{ name: 'UTF-8', value: 'utf8' },
-					{ name: 'ASCII', value: 'ascii' },
-					{ name: 'Latin1', value: 'latin1' },
-					{ name: 'UTF-16LE', value: 'utf16le' },
-					{ name: 'Base64', value: 'base64' },
-				],
-				default: 'utf8',
+				label: '编码格式',
+				fieldName: 'encoding',
 				description: 'Text encoding of the input file',
-				placeholder: '选择编码格式',
-				controlType: 'select',
-				displayOptions: {
+				conditionRules: {
 					showBy: {
 						operation: ['fromJson', 'fromText', 'fromCsv'],
 					},
 				},
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'utf8',
+					placeholder: '选择编码格式',
+					options: [
+						{ name: 'UTF-8', value: 'utf8' },
+						{ name: 'ASCII', value: 'ascii' },
+						{ name: 'Latin1', value: 'latin1' },
+						{ name: 'UTF-16LE', value: 'utf16le' },
+						{ name: 'Base64', value: 'base64' },
+					]
+				}
 			},
 			{
-				displayName: 'CSV Options',
-				name: 'csvOptions',
-				type: 'collection',
-				placeholder: 'Add Option',
-				default: {},
-				displayOptions: {
+				label: 'CSV Options',
+				fieldName: 'csvOptions',
+				conditionRules: {
 					showBy: {
 						operation: ['fromCsv'],
 					},
 				},
-				options: [
-					{
-						displayName: 'Delimiter',
-						name: 'delimiter',
-						type: 'string',
-						default: ',',
-						description: 'Character used to separate fields',
-					},
-					{
-						displayName: 'Has Header Row',
-						name: 'hasHeader',
-						type: 'boolean',
-						default: true,
-						description: 'Whether the first row contains column headers',
-					},
-					{
-						displayName: 'Quote Character',
-						name: 'quote',
-						type: 'string',
-						default: '"',
-						description: 'Character used to quote fields',
-					},
-				],
+				control: {
+					name: 'collection',
+					dataType: 'multiOptions',
+					defaultValue: {},
+					placeholder: 'Add Option',
+					options: [
+						{
+							label: 'Delimiter',
+							fieldName: 'delimiter',
+							description: 'Character used to separate fields',
+							control: {
+								name: 'input',
+								dataType: 'string',
+								defaultValue: ','
+							}
+						},
+						{
+							label: 'Has Header Row',
+							fieldName: 'hasHeader',
+							description: 'Whether the first row contains column headers',
+							control: {
+								name: 'checkbox',
+								dataType: 'boolean',
+								defaultValue: true
+							}
+						},
+						{
+							label: 'Quote Character',
+							fieldName: 'quote',
+							description: 'Character used to quote fields',
+							control: {
+								name: 'input',
+								dataType: 'string',
+								defaultValue: '"'
+							}
+						},
+					],
+				}
 			},
 			{
-				displayName: '保留源数据',
-				name: 'keepSource',
-				type: 'options',
-				options: [
-					{ name: '仅JSON', value: 'json' },
-					{ name: '仅二进制', value: 'binary' },
-					{ name: '两者都保留', value: 'both' },
-					{ name: '都不保留', value: 'none' },
-				],
-				default: 'json',
+				label: '保留源数据',
+				fieldName: 'keepSource',
 				description: 'What source data to keep in the output',
-				placeholder: '选择保留数据类型',
-				controlType: 'select'
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'json',
+					placeholder: '选择保留数据类型',
+					options: [
+						{ name: '仅JSON', value: 'json' },
+						{ name: '仅二进制', value: 'binary' },
+						{ name: '两者都保留', value: 'both' },
+						{ name: '都不保留', value: 'none' },
+					]
+				}
 			},
 		]
 	};

@@ -21,108 +21,128 @@ export class If implements INode {
 		fields: [
 			// 条件组合方式
 			{
-				displayName: '条件组合',
-				name: 'combineOperation',
-				type: 'options',
-				options: [
-					{
-						name: '全部满足(AND)',
-						value: 'all',
-						description: '所有条件都满足时才为真',
-					},
-					{
-						name: '任一满足(OR)',
-						value: 'any',
-						description: '任意一个条件满足时就为真',
-					},
-				],
-				default: 'all',
-				required: true,
-				controlType: 'selectwithdesc'
+				label: '条件组合',
+				fieldName: 'combineOperation',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'all',
+					validation: { required: true },
+					options: [
+						{
+							name: '全部满足(AND)',
+							value: 'all',
+							description: '所有条件都满足时才为真',
+						},
+						{
+							name: '任一满足(OR)',
+							value: 'any',
+							description: '任意一个条件满足时就为真',
+						},
+					]
+				}
 			},
 
 			// 条件列表
 			{
-				displayName: '条件列表',
-				name: 'conditions',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '请添加至少一个条件',
-				controlType: 'conditionbuilder'
+				label: '条件列表',
+				fieldName: 'conditions',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '请添加至少一个条件',
+					validation: { required: true }
+				}
 			},
 
 			// 字符串条件
 			{
-				displayName: '字符串条件',
-				name: 'stringConditions',
-				type: 'string',
-				default: '',
-				placeholder: '值1|操作|值2\n例如: {{$json.name}}|等于|张三\n{{$json.status}}|包含|active',
-				controlType: 'textarea'
+				label: '字符串条件',
+				fieldName: 'stringConditions',
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '值1|操作|值2\n例如: {{$json.name}}|等于|张三\n{{$json.status}}|包含|active'
+				}
 			},
 
 			// 数字条件
 			{
-				displayName: '数字条件',
-				name: 'numberConditions',
-				type: 'string',
-				default: '',
-				placeholder: '值1|操作|值2\n例如: {{$json.age}}|大于|18\n{{$json.score}}|小于等于|100',
-				controlType: 'textarea'
+				label: '数字条件',
+				fieldName: 'numberConditions',
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '值1|操作|值2\n例如: {{$json.age}}|大于|18\n{{$json.score}}|小于等于|100'
+				}
 			},
 
 			// 布尔条件
 			{
-				displayName: '布尔条件',
-				name: 'booleanConditions',
-				type: 'string',
-				default: '',
-				placeholder: '值1|操作|值2\n例如: {{$json.isActive}}|等于|true\n{{$json.isDeleted}}|不等于|true',
-				controlType: 'textarea'
+				label: '布尔条件',
+				fieldName: 'booleanConditions',
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '值1|操作|值2\n例如: {{$json.isActive}}|等于|true\n{{$json.isDeleted}}|不等于|true'
+				}
 			},
 
 			// 日期时间条件
 			{
-				displayName: '日期时间条件',
-				name: 'dateTimeConditions',
-				type: 'string',
-				default: '',
-				placeholder: '值1|操作|值2\n例如: {{$json.createTime}}|晚于|2024-01-01\n{{$json.updateTime}}|早于|{{$json.deadline}}',
-				controlType: 'textarea'
+				label: '日期时间条件',
+				fieldName: 'dateTimeConditions',
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '值1|操作|值2\n例如: {{$json.createTime}}|晚于|2024-01-01\n{{$json.updateTime}}|早于|{{$json.deadline}}'
+				}
 			},
 
 			// 自定义表达式
 			{
-				displayName: '自定义表达式',
-				name: 'customExpression',
-				type: 'string',
-				default: '',
-				placeholder: '例如: {{$json.age}} > 18 && {{$json.status}} === "active"',
-				controlType: 'expression'
+				label: '自定义表达式',
+				fieldName: 'customExpression',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '例如: {{$json.age}} > 18 && {{$json.status}} === "active"'
+				}
 			},
 
 			// 高级选项
 			{
-				displayName: '忽略大小写',
-				name: 'ignoreCase',
-				type: 'boolean',
-				default: true,
-				controlType: 'checkbox'
+				label: '忽略大小写',
+				fieldName: 'ignoreCase',
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: true
+				}
 			},
 			{
-				displayName: '宽松类型验证',
-				name: 'looseTypeValidation',
-				type: 'boolean',
-				default: false,
-				controlType: 'checkbox'
+				label: '宽松类型验证',
+				fieldName: 'looseTypeValidation',
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: false
+				}
 			},
 			{
-				displayName: '出错时继续',
-				name: 'continueOnFail',
-				type: 'boolean',
-				default: false,
-				controlType: 'checkbox'
+				label: '出错时继续',
+				fieldName: 'continueOnFail',
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: false
+				}
 			},
 		],
 	};

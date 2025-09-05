@@ -24,78 +24,95 @@ export class Dingding implements INode {
     detail: INodeDetail = {
         fields: [
             {
-                displayName: '钉钉连接',
-                name: 'credential',
-                type: 'string',
-                required: true,
-                description: '选择钉钉连接配置',
+                label: '钉钉连接',
+                fieldName: 'credential',
                 connectType: 'dingding',
-                controlType: 'selectconnect',
-                default: ''
-            },
-            {
-                displayName: '接收人手机号',
-                name: 'mobile',
-                type: 'string',
-                required: true,
-                description: '消息接收人的手机号码',
-                placeholder: '请输入手机号码，如：13800138000',
-                controlType: 'input',
-                default: ''
-            },
-            {
-                displayName: '消息类型',
-                name: 'messageType',
-                type: 'options',
-                required: true,
-                default: 'text',
-                description: '发送的消息类型',
-                options: [
-                    {
-                        name: '文本消息',
-                        value: 'text'
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
                     },
-                    {
-                        name: 'Markdown消息',
-                        value: 'markdown'
-                    }
-                ],
-                controlType: 'select',
-                placeholder: '选择消息类型'
+                    placeholder: '选择钉钉连接配置'
+                }
             },
             {
-                displayName: '消息标题',
-                name: 'title',
-                type: 'string',
-                required: false,
-                description: '消息标题（Markdown类型消息必填）',
-                placeholder: '请输入消息标题',
-                displayOptions: {
+                label: '接收人手机号',
+                fieldName: 'mobile',
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入手机号码，如：13800138000'
+                }
+            },
+            {
+                label: '消息类型',
+                fieldName: 'messageType',
+                control: {
+                    name: 'select',
+                    dataType: 'string',
+                    defaultValue: 'text',
+                    validation: {
+                        required: true
+                    },
+                    options: [
+                        {
+                            name: '文本消息',
+                            value: 'text'
+                        },
+                        {
+                            name: 'Markdown消息',
+                            value: 'markdown'
+                        }
+                    ],
+                    placeholder: '选择消息类型'
+                }
+            },
+            {
+                label: '消息标题',
+                fieldName: 'title',
+                conditionRules: {
                     showBy: {
                         messageType: ['markdown']
                     }
                 },
-                controlType: 'input',
-                default: ''
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入消息标题'
+                }
             },
             {
-                displayName: '消息内容',
-                name: 'content',
-                type: 'string',
-                required: true,
-                description: '要发送的消息内容',
-                placeholder: '请输入消息内容',
-                controlType: 'textarea',
-                default: ''
+                label: '消息内容',
+                fieldName: 'content',
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入消息内容'
+                }
             },
             {
-                displayName: '是否@所有人',
-                name: 'isAtAll',
-                type: 'boolean',
-                required: false,
-                default: false,
-                description: '是否@所有人（仅在群聊中有效）',
-                controlType: 'switch'
+                label: '是否@所有人',
+                fieldName: 'isAtAll',
+                control: {
+                    name: 'switch',
+                    dataType: 'boolean',
+                    defaultValue: false,
+                    placeholder: '是否@所有人（仅在群聊中有效）'
+                }
             }
         ]
     };

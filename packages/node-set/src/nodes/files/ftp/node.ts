@@ -18,211 +18,237 @@ export class FTP implements INode {
         fields: [
             // FTP连接配置
             {
-                displayName: '连接配置',
-                name: 'connection',
-                type: 'string',
-                default: '',
-                required: true,
+                label: '连接配置',
+                fieldName: 'connection',
                 connectType: "llm", // 使用other类型的连接
-                controlType: 'selectconnect'
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: { required: true }
+                }
             },
 
             // 操作类型
             {
-                displayName: '操作类型',
-                name: 'operation',
-                type: 'options',
-                options: [
-                    {
-                        name: '列出文件',
-                        value: 'list',
-                        description: '列出指定目录下的文件和文件夹',
-                    },
-                    {
-                        name: '下载文件',
-                        value: 'download',
-                        description: '从FTP服务器下载文件',
-                    },
-                    {
-                        name: '上传文件',
-                        value: 'upload',
-                        description: '上传文件到FTP服务器',
-                    },
-                    {
-                        name: '删除文件',
-                        value: 'delete',
-                        description: '删除FTP服务器上的文件或文件夹',
-                    },
-                    {
-                        name: '重命名/移动',
-                        value: 'rename',
-                        description: '重命名或移动FTP服务器上的文件',
-                    },
-                    {
-                        name: '创建目录',
-                        value: 'mkdir',
-                        description: '在FTP服务器上创建目录',
-                    }
-                ],
-                default: 'list',
-                required: true,
-                controlType: 'selectwithdesc'
+                label: '操作类型',
+                fieldName: 'operation',
+                control: {
+                    name: 'selectwithdesc',
+                    dataType: 'string',
+                    defaultValue: 'list',
+                    validation: { required: true },
+                    options: [
+                        {
+                            name: '列出文件',
+                            value: 'list',
+                            description: '列出指定目录下的文件和文件夹',
+                        },
+                        {
+                            name: '下载文件',
+                            value: 'download',
+                            description: '从FTP服务器下载文件',
+                        },
+                        {
+                            name: '上传文件',
+                            value: 'upload',
+                            description: '上传文件到FTP服务器',
+                        },
+                        {
+                            name: '删除文件',
+                            value: 'delete',
+                            description: '删除FTP服务器上的文件或文件夹',
+                        },
+                        {
+                            name: '重命名/移动',
+                            value: 'rename',
+                            description: '重命名或移动FTP服务器上的文件',
+                        },
+                        {
+                            name: '创建目录',
+                            value: 'mkdir',
+                            description: '在FTP服务器上创建目录',
+                        }
+                    ]
+                }
             },
 
             // 路径字段 - 用于list, download, delete, mkdir操作
             {
-                displayName: '路径',
-                name: 'path',
-                type: 'string',
-                displayOptions: {
+                label: '路径',
+                fieldName: 'path',
+                conditionRules: {
                     showBy: {
                         operation: ['list', 'download', 'delete', 'mkdir'],
                     },
                 },
-                default: '/',
-                required: true,
-                placeholder: '例如: /home/user/documents',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '/',
+                    placeholder: '例如: /home/user/documents',
+                    validation: { required: true }
+                }
             },
 
             // 上传文件路径
             {
-                displayName: '远程文件路径',
-                name: 'remotePath',
-                type: 'string',
-                displayOptions: {
+                label: '远程文件路径',
+                fieldName: 'remotePath',
+                conditionRules: {
                     showBy: {
                         operation: ['upload'],
                     },
                 },
-                default: '',
-                required: true,
-                placeholder: '例如: /home/user/upload/file.txt',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '例如: /home/user/upload/file.txt',
+                    validation: { required: true }
+                }
             },
 
             // 本地文件路径 - 用于上传
             {
-                displayName: '本地文件路径',
-                name: 'localPath',
-                type: 'string',
-                displayOptions: {
+                label: '本地文件路径',
+                fieldName: 'localPath',
+                conditionRules: {
                     showBy: {
                         operation: ['upload'],
                     },
                 },
-                default: '',
-                required: true,
-                placeholder: '例如: /local/path/to/file.txt',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '例如: /local/path/to/file.txt',
+                    validation: { required: true }
+                }
             },
 
             // 下载文件保存路径
             {
-                displayName: '保存路径',
-                name: 'savePath',
-                type: 'string',
-                displayOptions: {
+                label: '保存路径',
+                fieldName: 'savePath',
+                conditionRules: {
                     showBy: {
                         operation: ['download'],
                     },
                 },
-                default: '',
-                placeholder: '例如: /local/save/path/file.txt (留空则返回文件内容)',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '例如: /local/save/path/file.txt (留空则返回文件内容)'
+                }
             },
 
             // 重命名操作的旧路径
             {
-                displayName: '原路径',
-                name: 'oldPath',
-                type: 'string',
-                displayOptions: {
+                label: '原路径',
+                fieldName: 'oldPath',
+                conditionRules: {
                     showBy: {
                         operation: ['rename'],
                     },
                 },
-                default: '',
-                required: true,
-                placeholder: '例如: /old/path/file.txt',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '例如: /old/path/file.txt',
+                    validation: { required: true }
+                }
             },
 
             // 重命名操作的新路径
             {
-                displayName: '新路径',
-                name: 'newPath',
-                type: 'string',
-                displayOptions: {
+                label: '新路径',
+                fieldName: 'newPath',
+                conditionRules: {
                     showBy: {
                         operation: ['rename'],
                     },
                 },
-                default: '',
-                required: true,
-                placeholder: '例如: /new/path/file.txt',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '例如: /new/path/file.txt',
+                    validation: { required: true }
+                }
             },
 
             // 递归选项
             {
-                displayName: '递归操作',
-                name: 'recursive',
-                type: 'boolean',
-                displayOptions: {
+                label: '递归操作',
+                fieldName: 'recursive',
+                conditionRules: {
                     showBy: {
                         operation: ['list', 'delete'],
                     },
                 },
-                default: false,
-                controlType: 'checkbox'
+                control: {
+                    name: 'checkbox',
+                    dataType: 'boolean',
+                    defaultValue: false
+                }
             },
 
             // 是否为文件夹
             {
-                displayName: '删除文件夹',
-                name: 'isFolder',
-                type: 'boolean',
-                displayOptions: {
+                label: '删除文件夹',
+                fieldName: 'isFolder',
+                conditionRules: {
                     showBy: {
                         operation: ['delete'],
                     },
                 },
-                default: false,
-                controlType: 'checkbox'
+                control: {
+                    name: 'checkbox',
+                    dataType: 'boolean',
+                    defaultValue: false
+                }
             },
 
             // 创建父目录
             {
-                displayName: '创建父目录',
-                name: 'createParentDirs',
-                type: 'boolean',
-                displayOptions: {
+                label: '创建父目录',
+                fieldName: 'createParentDirs',
+                conditionRules: {
                     showBy: {
                         operation: ['upload', 'rename'],
                     },
                 },
-                default: false,
-                controlType: 'checkbox'
+                control: {
+                    name: 'checkbox',
+                    dataType: 'boolean',
+                    defaultValue: false
+                }
             },
 
             // 超时设置
             {
-                displayName: '操作超时(秒)',
-                name: 'timeout',
-                type: 'number',
-                default: 30,
-                placeholder: '操作超时时间',
-                controlType: 'input'
+                label: '操作超时(秒)',
+                fieldName: 'timeout',
+                control: {
+                    name: 'input',
+                    dataType: 'number',
+                    defaultValue: 30,
+                    placeholder: '操作超时时间'
+                }
             },
 
             // 错误处理
             {
-                displayName: '出错时继续',
-                name: 'continueOnFail',
-                type: 'boolean',
-                default: false,
-                controlType: 'checkbox'
+                label: '出错时继续',
+                fieldName: 'continueOnFail',
+                control: {
+                    name: 'checkbox',
+                    dataType: 'boolean',
+                    defaultValue: false
+                }
             },
         ],
     };

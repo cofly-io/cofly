@@ -25,89 +25,127 @@ export class FeishuConnect extends BaseSocialConnect {
         description: '配置飞书开放平台API的基础凭证信息，用于调用飞书API接口',
         fields: [
             {
-                displayName: '企业ID (CorpId)',
-                name: 'corpId',
-                type: 'string' as const,
-                required: true,
+                label: '企业ID (CorpId)',
+                fieldName: 'corpId',
                 description: '飞书的企业ID，在飞书管理后台获取',
-                placeholder: '请输入飞书的企业ID',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入飞书的企业ID'
+                }
             },
             {
-                displayName: '应用Secret (CorpSecret)',
-                name: 'secret',
-                type: 'string' as const,
-                required: true,
+                label: '应用Secret (CorpSecret)',
+                fieldName: 'secret',
                 description: '飞书应用的Secret，在飞书管理后台获取',
-                placeholder: '请输入飞书应用的Secret',
-                controlType: "input",
-                typeOptions: {
-                    password: true
-                },
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入飞书应用的Secret',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '应用ID (AgentId)',
-                name: 'agentId',
-                type: 'string' as const,
-                required: true,
+                label: '应用ID (AgentId)',
+                fieldName: 'agentId',
                 description: '飞书应用的AgentId，用于发送应用消息',
-                placeholder: '请输入飞书应用的AgentId',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入飞书应用的AgentId'
+                }
             },
             {
-                displayName: '应用Token',
-                name: 'token',
-                type: 'string' as const,
-                required: true,
+                label: '应用Token',
+                fieldName: 'token',
                 description: '飞书应用的Token，在飞书管理后台获取',
-                placeholder: '请输入飞书应用的Token',
-                controlType: "input",
-                typeOptions: {
-                    password: true
-                },
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入飞书应用的Token',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '应用EncodingAESKey',
-                name: 'aesKey',
-                type: 'string' as const,
-                required: true,
+                label: '应用EncodingAESKey',
+                fieldName: 'aesKey',
                 description: '飞书应用的EncodingAESKey，在飞书管理后台获取',
-                placeholder: '请输入飞书应用的EncodingAESKey',
-                controlType: "input",
-                typeOptions: {
-                    password: true
-                },
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入飞书应用的EncodingAESKey',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '服务器出口IP',
-                name: 'serverIp',
-                type: 'string' as const,
-                required: false,
+                label: '服务器出口IP',
+                fieldName: 'serverIp',
                 description: '服务器出口IP地址，需要在飞书管理后台配置IP白名单',
-                placeholder: '请输入服务器出口IP地址（可选）',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入服务器出口IP地址（可选）'
+                }
             },
             {
-                displayName: 'API基础URL',
-                name: 'baseUrl',
-                type: 'string' as const,
-                required: false,
-                default: 'https://qyapi.weixin.qq.com',
+                label: 'API基础URL',
+                fieldName: 'baseUrl',
                 description: '飞书API的基础URL地址',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'https://qyapi.weixin.qq.com',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: 'https://qyapi.weixin.qq.com'
+                }
             },
             {
-                displayName: '连接超时时间(秒)',
-                name: 'timeout',
-                type: 'number' as const,
-                required: false,
-                default: 30,
+                label: '连接超时时间(秒)',
+                fieldName: 'timeout',
                 description: 'API请求的超时时间，单位为秒',
-                typeOptions: {
-                    minValue: 5,
-                    maxValue: 120
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 30,
+                    validation: {
+                        required: false,
+                        min: 5,
+                        max: 120
+                    },
+                    placeholder: '30'
+                }
             }
         ],
         validateConnection: true,

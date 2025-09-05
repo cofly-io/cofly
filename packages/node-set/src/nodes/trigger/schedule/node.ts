@@ -12,16 +12,17 @@ export class Schedule implements INode {
 	};
 
 	detail: INodeDetail = {
-		// displayName: 'Markdown',
 		fields: [
 			{
-				displayName: 'cron表达式',     // 显示名称
-				name: 'cronExpression',                 // 字段名
-				type: 'string',               // 字段类型
-				default: '',                   // 默认值
-				required: true,               // 是否必填
-				placeholder: '输入cron表达式', // 描述
-				controlType: 'input'      // 提示AI使用代码编辑器
+				label: 'cron表达式',     // 显示名称
+				fieldName: 'cronExpression',                 // 字段名
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',                   // 默认值
+					validation: { required: true },               // 是否必填
+					placeholder: '输入cron表达式' // 描述
+				}
 			}
 		],
 	};

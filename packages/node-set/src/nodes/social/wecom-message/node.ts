@@ -23,112 +23,141 @@ export class WecomSender implements INode {
     detail: INodeDetail = {
         fields: [
             {
-                displayName: '企业微信连接',
-                name: 'credential',
-                type: 'string',
-                required: true,
-                connectType: 'wecom',
-                default: '',
+                label: '企业微信连接',
+                fieldName: 'credential',
                 description: '选择企业微信连接配置',
-                controlType: 'selectconnect'
+                connectType: 'wecom',
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    }
+                }
             },
             {
-                displayName: '接收人',
-                name: 'touser',
-                type: 'string',
-                required: true,
-                default: '',
+                label: '接收人',
+                fieldName: 'touser',
                 description: '接收消息的用户ID，多个用户用|分隔，@all表示全部用户',
-                placeholder: '用户ID或@all',
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '用户ID或@all'
+                }
             },
             {
-                displayName: '消息类型',
-                name: 'msgtype',
-                type: 'options',
-                required: true,
-                default: 'text',
+                label: '消息类型',
+                fieldName: 'msgtype',
                 description: '选择消息类型',
-                options: [
-                    {
-                        name: '文本消息',
-                        value: 'text'
+                control: {
+                    name: 'select',
+                    dataType: 'string',
+                    defaultValue: 'text',
+                    validation: {
+                        required: true
                     },
-                    {
-                        name: 'Markdown消息',
-                        value: 'markdown'
-                    },
-                    {
-                        name: '文本卡片消息',
-                        value: 'textcard'
-                    }
-                ],
-                controlType: 'select',
-                placeholder: '选择消息类型'
+                    options: [
+                        {
+                            name: '文本消息',
+                            value: 'text'
+                        },
+                        {
+                            name: 'Markdown消息',
+                            value: 'markdown'
+                        },
+                        {
+                            name: '文本卡片消息',
+                            value: 'textcard'
+                        }
+                    ],
+                    placeholder: '选择消息类型'
+                }
             },
             {
-                displayName: '消息标题',
-                name: 'title',
-                type: 'string',
-                required: false,
-                default: '',
+                label: '消息标题',
+                fieldName: 'title',
                 description: '消息标题（仅文本卡片消息需要）',
-                placeholder: '请输入消息标题',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         msgtype: ['textcard']
                     }
                 },
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入消息标题'
+                }
             },
             {
-                displayName: '消息内容',
-                name: 'content',
-                type: 'string',
-                required: true,
-                default: '',
+                label: '消息内容',
+                fieldName: 'content',
                 description: '消息内容，支持变量替换',
-                placeholder: '请输入消息内容',
-                controlType: 'textarea'
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入消息内容'
+                }
             },
             {
-                displayName: '链接地址',
-                name: 'url',
-                type: 'string',
-                required: false,
-                default: '',
+                label: '链接地址',
+                fieldName: 'url',
                 description: '点击消息跳转的链接地址（仅文本卡片消息）',
-                placeholder: 'https://example.com',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         msgtype: ['textcard']
                     }
                 },
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: 'https://example.com'
+                }
             },
             {
-                displayName: '按钮文字',
-                name: 'btntxt',
-                type: 'string',
-                required: false,
-                default: '',
+                label: '按钮文字',
+                fieldName: 'btntxt',
                 description: '按钮文字（仅文本卡片消息）',
-                placeholder: '详情',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         msgtype: ['textcard']
                     }
                 },
-                controlType: 'input'
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '详情'
+                }
             },
             {
-                displayName: '是否保密消息',
-                name: 'safe',
-                type: 'boolean',
-                required: false,
-                default: false,
+                label: '是否保密消息',
+                fieldName: 'safe',
                 description: '是否是保密消息，0表示否，1表示是',
-                controlType: 'switch'
+                control: {
+                    name: 'switch',
+                    dataType: 'boolean',
+                    defaultValue: false
+                }
             }
         ]
     };

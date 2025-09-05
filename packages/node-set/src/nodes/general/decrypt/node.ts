@@ -18,234 +18,258 @@ export class Decrypt implements INode {
 	detail: INodeDetail = {
 		fields: [
 			{
-				displayName: '操作类型',
-				name: 'action',
-				type: 'options',
-				options: [
-					{
-						name: 'Base64解码',
-						value: 'base64decode',
-						description: '将Base64编码的字符串解码为原始文本',
-					},
-					{
-						name: 'HEX解码',
-						value: 'hexdecode',
-						description: '将HEX编码的字符串解码为原始文本',
-					},
-					{
-						name: 'AES解密',
-						value: 'aes',
-						description: '使用AES算法进行对称解密',
-					},
-					{
-						name: 'RSA私钥解密',
-						value: 'rsa_private',
-						description: '使用RSA私钥解密数据',
-					},
-					{
-						name: 'RSA公钥解密',
-						value: 'rsa_public',
-						description: '使用RSA公钥解密数据',
-					},
-					{
-						name: '数字签名验证',
-						value: 'verify',
-						description: '使用公钥验证数字签名',
-					}
-				],
-				default: 'base64decode',
-				placeholder: '选择操作类型',
-				controlType: 'selectwithdesc'
-			},
-			{
-				displayName: '加密数据',
-				name: 'encryptedData',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '要解密的数据',
-				controlType: 'textarea'
-			},
-			{
-				displayName: 'AES算法',
-				name: 'aesAlgorithm',
-				type: 'options',
-				options: [
-					{
-						name: 'AES-256-CBC',
-						value: 'aes-256-cbc',
-					},
-					{
-						name: 'AES-192-CBC',
-						value: 'aes-192-cbc',
-					},
-					{
-						name: 'AES-128-CBC',
-						value: 'aes-128-cbc',
-					},
-					{
-						name: 'AES-256-GCM',
-						value: 'aes-256-gcm',
-					},
-					{
-						name: 'AES-192-GCM',
-						value: 'aes-192-gcm',
-					},
-					{
-						name: 'AES-128-GCM',
-						value: 'aes-128-gcm',
-					}
-				],
-				default: 'aes-256-cbc',
-				placeholder: '选择AES算法',
-				controlType: 'select',
-				displayOptions: {
-					showBy: {
-						action: ['aes']
-					}
+				label: '操作类型',
+				fieldName: 'action',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'base64decode',
+					placeholder: '选择操作类型',
+					options: [
+						{
+							name: 'Base64解码',
+							value: 'base64decode',
+							description: '将Base64编码的字符串解码为原始文本',
+						},
+						{
+							name: 'HEX解码',
+							value: 'hexdecode',
+							description: '将HEX编码的字符串解码为原始文本',
+						},
+						{
+							name: 'AES解密',
+							value: 'aes',
+							description: '使用AES算法进行对称解密',
+						},
+						{
+							name: 'RSA私钥解密',
+							value: 'rsa_private',
+							description: '使用RSA私钥解密数据',
+						},
+						{
+							name: 'RSA公钥解密',
+							value: 'rsa_public',
+							description: '使用RSA公钥解密数据',
+						},
+						{
+							name: '数字签名验证',
+							value: 'verify',
+							description: '使用公钥验证数字签名',
+						}
+					]
 				}
 			},
 			{
-				displayName: '密钥',
-				name: 'key',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '解密密钥',
-				controlType: 'password',
-				displayOptions: {
-					showBy: {
-						action: ['aes']
-					}
+				label: '加密数据',
+				fieldName: 'encryptedData',
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '要解密的数据',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '初始化向量(IV)',
-				name: 'iv',
-				type: 'string',
-				default: '',
-				placeholder: '初始化向量（可选）',
-				controlType: 'input',
-				displayOptions: {
+				label: 'AES算法',
+				fieldName: 'aesAlgorithm',
+				conditionRules: {
 					showBy: {
 						action: ['aes']
 					}
+				},
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'aes-256-cbc',
+					placeholder: '选择AES算法',
+					options: [
+						{
+							name: 'AES-256-CBC',
+							value: 'aes-256-cbc',
+						},
+						{
+							name: 'AES-192-CBC',
+							value: 'aes-192-cbc',
+						},
+						{
+							name: 'AES-128-CBC',
+							value: 'aes-128-cbc',
+						},
+						{
+							name: 'AES-256-GCM',
+							value: 'aes-256-gcm',
+						},
+						{
+							name: 'AES-192-GCM',
+							value: 'aes-192-gcm',
+						},
+						{
+							name: 'AES-128-GCM',
+							value: 'aes-128-gcm',
+						}
+					]
 				}
 			},
 			{
-				displayName: '私钥',
-				name: 'privateKey',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: 'RSA私钥（PEM格式）',
-				controlType: 'textarea',
-				displayOptions: {
+				label: '密钥',
+				fieldName: 'key',
+				conditionRules: {
+					showBy: {
+						action: ['aes']
+					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '解密密钥',
+					validation: { required: true }
+				}
+			},
+			{
+				label: '初始化向量(IV)',
+				fieldName: 'iv',
+				conditionRules: {
+					showBy: {
+						action: ['aes']
+					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '初始化向量（可选）'
+				}
+			},
+			{
+				label: '私钥',
+				fieldName: 'privateKey',
+				conditionRules: {
 					showBy: {
 						action: ['rsa_private']
 					}
+				},
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'RSA私钥（PEM格式）',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '公钥',
-				name: 'publicKey',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: 'RSA公钥（PEM格式）',
-				controlType: 'textarea',
-				displayOptions: {
+				label: '公钥',
+				fieldName: 'publicKey',
+				conditionRules: {
 					showBy: {
 						action: ['rsa_public', 'verify']
 					}
+				},
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: 'RSA公钥（PEM格式）',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '原始数据',
-				name: 'originalData',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '用于验证签名的原始数据',
-				controlType: 'textarea',
-				displayOptions: {
+				label: '原始数据',
+				fieldName: 'originalData',
+				conditionRules: {
 					showBy: {
 						action: ['verify']
 					}
+				},
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '用于验证签名的原始数据',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '签名数据',
-				name: 'signature',
-				type: 'string',
-				default: '',
-				required: true,
-				placeholder: '要验证的签名数据',
-				controlType: 'textarea',
-				displayOptions: {
+				label: '签名数据',
+				fieldName: 'signature',
+				conditionRules: {
 					showBy: {
 						action: ['verify']
 					}
+				},
+				control: {
+					name: 'textarea',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '要验证的签名数据',
+					validation: { required: true }
 				}
 			},
 			{
-				displayName: '签名算法',
-				name: 'algorithm',
-				type: 'options',
-				options: [
-					{
-						name: 'RSA-SHA256',
-						value: 'RSA-SHA256',
-					},
-					{
-						name: 'RSA-SHA1',
-						value: 'RSA-SHA1',
-					},
-					{
-						name: 'RSA-SHA512',
-						value: 'RSA-SHA512',
-					}
-				],
-				default: 'RSA-SHA256',
-				placeholder: '选择签名算法',
-				controlType: 'select',
-				displayOptions: {
+				label: '签名算法',
+				fieldName: 'algorithm',
+				conditionRules: {
 					showBy: {
 						action: ['verify']
 					}
+				},
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'RSA-SHA256',
+					placeholder: '选择签名算法',
+					options: [
+						{
+							name: 'RSA-SHA256',
+							value: 'RSA-SHA256',
+						},
+						{
+							name: 'RSA-SHA1',
+							value: 'RSA-SHA1',
+						},
+						{
+							name: 'RSA-SHA512',
+							value: 'RSA-SHA512',
+						}
+					]
 				}
 			},
 			{
-				displayName: '输入编码格式',
-				name: 'inputEncoding',
-				type: 'options',
-				options: [
-					{
-						name: 'BASE64',
-						value: 'base64',
-					},
-					{
-						name: 'HEX',
-						value: 'hex',
-					}
-				],
-				default: 'base64',
-				placeholder: '选择输入编码格式',
-				controlType: 'select',
-				displayOptions: {
+				label: '输入编码格式',
+				fieldName: 'inputEncoding',
+				conditionRules: {
 					showBy: {
 						action: ['aes', 'rsa_private', 'rsa_public', 'verify']
 					}
+				},
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'base64',
+					placeholder: '选择输入编码格式',
+					options: [
+						{
+							name: 'BASE64',
+							value: 'base64',
+						},
+						{
+							name: 'HEX',
+							value: 'hex',
+						}
+					]
 				}
 			},
 			{
-				displayName: '输出属性名',
-				name: 'outputProperty',
-				type: 'string',
-				default: 'result',
-				required: true,
-				placeholder: '结果存储的属性名',
-				controlType: 'input'
+				label: '输出属性名',
+				fieldName: 'outputProperty',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'result',
+					placeholder: '结果存储的属性名',
+					validation: { required: true }
+				}
 			}
 		]
 	};

@@ -20,92 +20,102 @@ export class FilesRW implements INode {
 		fields: [
 			// 操作模式选择器（核心联动字段）
 			{
-				displayName: '操作类型',
-				name: 'operation',
-				type: 'options',
-				options: [
-					{
-						name: '读取文件',
-						value: 'read',
-						description: '读取一个或多个文件',
-					},
-					{
-						name: '写入文件',
-						value: 'write',
-						description: '创建一个二进制文件',
-					},
-				],
-				default: 'read',
-				placeholder: '选择操作类型',
-				controlType: 'selectwithdesc'
+				label: '操作类型',
+				fieldName: 'operation',
+				control: {
+					name: 'selectwithdesc',
+					dataType: 'string',
+					defaultValue: 'read',
+					placeholder: '选择操作类型',
+					options: [
+						{
+							name: '读取文件',
+							value: 'read',
+							description: '读取一个或多个文件',
+						},
+						{
+							name: '写入文件',
+							value: 'write',
+							description: '创建一个二进制文件',
+						},
+					],
+				}
 			},
 
 			// 读取文件相关字段
 			{
-				displayName: '文件路径',
-				name: 'fileSelector',
-				type: 'string',
-				displayOptions: {
+				label: '文件路径',
+				fieldName: 'fileSelector',
+				conditionRules: {
 					showBy: {
 						operation: ['read'],
 					},
 				},
-				default: '',
-				required: true,
-				placeholder: '例如: /home/user/Pictures/**/*.png(支持Glob模式语法)',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '例如: /home/user/Pictures/**/*.png(支持Glob模式语法)',
+					validation: { required: true }
+				}
 			},
 
 			// 写入文件相关字段
 			{
-				displayName: '文件路径和名称',
-				name: 'fileName',
-				type: 'string',
-				displayOptions: {
+				label: '文件路径和名称',
+				fieldName: 'fileName',
+				conditionRules: {
 					showBy: {
 						operation: ['write'],
 					},
 				},
-				default: '',
-				required: true,
-				placeholder: '例如: /data/example.jpg',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '例如: /data/example.jpg',
+					validation: { required: true }
+				}
 			},
 			{
-				displayName: '数据格式',
-				name: 'dataFormat',
-				type: 'options',
-				options: [
-					{
-						name: 'Base64编码',
-						value: 'base64'
-					},
-					{
-						name: '纯文本',
-						value: 'text'
-					},
-					{
-						name: 'JSON对象',
-						value: 'json'
-					}
-				],
-				default: 'base64',
-				required: true,
-				controlType: 'select'
+				label: '数据格式',
+				fieldName: 'dataFormat',
+				control: {
+					name: 'select',
+					dataType: 'string',
+					defaultValue: 'base64',
+					validation: { required: true },
+					options: [
+						{
+							name: 'Base64编码',
+							value: 'base64'
+						},
+						{
+							name: '纯文本',
+							value: 'text'
+						},
+						{
+							name: 'JSON对象',
+							value: 'json'
+						}
+					]
+				}
 			},
 			{
-				displayName: '输入数据字段',
-				name: 'dataPropertyName',
-				type: 'string',
-				displayOptions: {
+				label: '输入数据字段',
+				fieldName: 'dataPropertyName',
+				conditionRules: {
 					showBy: {
 						operation: ['write'],
 					},
 				},
-				default: 'data',
-				required: true,
-				placeholder: '例如: data',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'data',
+					placeholder: '例如: data',
+					validation: { required: true }
+				}
 			},
 
 			// 读取文件选项
@@ -124,45 +134,51 @@ export class FilesRW implements INode {
 
 				// 二进制文件伪装
 				// .txt 文件实际是加密二进制 → 指定 bin
-				displayName: '指定文件扩展名',
-				name: 'fileExtension',
-				type: 'string',
-				displayOptions: {
+				label: '指定文件扩展名',
+				fieldName: 'fileExtension',
+				conditionRules: {
 					showBy: {
 						operation: ['read'],
 					},
 				},
-				default: '',
-				placeholder: '例如: zip（可选，用于覆盖自动检测的扩展名）',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: '',
+					placeholder: '例如: zip（可选，用于覆盖自动检测的扩展名）'
+				}
 			},
 			{
-				displayName: '输出字段名',
-				name: 'outputDataPropertyName',
-				type: 'string',
-				displayOptions: {
+				label: '输出字段名',
+				fieldName: 'outputDataPropertyName',
+				conditionRules: {
 					showBy: {
 						operation: ['read'],
 					},
 				},
-				default: 'data',
-				placeholder: '例如: data',
-				controlType: 'input'
+				control: {
+					name: 'input',
+					dataType: 'string',
+					defaultValue: 'data',
+					placeholder: '例如: data'
+				}
 			},
 
 			// 写入文件选项
 			{
-				displayName: '追加模式',
-				name: 'append',
-				type: 'boolean',
-				displayOptions: {
+				label: '追加模式',
+				fieldName: 'append',
+				conditionRules: {
 					showBy: {
 						operation: ['write'],
 					},
 				},
-				default: false,
-				placeholder: '是否追加到现有文件',
-				controlType: 'checkbox'
+				control: {
+					name: 'checkbox',
+					dataType: 'boolean',
+					defaultValue: false,
+					placeholder: '是否追加到现有文件'
+				}
 			}
 		],
 	};

@@ -22,25 +22,33 @@ export class WecomNotice implements INode {
     detail: INodeDetail = {
         fields: [
             {
-                displayName: 'WebHook地址',
-                name: 'webhook',
-                type: 'string',
-                required: true,
-                default: '',
+                label: 'WebHook地址',
+                fieldName: 'webhook',
                 description: '输入企业微信连消息推送WebHook地址',
-                placeholder: 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=???',
-                controlType: 'textarea'
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=???'
+                }
             },
             {
-                displayName: '消息',
-                name: 'message',
-                type: 'string',
-                required: true,
-                default: '',
+                label: '消息',
+                fieldName: 'message',
                 description: '需要推送的消息',
-                placeholder: '需要推送的消息',
-                controlType: 'textarea'
-            },
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '需要推送的消息'
+                }
+            }
         ]
     };
 

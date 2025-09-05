@@ -20,68 +20,92 @@ export class MilvusConnect extends BaseDatabaseConnect {
         ],
         fields: [
             {
-                displayName: '主机地址',
-                name: 'host',
-                type: 'string' as const,
-                default: 'localhost',
+                label: '主机地址',
+                fieldName: 'host',
                 description: '数据库服务器的主机地址',
-                placeholder: 'localhost 或 IP地址',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'localhost',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'localhost 或 IP地址'
+                }
             },
             {
-                displayName: '端口',
-                name: 'port',
-                type: 'number' as const,
-                default: '19530',
-                description: '数据库服务器的主机地址',
-                placeholder: 'Milvus的端口，一般默认19530',
-                required: true,
-                controlType: "input"
+                label: '端口',
+                fieldName: 'port',
+                description: 'Milvus的端口号',
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 19530,
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '19530'
+                }
             },
             {
-                displayName: '用户名',
-                name: 'username',
-                type: 'string' as const,
-                default: '',
-                placeholder: "请输入数据库用户名",
+                label: '用户名',
+                fieldName: 'username',
                 description: '数据库用户名',
-                required: false,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入数据库用户名'
+                }
             },
             {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as const,
-                default: '',
+                label: '密码',
+                fieldName: 'password',
                 description: '数据库密码',
-                placeholder: "请输入数据库密码",
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入数据库密码',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '数据库',
-                name: 'database',
-                type: 'string' as const,
-                default: '',
-                placeholder: "请输入数据库名",
+                label: '数据库',
+                fieldName: 'database',
                 description: '数据库名',
-                required: false,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入数据库名'
+                }
             },
             {
-                displayName: '集合',
-                name: 'collection',
-                type: 'string' as const,
-                default: '',
-                placeholder: "请输入集合名",
+                label: '集合',
+                fieldName: 'collection',
                 description: '集合名',
-                required: false,
-                controlType: "input"
-            },
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入集合名'
+                }
+            }
         ],
         validateConnection: true,
         connectionTimeout: 30000

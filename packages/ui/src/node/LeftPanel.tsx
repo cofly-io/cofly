@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import styled from 'styled-components';
 import { JsonTree } from '../components/basic/JsonTree';
 import {
   Panel,
@@ -10,8 +9,15 @@ import {
   OutputContainerTitle,
   OutputContainerContent,
   NodeEmptyState,
-  NodeEmptyStateText
+  NodeEmptyStateText,
+  PreviousNodeSelector,
+  SelectorLabel,
+  SelectDropdown,
+  ButtonGroup,
+  DataViewButton,
+  ExecuteButton,
 } from './sharedStyles';
+
 import type { LeftPanelProps } from './types';
 
 // Custom hook for optimized test result polling
@@ -155,124 +161,6 @@ const useTestResultPolling = (
     setLocalTestResult
   };
 };
-
-// Left panel specific styles
-const PreviousNodeSelector = styled.div`
-  margin-bottom: 16px;
-`;
-
-const SelectorLabel = styled.div`
-  display: inline-block;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  font-size: 13px;
-  margin-bottom: 8px;
-`;
-
-const SelectDropdown = styled.select`
-  border: 1px solid ${({ theme }) => theme.panel.ctlBorder};
-  background: ${({ theme }) => theme.panel.nodeBg};
-  color: ${({ theme }) => theme.mode === 'dark' ? '#f8fafc' : '#0f172a'};
-  width: 40%;
-  padding: 2px 8px;
-  border-radius: 2px;
-  font-size: 12px;
-  &:focus {
-    outline: none;
-  }
-
-  &:disabled {
-    background: ${({ theme }) => theme.colors.inputBg}80;
-    color: ${({ theme }) => theme.colors.textSecondary};
-    cursor: not-allowed;
-  }
-`;
-
-// JSON/Schema 按钮容器
-const ButtonGroup = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: 8px;
-`;
-
-// JSON/Schema 按钮样式
-const DataViewButton = styled.button<{ $active?: boolean }>`
-  background: ${({ theme, $active }) =>
-    $active ? theme.colors.accent : theme.panel.nodeBg
-  };
-  color: ${({ theme, $active }) =>
-    $active ? 'white' : theme.colors.textPrimary
-  };
-  border: 1px solid ${({ theme, $active }) =>
-    $active ? theme.panel.ctlBorder : theme.panel.ctlBorder
-  };
-  border-radius: 2px;
-  padding: 3px 8px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 50px;
-  height:24px;
-
-  &:hover {
-    background: ${({ theme, $active }) =>
-    $active ? theme.colors.accent : theme.colors.buttonHover
-  };
-    border-color: ${({ theme }) => theme.colors.accent};
-  }
-
-  &:disabled {
-    background: ${({ theme }) => theme.colors.inputBg}80;
-    color: ${({ theme }) => theme.colors.textSecondary};
-    border-color: ${({ theme }) => theme.colors.border};
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-`;
-
-// 旋转动画
-const spinAnimation = `
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-// 添加执行按钮样式
-const ExecuteButton = styled.button<{ $disabled: boolean }>`
-  ${spinAnimation}
-  
-  background: ${({ theme }) => theme.colors.tertiary};
-  color: ${({ theme, $disabled }) =>
-    $disabled ? theme.colors.textSecondary : 'white'
-  };
-  width: 180px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 2px;
-  padding: 8px 16px;
-  cursor: ${({ $disabled }) => $disabled ? 'not-allowed' : 'pointer'};
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  
-  &:hover {
-    opacity: ${({ $disabled }) => $disabled ? 1 : 0.8};
-    transform: ${({ $disabled }) => $disabled ? 'none' : 'translateY(-1px)'};
-  }
-  
-  .loading-icon {
-    animation: spin 1s linear infinite;
-    font-size: 14px;
-  }
-`;
-
-// LeftPanelProps is now imported from McpInterfaces.ts.ts
 
 export const LeftPanel: React.FC<LeftPanelProps> = React.memo(({
   width,
@@ -528,15 +416,34 @@ export const LeftPanel: React.FC<LeftPanelProps> = React.memo(({
             localTestResult ? (
               // 有本地测试结果，根据视图模式显示不同数据
               (() => {
-                // 过滤掉不需要的字段，只保留 data 和 success
-                const filteredResult = {
-                  data: localTestResult.data,
-                  success: localTestResult.success
-                };
+                // 检查数据格式并进行适配
+                let displayData;
+                
+                if (localTestResult && typeof localTestResult === 'object') {
+                  // 如果数据已经是包装格式 {data: ..., success: ...}
+                  if (localTestResult.data !== undefined && localTestResult.success !== undefined) {
+                    displayData = {
+                      data: localTestResult.data,
+                      success: localTestResult.success
+                    };
+                  } else {
+                    // 旧格式或直接数据，包装为新格式
+                    displayData = {
+                      data: localTestResult,
+                      success: true
+                    };
+                  }
+                } else {
+                  // 处理空数据或非对象数据
+                  displayData = {
+                    data: localTestResult,
+                    success: true
+                  };
+                }
                 
                 return (
                   <JsonTree
-                    data={viewMode === '结构' ? generateSchema(filteredResult) : filteredResult}
+                    data={viewMode === '结构' ? generateSchema(displayData) : displayData}
                     nodeId={selectedNodeId}
                     draggable={true}
                   />

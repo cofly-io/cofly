@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@repo/database';
-import { knowledgeBaseManager } from '@repo/knowledge-base';
+import { knowledgeBaseManager } from '@repo/common';
 
 /**
  * 删除单个文档片段
@@ -58,8 +58,8 @@ export async function DELETE(
     }
 
     // 使用 KnowledgeBaseManager 删除文档片段
-    const kbInstance = await knowledgeBaseManager.get(kbId);
-    const deleteResult = await kbInstance.deleteDocumentChunk(chunkId);
+    const kbInstance = await knowledgeBaseManager.mediator?.get(kbId);
+    const deleteResult = await kbInstance?.deleteDocumentChunk(chunkId);
 
     if (!deleteResult) {
       return NextResponse.json({

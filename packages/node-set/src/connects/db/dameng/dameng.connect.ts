@@ -28,153 +28,173 @@ export class DamengConnect extends BaseDatabaseConnect {
         ],
         fields: [
             {
-                displayName: '主机地址',
-                name: 'host',
-                type: 'string' as const,
-                default: 'localhost',
+                label: '主机地址',
+                fieldName: 'host',
                 description: '达梦数据库服务器的主机地址',
-                placeholder: 'localhost 或 IP地址',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'localhost',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'localhost 或 IP地址'
+                }
             },
             {
-                displayName: '端口',
-                name: 'port',
-                type: 'number' as const,
-                default: 5236,
+                label: '端口',
+                fieldName: 'port',
                 description: '达梦数据库服务器端口号',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 65535
-                },
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 5236,
+                    validation: {
+                        required: true
+                    }
+                }
             },
             {
-                displayName: '用户名',
-                name: 'username',
-                type: 'string' as const,
-                default: '',
-                placeholder: "请输入数据库用户名",
+                label: '用户名',
+                fieldName: 'username',
                 description: '数据库用户名',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入数据库用户名'
+                }
             },
             {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as const,
-                default: '',
+                label: '密码',
+                fieldName: 'password',
                 description: '数据库密码',
-                placeholder: "请输入数据库密码",
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入数据库密码',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '连接方式',
-                name: 'connectionType',
-                type: 'options' as const,
-                default: 'service',
+                label: '连接方式',
+                fieldName: 'connectionType',
                 description: '达梦数据库连接方式',
-                options: [
-                    { name: '服务名连接', value: 'service' },
-                    { name: '实例名连接', value: 'instance' },
-                    { name: '直连方式', value: 'direct' }
-                ],
-                controlType: "select"
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'service',
+                    options: [
+                        { name: '服务名连接', value: 'service' },
+                        { name: '实例名连接', value: 'instance' },
+                        { name: '直连方式', value: 'direct' }
+                    ]
+                }
             },
             {
-                displayName: '服务名/实例名',
-                name: 'serviceName',
-                type: 'string' as const,
-                default: 'DMSERVER',
+                label: '服务名/实例名',
+                fieldName: 'serviceName',
                 description: '达梦数据库服务名或实例名',
-                placeholder: 'DMSERVER, DM01等',
-                required: true,
-                controlType: "input",
-                displayOptions: {
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'DMSERVER',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'DMSERVER, DM01等'
+                },
+                conditionRules: {
                     showBy: {
                         connectionType: ['service', 'instance']
                     }
                 }
             },
             {
-                displayName: 'Schema用户',
-                name: 'schema',
-                type: 'string' as const,
-                default: '',
+                label: 'Schema用户',
+                fieldName: 'schema',
                 description: '默认Schema用户名（可选）',
-                placeholder: '通常与用户名相同',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    placeholder: '通常与用户名相同'
+                }
             },
             {
-                displayName: '字符集',
-                name: 'charset',
-                type: 'options' as const,
-                default: 'UTF-8',
+                label: '字符集',
+                fieldName: 'charset',
                 description: '数据库字符集',
-                options: [
-                    { name: 'UTF-8', value: 'UTF-8' },
-                    { name: 'GBK', value: 'GBK' },
-                    { name: 'GB18030', value: 'GB18030' },
-                    { name: 'ISO-8859-1', value: 'ISO-8859-1' }
-                ],
-                controlType: "select"
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'UTF-8',
+                    options: [
+                        { name: 'UTF-8', value: 'UTF-8' },
+                        { name: 'GBK', value: 'GBK' },
+                        { name: 'GB18030', value: 'GB18030' },
+                        { name: 'ISO-8859-1', value: 'ISO-8859-1' }
+                    ]
+                }
             },
             {
-                displayName: '启用SSL',
-                name: 'ssl',
-                type: 'boolean' as const,
-                default: false,
+                label: '启用SSL',
+                fieldName: 'ssl',
                 description: '是否启用SSL连接',
-                controlType: "CheckBox"
+                control: {
+                    name: 'switch' as const,
+                    dataType: 'boolean' as const,
+                    defaultValue: false
+                }
             },
             {
-                displayName: '自动提交',
-                name: 'autoCommit',
-                type: 'boolean' as const,
-                default: true,
+                label: '自动提交',
+                fieldName: 'autoCommit',
                 description: '是否自动提交事务',
-                controlType: "CheckBox"
+                control: {
+                    name: 'switch' as const,
+                    dataType: 'boolean' as const,
+                    defaultValue: true
+                }
             },
             {
-                displayName: '连接超时(秒)',
-                name: 'connectionTimeout',
-                type: 'number' as const,
-                default: 30,
+                label: '连接超时(秒)',
+                fieldName: 'connectionTimeout',
                 description: '连接超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 300
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 30
+                }
             },
             {
-                displayName: '查询超时(秒)',
-                name: 'queryTimeout',
-                type: 'number' as const,
-                default: 30,
+                label: '查询超时(秒)',
+                fieldName: 'queryTimeout',
                 description: '查询超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 3600
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 30
+                }
             },
             {
-                displayName: '连接池大小',
-                name: 'poolSize',
-                type: 'number' as const,
-                default: 10,
+                label: '连接池大小',
+                fieldName: 'poolSize',
                 description: '连接池最大连接数',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 100
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 10
+                }
             }
         ],
         validateConnection: true,

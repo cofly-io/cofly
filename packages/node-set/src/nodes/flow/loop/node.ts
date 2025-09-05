@@ -21,28 +21,34 @@ export class Code implements INode {
 	detail: INodeDetail = {
 		fields: [
 			{
-				displayName: '循环内容',
-				name: 'content',
-				type: 'string',
-				placeholder: '',
-				default: '',
-				controlType: 'input'
+				label: '循环内容',
+				fieldName: 'content',
+				control: {
+					name: 'input',
+					dataType: 'string',
+					placeholder: '',
+					defaultValue: ''
+				}
 			},
 			{
-				displayName: '最大循环次数(0为不控制)',
-				name: 'times',
-				type: 'number',
-				placeholder: '',
-				default: 0,
-				controlType: 'input'
+				label: '最大循环次数(0为不控制)',
+				fieldName: 'times',
+				control: {
+					name: 'input',
+					dataType: 'number',
+					placeholder: '',
+					defaultValue: 0
+				}
 			},
 			{
-				displayName: '从第几条开始',
-				name: 'index',
-				type: 'number',
-				placeholder: '',
-				default: 0,
-				controlType: 'input'
+				label: '从第几条开始',
+				fieldName: 'index',
+				control: {
+					name: 'input',
+					dataType: 'number',
+					placeholder: '',
+					defaultValue: 0
+				}
 			},
 		],
 	};

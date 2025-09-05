@@ -29,140 +29,158 @@ export class KingbaseConnect extends BaseDatabaseConnect {
         ],
         fields: [
             {
-                displayName: '主机地址',
-                name: 'host',
-                type: 'string' as const,
-                default: 'localhost',
+                label: '主机地址',
+                fieldName: 'host',
                 description: 'KingbaseES服务器的主机地址',
-                placeholder: 'localhost 或 IP地址',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'localhost',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'localhost 或 IP地址'
+                }
             },
             {
-                displayName: '端口',
-                name: 'port',
-                type: 'number' as const,
-                default: 54321,
+                label: '端口',
+                fieldName: 'port',
                 description: 'KingbaseES服务器端口号',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 65535
-                },
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 54321,
+                    validation: {
+                        required: true
+                    }
+                }
             },
             {
-                displayName: '数据库名',
-                name: 'database',
-                type: 'string' as const,
-                default: '',
+                label: '数据库名',
+                fieldName: 'database',
                 description: '要连接的数据库名称',
-                placeholder: 'TEST, SAMPLE等',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'TEST, SAMPLE等'
+                }
             },
             {
-                displayName: '用户名',
-                name: 'username',
-                type: 'string' as const,
-                default: '',
-                placeholder: "请输入数据库用户名",
+                label: '用户名',
+                fieldName: 'username',
                 description: '数据库用户名',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入数据库用户名'
+                }
             },
             {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as const,
-                default: '',
+                label: '密码',
+                fieldName: 'password',
                 description: '数据库密码',
-                placeholder: "请输入数据库密码",
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入数据库密码',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: 'Schema',
-                name: 'schema',
-                type: 'string' as const,
-                default: 'public',
+                label: 'Schema',
+                fieldName: 'schema',
                 description: '默认Schema名称',
-                placeholder: 'public, dbo等',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'public',
+                    placeholder: 'public, dbo等'
+                }
             },
             {
-                displayName: '兼容模式',
-                name: 'compatibilityMode',
-                type: 'options' as const,
-                default: 'oracle',
+                label: '兼容模式',
+                fieldName: 'compatibilityMode',
                 description: 'KingbaseES兼容模式',
-                options: [
-                    { name: 'Oracle兼容', value: 'oracle' },
-                    { name: 'PostgreSQL兼容', value: 'postgresql' },
-                    { name: 'MySQL兼容', value: 'mysql' }
-                ],
-                controlType: "select"
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'oracle',
+                    options: [
+                        { name: 'Oracle兼容', value: 'oracle' },
+                        { name: 'PostgreSQL兼容', value: 'postgresql' },
+                        { name: 'MySQL兼容', value: 'mysql' }
+                    ]
+                }
             },
             {
-                displayName: '启用SSL',
-                name: 'ssl',
-                type: 'boolean' as const,
-                default: false,
+                label: '启用SSL',
+                fieldName: 'ssl',
                 description: '是否启用SSL连接',
-                controlType: "CheckBox"
+                control: {
+                    name: 'switch' as const,
+                    dataType: 'boolean' as const,
+                    defaultValue: false
+                }
             },
             {
-                displayName: '字符编码',
-                name: 'charset',
-                type: 'options' as const,
-                default: 'UTF8',
+                label: '字符编码',
+                fieldName: 'charset',
                 description: '数据库字符编码',
-                options: [
-                    { name: 'UTF-8', value: 'UTF8' },
-                    { name: 'GBK', value: 'GBK' },
-                    { name: 'GB18030', value: 'GB18030' },
-                    { name: 'Latin1', value: 'LATIN1' }
-                ],
-                controlType: "select"
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'UTF8',
+                    options: [
+                        { name: 'UTF-8', value: 'UTF8' },
+                        { name: 'GBK', value: 'GBK' },
+                        { name: 'GB18030', value: 'GB18030' },
+                        { name: 'Latin1', value: 'LATIN1' }
+                    ]
+                }
             },
             {
-                displayName: '连接超时(秒)',
-                name: 'connectionTimeout',
-                type: 'number' as const,
-                default: 30,
+                label: '连接超时(秒)',
+                fieldName: 'connectionTimeout',
                 description: '连接超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 300
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 30
+                }
             },
             {
-                displayName: '查询超时(秒)',
-                name: 'queryTimeout',
-                type: 'number' as const,
-                default: 30,
+                label: '查询超时(秒)',
+                fieldName: 'queryTimeout',
                 description: '查询超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 3600
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 30
+                }
             },
             {
-                displayName: '连接池大小',
-                name: 'poolSize',
-                type: 'number' as const,
-                default: 10,
+                label: '连接池大小',
+                fieldName: 'poolSize',
                 description: '连接池最大连接数',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 100
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 10
+                }
             }
         ],
         validateConnection: true,

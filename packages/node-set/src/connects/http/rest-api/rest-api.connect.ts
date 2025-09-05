@@ -27,157 +27,173 @@ export class RestApiConnect extends BaseHttpConnect {
         ],
         fields: [
             {
-                displayName: '基础URL',
-                name: 'baseUrl',
-                type: 'string' as NodePropertyTypes,
-                default: '',
+                label: '基础URL',
+                fieldName: 'baseUrl',
                 description: 'API的基础URL地址',
-                placeholder: 'https://api.example.com',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'https://api.example.com'
+                }
             },
             {
-                displayName: '认证方式',
-                name: 'authType',
-                type: 'options' as NodePropertyTypes,
-                default: 'none',
+                label: '认证方式',
+                fieldName: 'authType',
                 description: '选择API认证方式',
-                options: [
-                    { name: '无认证', value: 'none' },
-                    { name: 'Basic认证', value: 'basic' },
-                    { name: 'Bearer Token', value: 'bearer' },
-                    { name: 'API Key', value: 'api_key' },
-                    { name: 'OAuth 2.0', value: 'oauth2' }
-                ],
-                controlType: "input"
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'none',
+                    options: [
+                        { name: '无认证', value: 'none' },
+                        { name: 'Basic认证', value: 'basic' },
+                        { name: 'Bearer Token', value: 'bearer' },
+                        { name: 'API Key', value: 'api_key' },
+                        { name: 'OAuth 2.0', value: 'oauth2' }
+                    ]
+                }
             },
             {
-                displayName: '用户名',
-                name: 'username',
-                type: 'string' as NodePropertyTypes,
-                default: '',
+                label: '用户名',
+                fieldName: 'username',
                 description: 'Basic认证用户名',
-                displayOptions: {
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: ''
+                },
+                conditionRules: {
                     showBy: {
                         authType: ['basic']
                     }
-                },
-                controlType: "input"
+                }
             },
             {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as NodePropertyTypes,
-                default: '',
+                label: '密码',
+                fieldName: 'password',
                 description: 'Basic认证密码',
-                typeOptions: {
-                    password: true
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    attributes: [{
+                        type: 'password'
+                    }]
                 },
-                isSecure: true,
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         authType: ['basic']
                     }
-                },
-                controlType: "input"
+                }
             },
             {
-                displayName: 'Bearer Token',
-                name: 'token',
-                type: 'string' as NodePropertyTypes,
-                default: '',
+                label: 'Bearer Token',
+                fieldName: 'token',
                 description: 'Bearer认证令牌',
-                typeOptions: {
-                    password: true
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    attributes: [{
+                        type: 'password'
+                    }]
                 },
-                isSecure: true,
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         authType: ['bearer']
                     }
-                },
-                controlType: "input"
+                }
             },
             {
-                displayName: 'API Key',
-                name: 'apiKey',
-                type: 'string' as NodePropertyTypes,
-                default: '',
+                label: 'API Key',
+                fieldName: 'apiKey',
                 description: 'API密钥',
-                typeOptions: {
-                    password: true
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    attributes: [{
+                        type: 'password'
+                    }]
                 },
-                isSecure: true,
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         authType: ['api_key']
                     }
-                },
-                controlType: "input"
+                }
             },
             {
-                displayName: 'API Key Header',
-                name: 'apiKeyHeader',
-                type: 'string' as NodePropertyTypes,
-                default: 'X-API-Key',
+                label: 'API Key Header',
+                fieldName: 'apiKeyHeader',
                 description: 'API Key在请求头中的字段名',
-                displayOptions: {
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'X-API-Key'
+                },
+                conditionRules: {
                     showBy: {
                         authType: ['api_key']
                     }
-                },
-                controlType: "input"
+                }
             },
             {
-                displayName: '客户端ID',
-                name: 'clientId',
-                type: 'string' as NodePropertyTypes,
-                default: '',
+                label: '客户端ID',
+                fieldName: 'clientId',
                 description: 'OAuth 2.0客户端ID',
-                displayOptions: {
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: ''
+                },
+                conditionRules: {
                     showBy: {
                         authType: ['oauth2']
                     }
-                },
-                controlType: "input"
+                }
             },
             {
-                displayName: '客户端密钥',
-                name: 'clientSecret',
-                type: 'string' as NodePropertyTypes,
-                default: '',
+                label: '客户端密钥',
+                fieldName: 'clientSecret',
                 description: 'OAuth 2.0客户端密钥',
-                typeOptions: {
-                    password: true
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    attributes: [{
+                        type: 'password'
+                    }]
                 },
-                isSecure: true,
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         authType: ['oauth2']
                     }
-                },
-                controlType: "input"
+                }
             },
             {
-                displayName: '请求超时(秒)',
-                name: 'timeout',
-                type: 'number' as NodePropertyTypes,
-                default: 30,
+                label: '请求超时(秒)',
+                fieldName: 'timeout',
                 description: '请求超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 300
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 30
+                }
             },
             {
-                displayName: '自定义请求头',
-                name: 'headers',
-                type: 'collection' as NodePropertyTypes,
-                default: {},
+                label: '自定义请求头',
+                fieldName: 'headers',
                 description: '自定义HTTP请求头',
-                placeholder: 'Content-Type, Accept等',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: {},
+                    placeholder: 'Content-Type, Accept等'
+                }
             }
         ],
         validateConnection: true,

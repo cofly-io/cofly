@@ -29,509 +29,591 @@ export class S3 implements INode {
 	};
 
 	detail: INodeDetail = {
-		fields: [
-			// S3连接配置
-			{
-				displayName: '连接配置',
-				name: 'connection',
-				type: 'string',
-				default: '',
-				required: true,
-				connectType: "llm",
-				controlType: 'selectconnect'
-			},
+        fields: [
+            // S3连接配置
+            {
+                label: '连接配置',
+                fieldName: 'connection',
+                connectType: 'llm',
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    }
+                }
+            },
 
-			// 资源类型
-			{
-				displayName: '资源类型',
-				name: 'resource',
-				type: 'options',
-				options: [
-					{
-						name: '存储桶',
-						value: 'bucket',
-						description: '管理S3存储桶',
-					},
-					{
-						name: '文件',
-						value: 'file',
-						description: '管理S3文件对象',
-					},
-					{
-						name: '文件夹',
-						value: 'folder',
-						description: '管理S3文件夹',
-					},
-				],
-				default: 'file',
-				required: true,
-				controlType: 'selectwithdesc'
-			},
+            // 资源类型
+            {
+                label: '资源类型',
+                fieldName: 'resource',
+                control: {
+                    name: 'selectwithdesc',
+                    dataType: 'string',
+                    defaultValue: 'file',
+                    validation: {
+                        required: true
+                    },
+                    options: [
+                        {
+                            name: '存储桶',
+                            value: 'bucket',
+                            description: '管理S3存储桶',
+                        },
+                        {
+                            name: '文件',
+                            value: 'file',
+                            description: '管理S3文件对象',
+                        },
+                        {
+                            name: '文件夹',
+                            value: 'folder',
+                            description: '管理S3文件夹',
+                        },
+                    ]
+                }
+            },
 
-			// 操作类型
-			{
-				displayName: '操作',
-				name: 'operation',
-				type: 'options',
-				displayOptions: {
-					showBy: {
-						resource: ['bucket'],
-					},
-				},
-				options: [
-					{
-						name: '创建',
-						value: 'create',
-						description: '创建新的存储桶',
-					},
-					{
-						name: '列表',
-						value: 'list',
-						description: '获取所有存储桶列表',
-					},
-					{
-						name: '删除',
-						value: 'delete',
-						description: '删除存储桶',
-					},
-				],
-				default: 'list',
-				controlType: 'selectwithdesc'
-			},			{
+            // 操作类型 - 存储桶
+            {
+                label: '操作',
+                fieldName: 'operation',
+                conditionRules: {
+                    showBy: {
+                        resource: ['bucket']
+                    }
+                },
+                control: {
+                    name: 'selectwithdesc',
+                    dataType: 'string',
+                    defaultValue: 'list',
+                    options: [
+                        {
+                            name: '创建',
+                            value: 'create',
+                            description: '创建新的存储桶',
+                        },
+                        {
+                            name: '列表',
+                            value: 'list',
+                            description: '获取所有存储桶列表',
+                        },
+                        {
+                            name: '删除',
+                            value: 'delete',
+                            description: '删除存储桶',
+                        },
+                    ]
+                }
+            },
 
-				displayName: '操作',
-				name: 'operation',
-				type: 'options',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-					},
-				},
-				options: [
-					{
-						name: '上传',
-						value: 'upload',
-						description: '上传文件到S3',
-					},
-					{
-						name: '下载',
-						value: 'download',
-						description: '从S3下载文件',
-					},
-					{
-						name: '删除',
-						value: 'delete',
-						description: '删除S3文件',
-					},
-					{
-						name: '复制',
-						value: 'copy',
-						description: '复制S3文件',
-					},
-					{
-						name: '列表',
-						value: 'list',
-						description: '列出文件',
-					},
-					{
-						name: '获取信息',
-						value: 'info',
-						description: '获取文件信息',
-					},
-					{
-						name: '生成预签名URL',
-						value: 'presignedUrl',
-						description: '生成预签名访问URL',
-					},
-				],
-				default: 'upload',
-				controlType: 'selectwithdesc'
-			},
+            // 操作类型 - 文件
+            {
+                label: '操作',
+                fieldName: 'operation',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file']
+                    }
+                },
+                control: {
+                    name: 'selectwithdesc',
+                    dataType: 'string',
+                    defaultValue: 'upload',
+                    options: [
+                        {
+                            name: '上传',
+                            value: 'upload',
+                            description: '上传文件到S3',
+                        },
+                        {
+                            name: '下载',
+                            value: 'download',
+                            description: '从S3下载文件',
+                        },
+                        {
+                            name: '删除',
+                            value: 'delete',
+                            description: '删除S3文件',
+                        },
+                        {
+                            name: '复制',
+                            value: 'copy',
+                            description: '复制S3文件',
+                        },
+                        {
+                            name: '列表',
+                            value: 'list',
+                            description: '列出文件',
+                        },
+                        {
+                            name: '获取信息',
+                            value: 'info',
+                            description: '获取文件信息',
+                        },
+                        {
+                            name: '生成预签名URL',
+                            value: 'presignedUrl',
+                            description: '生成预签名访问URL',
+                        },
+                    ]
+                }
+            },
 
-			{
-				displayName: '操作',
-				name: 'operation',
-				type: 'options',
-				displayOptions: {
-					showBy: {
-						resource: ['folder'],
-					},
-				},
-				options: [
-					{
-						name: '创建',
-						value: 'create',
-						description: '创建文件夹',
-					},
-					{
-						name: '删除',
-						value: 'delete',
-						description: '删除文件夹',
-					},
-					{
-						name: '列表',
-						value: 'list',
-						description: '列出文件夹内容',
-					},
-				],
-				default: 'create',
-				controlType: 'selectwithdesc'
-			},
+            // 操作类型 - 文件夹
+            {
+                label: '操作',
+                fieldName: 'operation',
+                conditionRules: {
+                    showBy: {
+                        resource: ['folder']
+                    }
+                },
+                control: {
+                    name: 'selectwithdesc',
+                    dataType: 'string',
+                    defaultValue: 'create',
+                    options: [
+                        {
+                            name: '创建',
+                            value: 'create',
+                            description: '创建文件夹',
+                        },
+                        {
+                            name: '删除',
+                            value: 'delete',
+                            description: '删除文件夹',
+                        },
+                        {
+                            name: '列表',
+                            value: 'list',
+                            description: '列出文件夹内容',
+                        },
+                    ]
+                }
+            },
 
-			// 存储桶名称
-			{
-				displayName: '存储桶名称',
-				name: 'bucketName',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['bucket'],
-						operation: ['create', 'delete'],
-					},
-				},
-				default: '',
-				required: true,
-				placeholder: '例如: my-bucket',
-				controlType: 'input'
-			},
+            // 存储桶名称 - 存储桶操作
+            {
+                label: '存储桶名称',
+                fieldName: 'bucketName',
+                conditionRules: {
+                    showBy: {
+                        resource: ['bucket'],
+                        operation: ['create', 'delete']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '例如: my-bucket'
+                }
+            },
 
-			{
-				displayName: '存储桶名称',
-				name: 'bucketName',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file', 'folder'],
-					},
-				},
-				default: '',
-				required: true,
-				placeholder: '例如: my-bucket',
-				controlType: 'input'
-			},
+            // 存储桶名称 - 文件和文件夹操作
+            {
+                label: '存储桶名称',
+                fieldName: 'bucketName',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file', 'folder']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '例如: my-bucket'
+                }
+            },
 
-			// 文件相关字段
-			{
-				displayName: '文件键名',
-				name: 'fileKey',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['download', 'delete', 'info', 'presignedUrl'],
-					},
-				},
-				default: '',
-				required: true,
-				placeholder: '例如: folder/file.txt',
-				controlType: 'input'
-			},
+            // 文件键名 - 下载、删除、信息、预签名URL
+            {
+                label: '文件键名',
+                fieldName: 'fileKey',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['download', 'delete', 'info', 'presignedUrl']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '例如: folder/file.txt'
+                }
+            },
 
-			{
-				displayName: '文件键名',
-				name: 'fileKey',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['upload'],
-					},
-				},
-				default: '',
-				placeholder: '例如: folder/file.txt (留空则使用原文件名)',
-				controlType: 'input'
-			},
+            // 文件键名 - 上传
+            {
+                label: '文件键名',
+                fieldName: 'fileKey',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['upload']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '例如: folder/file.txt (留空则使用原文件名)'
+                }
+            },
 
-			// 上传配置
-			{
-				displayName: '数据类型',
-				name: 'dataType',
-				type: 'options',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['upload'],
-					},
-				},
-				options: [
-					{
-						name: '二进制数据',
-						value: 'binary',
-						description: '从输入的二进制数据上传',
-					},
-					{
-						name: '文本内容',
-						value: 'text',
-						description: '从文本内容上传',
-					},
-					{
-						name: '本地文件',
-						value: 'file',
-						description: '从本地文件路径上传',
-					},
-				],
-				default: 'binary',
-				controlType: 'selectwithdesc'
-			},
+            // 数据类型
+            {
+                label: '数据类型',
+                fieldName: 'dataType',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['upload']
+                    }
+                },
+                control: {
+                    name: 'selectwithdesc',
+                    dataType: 'string',
+                    defaultValue: 'binary',
+                    options: [
+                        {
+                            name: '二进制数据',
+                            value: 'binary',
+                            description: '从输入的二进制数据上传',
+                        },
+                        {
+                            name: '文本内容',
+                            value: 'text',
+                            description: '从文本内容上传',
+                        },
+                        {
+                            name: '本地文件',
+                            value: 'file',
+                            description: '从本地文件路径上传',
+                        },
+                    ]
+                }
+            },
 
-			{
-				displayName: '二进制数据字段',
-				name: 'binaryField',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['upload'],
-						dataType: ['binary'],
-					},
-				},
-				default: 'data',
-				required: true,
-				placeholder: '包含二进制数据的字段名',
-				controlType: 'input'
-			},
+            // 二进制数据字段
+            {
+                label: '二进制数据字段',
+                fieldName: 'binaryField',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['upload'],
+                        dataType: ['binary']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: 'data',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '包含二进制数据的字段名'
+                }
+            },
 
-			{
-				displayName: '文本内容',
-				name: 'textContent',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['upload'],
-						dataType: ['text'],
-					},
-				},
-				default: '',
-				required: true,
-				placeholder: '要上传的文本内容',
-				controlType: 'textarea'
-			},
+            // 文本内容
+            {
+                label: '文本内容',
+                fieldName: 'textContent',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['upload'],
+                        dataType: ['text']
+                    }
+                },
+                control: {
+                    name: 'textarea',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '要上传的文本内容'
+                }
+            },
 
-			{
-				displayName: '本地文件路径',
-				name: 'filePath',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['upload'],
-						dataType: ['file'],
-					},
-				},
-				default: '',
-				required: true,
-				placeholder: '例如: /path/to/file.txt',
-				controlType: 'input'
-			},
+            // 本地文件路径
+            {
+                label: '本地文件路径',
+                fieldName: 'filePath',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['upload'],
+                        dataType: ['file']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '例如: /path/to/file.txt'
+                }
+            },
 
-			// 复制操作字段
-			{
-				displayName: '源文件键名',
-				name: 'sourceKey',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['copy'],
-					},
-				},
-				default: '',
-				required: true,
-				placeholder: '例如: source/file.txt',
-				controlType: 'input'
-			},
+            // 源文件键名
+            {
+                label: '源文件键名',
+                fieldName: 'sourceKey',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['copy']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '例如: source/file.txt'
+                }
+            },
 
-			{
-				displayName: '目标文件键名',
-				name: 'targetKey',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['copy'],
-					},
-				},
-				default: '',
-				required: true,
-				placeholder: '例如: target/file.txt',
-				controlType: 'input'
-			},
+            // 目标文件键名
+            {
+                label: '目标文件键名',
+                fieldName: 'targetKey',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['copy']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '例如: target/file.txt'
+                }
+            },
 
-			// 文件夹相关字段
-			{
-				displayName: '文件夹路径',
-				name: 'folderPath',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['folder'],
-						operation: ['create', 'delete', 'list'],
-					},
-				},
-				default: '',
-				placeholder: '例如: my-folder/ (留空表示根目录)',
-				controlType: 'input'
-			},
+            // 文件夹路径
+            {
+                label: '文件夹路径',
+                fieldName: 'folderPath',
+                conditionRules: {
+                    showBy: {
+                        resource: ['folder'],
+                        operation: ['create', 'delete', 'list']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '例如: my-folder/ (留空表示根目录)'
+                }
+            },
 
-			// 列表操作配置
-			{
-				displayName: '前缀过滤',
-				name: 'prefix',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file', 'folder'],
-						operation: ['list'],
-					},
-				},
-				default: '',
-				placeholder: '例如: folder/ (过滤特定前缀的对象)',
-				controlType: 'input'
-			},
+            // 前缀过滤
+            {
+                label: '前缀过滤',
+                fieldName: 'prefix',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file', 'folder'],
+                        operation: ['list']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '例如: folder/ (过滤特定前缀的对象)'
+                }
+            },
 
-			{
-				displayName: '最大数量',
-				name: 'maxKeys',
-				type: 'number',
-				displayOptions: {
-					showBy: {
-						resource: ['file', 'folder'],
-						operation: ['list'],
-					},
-				},
-				default: 1000,
-				placeholder: '返回的最大对象数量',
-				controlType: 'input'
-			},
+            // 最大数量
+            {
+                label: '最大数量',
+                fieldName: 'maxKeys',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file', 'folder'],
+                        operation: ['list']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'number',
+                    defaultValue: 1000,
+                    placeholder: '返回的最大对象数量'
+                }
+            },
 
-			// 预签名URL配置
-			{
-				displayName: '过期时间(秒)',
-				name: 'expiresIn',
-				type: 'number',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['presignedUrl'],
-					},
-				},
-				default: 3600,
-				placeholder: 'URL过期时间，默认1小时',
-				controlType: 'input'
-			},
+            // 过期时间
+            {
+                label: '过期时间(秒)',
+                fieldName: 'expiresIn',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['presignedUrl']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'number',
+                    defaultValue: 3600,
+                    placeholder: 'URL过期时间，默认1小时'
+                }
+            },
 
-			// 高级选项
-			{
-				displayName: '内容类型',
-				name: 'contentType',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['upload'],
-					},
-				},
-				default: '',
-				placeholder: '例如: image/jpeg, text/plain',
-				controlType: 'input'
-			},
+            // 内容类型
+            {
+                label: '内容类型',
+                fieldName: 'contentType',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['upload']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '例如: image/jpeg, text/plain'
+                }
+            },
 
-			{
-				displayName: '存储类别',
-				name: 'storageClass',
-				type: 'options',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['upload'],
-					},
-				},
-				options: [
-					{
-						name: '标准',
-						value: 'STANDARD',
-						description: '标准存储类别',
-					},
-					{
-						name: '低频访问',
-						value: 'STANDARD_IA',
-						description: '标准-低频访问',
-					},
-					{
-						name: '单区域低频',
-						value: 'ONEZONE_IA',
-						description: '单区域-低频访问',
-					},
-					{
-						name: '归档',
-						value: 'GLACIER',
-						description: 'Glacier归档',
-					},
-					{
-						name: '深度归档',
-						value: 'DEEP_ARCHIVE',
-						description: 'Glacier深度归档',
-					},
-				],
-				default: 'STANDARD',
-				controlType: 'select'
-			},
+            // 存储类别
+            {
+                label: '存储类别',
+                fieldName: 'storageClass',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['upload']
+                    }
+                },
+                control: {
+                    name: 'select',
+                    dataType: 'string',
+                    defaultValue: 'STANDARD',
+                    options: [
+                        {
+                            name: '标准',
+                            value: 'STANDARD',
+                            description: '标准存储类别',
+                        },
+                        {
+                            name: '低频访问',
+                            value: 'STANDARD_IA',
+                            description: '标准-低频访问',
+                        },
+                        {
+                            name: '单区域低频',
+                            value: 'ONEZONE_IA',
+                            description: '单区域-低频访问',
+                        },
+                        {
+                            name: '归档',
+                            value: 'GLACIER',
+                            description: 'Glacier归档',
+                        },
+                        {
+                            name: '深度归档',
+                            value: 'DEEP_ARCHIVE',
+                            description: 'Glacier深度归档',
+                        },
+                    ]
+                }
+            },
 
-			{
-				displayName: '服务器端加密',
-				name: 'serverSideEncryption',
-				type: 'options',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['upload'],
-					},
-				},
-				options: [
-					{
-						name: '无',
-						value: 'none',
-						description: '不使用服务器端加密',
-					},
-					{
-						name: 'AES256',
-						value: 'AES256',
-						description: 'S3管理的加密密钥',
-					},
-					{
-						name: 'KMS',
-						value: 'aws:kms',
-						description: 'AWS KMS管理的密钥',
-					},
-				],
-				default: 'none',
-				controlType: 'selectwithdesc'
-			},
+            // 服务器端加密
+            {
+                label: '服务器端加密',
+                fieldName: 'serverSideEncryption',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['upload']
+                    }
+                },
+                control: {
+                    name: 'selectwithdesc',
+                    dataType: 'string',
+                    defaultValue: 'none',
+                    options: [
+                        {
+                            name: '无',
+                            value: 'none',
+                            description: '不使用服务器端加密',
+                        },
+                        {
+                            name: 'AES256',
+                            value: 'AES256',
+                            description: 'S3管理的加密密钥',
+                        },
+                        {
+                            name: 'KMS',
+                            value: 'aws:kms',
+                            description: 'AWS KMS管理的密钥',
+                        },
+                    ]
+                }
+            },
 
-			{
-				displayName: '下载到字段',
-				name: 'downloadField',
-				type: 'string',
-				displayOptions: {
-					showBy: {
-						resource: ['file'],
-						operation: ['download'],
-					},
-				},
-				default: 'data',
-				placeholder: '下载的文件将存储到此字段',
-				controlType: 'input'
-			},
+            // 下载到字段
+            {
+                label: '下载到字段',
+                fieldName: 'downloadField',
+                conditionRules: {
+                    showBy: {
+                        resource: ['file'],
+                        operation: ['download']
+                    }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'string',
+                    defaultValue: 'data',
+                    placeholder: '下载的文件将存储到此字段'
+                }
+            },
 
-			{
-				displayName: '出错时继续',
-				name: 'continueOnFail',
-				type: 'boolean',
-				default: false,
-				controlType: 'checkbox'
-			},
-		],
+            // 出错时继续
+            {
+                label: '出错时继续',
+                fieldName: 'continueOnFail',
+                control: {
+                    name: 'checkbox',
+                    dataType: 'boolean',
+                    defaultValue: false
+                }
+            }
+        ],
 	};
 
 	// async metadata(opts: IMetadataOptions): Promise<IMetadataResult> {

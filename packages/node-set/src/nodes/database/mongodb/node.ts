@@ -17,13 +17,15 @@ export class MongoDB implements INode {
         fields: [
             // 数据库连接配置
             {
-                displayName: '连接源',
-                name: 'datasource',
-                type: 'string',
-                default: '',
-                required: true,
+                label: '连接源',
+                fieldName: 'datasource',
                 connectType: "mongodb",
-                controlType: 'selectconnect',
+                control: {
+                    name: 'selectconnect',
+                    dataType: 'string',
+                    defaultValue: '',
+                    validation: { required: true }
+                },
                 // 联动配置：影响集合名字段
                 linkage: {
                     targets: ['collection'],
@@ -32,236 +34,249 @@ export class MongoDB implements INode {
             },
             // 操作类型选择器
             {
-                displayName: '操作类型',
-                name: 'operation',
-                type: 'options',
-                options: [
-                    {
-                        name: '查找文档',
-                        value: 'find',
-                        description: '查找集合中的文档',
-                    },
-                    {
-                        name: '查找单个文档',
-                        value: 'findOne',
-                        description: '查找集合中的单个文档',
-                    },
-                    {
-                        name: '插入文档',
-                        value: 'insertOne',
-                        description: '向集合中插入单个文档',
-                    },
-                    {
-                        name: '批量插入文档',
-                        value: 'insertMany',
-                        description: '向集合中插入多个文档',
-                    },
-                    {
-                        name: '更新文档',
-                        value: 'updateOne',
-                        description: '更新集合中的单个文档',
-                    },
-                    {
-                        name: '批量更新文档',
-                        value: 'updateMany',
-                        description: '更新集合中的多个文档',
-                    },
-                    {
-                        name: '删除文档',
-                        value: 'deleteOne',
-                        description: '删除集合中的单个文档',
-                    },
-                    {
-                        name: '批量删除文档',
-                        value: 'deleteMany',
-                        description: '删除集合中的多个文档',
-                    },
-                    {
-                        name: '聚合查询',
-                        value: 'aggregate',
-                        description: '执行聚合管道查询',
-                    },
-                    {
-                        name: '统计文档数量',
-                        value: 'countDocuments',
-                        description: '统计集合中文档的数量',
-                    },
-                ],
-                default: 'find',
-                placeholder: '选择操作类型',
-                controlType: 'selectwithdesc'
+                label: '操作类型',
+                fieldName: 'operation',
+                control: {
+                    name: 'selectwithdesc',
+                    dataType: 'string',
+                    defaultValue: 'find',
+                    options: [
+                        {
+                            name: '查找文档',
+                            value: 'find',
+                            description: '查找集合中的文档',
+                        },
+                        {
+                            name: '查找单个文档',
+                            value: 'findOne',
+                            description: '查找集合中的单个文档',
+                        },
+                        {
+                            name: '插入文档',
+                            value: 'insertOne',
+                            description: '向集合中插入单个文档',
+                        },
+                        {
+                            name: '批量插入文档',
+                            value: 'insertMany',
+                            description: '向集合中插入多个文档',
+                        },
+                        {
+                            name: '更新文档',
+                            value: 'updateOne',
+                            description: '更新集合中的单个文档',
+                        },
+                        {
+                            name: '批量更新文档',
+                            value: 'updateMany',
+                            description: '更新集合中的多个文档',
+                        },
+                        {
+                            name: '删除文档',
+                            value: 'deleteOne',
+                            description: '删除集合中的单个文档',
+                        },
+                        {
+                            name: '批量删除文档',
+                            value: 'deleteMany',
+                            description: '删除集合中的多个文档',
+                        },
+                        {
+                            name: '聚合查询',
+                            value: 'aggregate',
+                            description: '执行聚合管道查询',
+                        },
+                        {
+                            name: '统计文档数量',
+                            value: 'countDocuments',
+                            description: '统计集合中文档的数量',
+                        },
+                    ]
+                }
             },
             // 集合名称选择器
             {
-                displayName: '集合名称',
-                name: 'collection',
-                type: 'string',
-                default: '',
-                required: true,
-                placeholder: '请选择集合名称',
+                label: '集合名称',
+                fieldName: 'collection',
                 description: '要操作的MongoDB集合名称',
-                controlType: 'selectcollection',
-                // 显示条件：当选择了连接源时显示
-                displayOptions: {
-                    showBy: {
-                        datasource: [{ "$ne": "" }]
-                    },
+                conditionRules: {
+                    // showBy: {
+                    //     datasource: [{ "$ne": "" }]
+                    // },
                     hide: {
-                        operation: ['custom'],
-                    },
+                        operation: ['custom']
+                    }
                 },
+                control: {
+                    name: 'select',
+                    dataType: 'string',
+                    defaultValue: '',
+                    placeholder: '请选择集合名称',
+                    validation: { required: true }
+                }
             },
             // 查询条件字段
             {
-                displayName: '查询条件',
-                name: 'filter',
-                type: 'json',
-                default: '{}',
-                placeholder: '请输入查询条件（JSON格式）',
+                label: '查询条件',
+                fieldName: 'filter',
                 description: '查询条件，使用MongoDB查询语法',
-                controlType: 'jsoneditor',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['find', 'findOne', 'updateOne', 'updateMany', 'deleteOne', 'deleteMany', 'countDocuments'],
-                        datasource: [{ "$ne": "" }]
+                        //datasource: [{ "$ne": "" }]
                     }
+                },
+                control: {
+                    name: 'jscode',
+                    dataType: 'string',
+                    defaultValue: '{}',
+                    placeholder: '请输入查询条件（JSON格式）'
                 }
             },
             // 投影字段
             {
-                displayName: '投影字段',
-                name: 'projection',
-                type: 'json',
-                default: '{}',
+                label: '投影字段',
+                fieldName: 'projection',
                 description: '指定返回的字段（JSON格式）',
-                placeholder: '{"name": 1, "age": 1, "_id": 0}',
-                controlType: 'jsoneditor',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['find', 'findOne'],
-                        datasource: [{ "$ne": "" }]
+                        //datasource: [{ "$ne": "" }]
                     }
+                },
+                control: {
+                    name: 'jscode',
+                    dataType: 'string',
+                    defaultValue: '{}',
+                    placeholder: '{"name": 1, "age": 1, "_id": 0}'
                 }
             },
             // 排序字段
             {
-                displayName: '排序',
-                name: 'sort',
-                type: 'json',
-                default: '{}',
+                label: '排序',
+                fieldName: 'sort',
                 description: '排序条件（JSON格式）',
-                placeholder: '{"age": -1, "name": 1}',
-                controlType: 'jsoneditor',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['find'],
-                        datasource: [{ "$ne": "" }]
+                       // datasource: [{ "$ne": "" }]
                     }
+                },
+                control: {
+                    name: 'jscode',
+                    dataType: 'string',
+                    defaultValue: '{}',
+                    placeholder: '{"age": -1, "name": 1}'
                 }
             },
             // 限制条数字段
             {
-                displayName: '限制条数',
-                name: 'limit',
-                type: 'number',
-                default: 0,
-                placeholder: '请输入限制条数',
+                label: '限制条数',
+                fieldName: 'limit',
                 description: '限制返回的文档数量，0表示不限制',
-                controlType: 'number',
-                typeOptions: {
-                    minValue: 0,
-                },
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['find'],
-                        datasource: [{ "$ne": "" }]
+                        //datasource: [{ "$ne": "" }]
                     }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'number',
+                    defaultValue: 0,
+                    placeholder: '请输入限制条数'
                 }
             },
             // 跳过条数字段
             {
-                displayName: '跳过条数',
-                name: 'skip',
-                type: 'number',
-                default: 0,
-                placeholder: '请输入跳过条数',
+                label: '跳过条数',
+                fieldName: 'skip',
                 description: '跳过指定数量的文档',
-                controlType: 'number',
-                typeOptions: {
-                    minValue: 0,
-                },
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['find'],
-                        datasource: [{ "$ne": "" }]
+                        //datasource: [{ "$ne": "" }]
                     }
+                },
+                control: {
+                    name: 'input',
+                    dataType: 'number',
+                    defaultValue: 0,
+                    placeholder: '请输入跳过条数'
                 }
             },
             // 单个文档数据字段
             {
-                displayName: '文档数据',
-                name: 'document',
-                type: 'json',
-                default: '{}',
+                label: '文档数据',
+                fieldName: 'document',
                 description: '要插入的文档数据（JSON格式）',
-                placeholder: '{"name": "张三", "age": 25, "email": "zhangsan@example.com"}',
-                controlType: 'jsoneditor',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['insertOne'],
-                        datasource: [{ "$ne": "" }]
+                        //datasource: [{ "$ne": "" }]
                     }
+                },
+                control: {
+                    name: 'jscode',
+                    dataType: 'string',
+                    defaultValue: '{}',
+                    placeholder: '{"name": "张三", "age": 25, "email": "zhangsan@example.com"}'
                 }
             },
             // 多个文档数据字段
             {
-                displayName: '文档数组',
-                name: 'documents',
-                type: 'json',
-                default: '[]',
+                label: '文档数组',
+                fieldName: 'documents',
                 description: '要插入的文档数组（JSON格式）',
-                placeholder: '[{"name": "张三", "age": 25}, {"name": "李四", "age": 30}]',
-                controlType: 'jsoneditor',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['insertMany'],
-                        datasource: [{ "$ne": "" }]
+                        //datasource: [{ "$ne": "" }]
                     }
+                },
+                control: {
+                    name: 'jscode',
+                    dataType: 'string',
+                    defaultValue: '[]',
+                    placeholder: '[{"name": "张三", "age": 25}, {"name": "李四", "age": 30}]'
                 }
             },
             // 更新数据字段
             {
-                displayName: '更新数据',
-                name: 'update',
-                type: 'json',
-                default: '{}',
+                label: '更新数据',
+                fieldName: 'update',
                 description: '更新操作（JSON格式）',
-                placeholder: '{"$set": {"age": 26}, "$inc": {"score": 10}}',
-                controlType: 'jsoneditor',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['updateOne', 'updateMany'],
-                        datasource: [{ "$ne": "" }]
+                       // datasource: [{ "$ne": "" }]
                     }
+                },
+                control: {
+                    name: 'jscode',
+                    dataType: 'string',
+                    defaultValue: '{}',
+                    placeholder: '{"$set": {"age": 26}, "$inc": {"score": 10}}'
                 }
             },
             // 聚合管道字段
             {
-                displayName: '聚合管道',
-                name: 'pipeline',
-                type: 'json',
-                default: '[]',
+                label: '聚合管道',
+                fieldName: 'pipeline',
                 description: '聚合管道阶段数组（JSON格式）',
-                placeholder: '[{"$match": {"age": {"$gte": 18}}}, {"$group": {"_id": "$department", "count": {"$sum": 1}}}]',
-                controlType: 'jsoneditor',
-                displayOptions: {
+                conditionRules: {
                     showBy: {
                         operation: ['aggregate'],
-                        datasource: [{ "$ne": "" }]
+                        //datasource: [{ "$ne": "" }]
                     }
+                },
+                control: {
+                    name: 'jscode',
+                    dataType: 'string',
+                    defaultValue: '[]',
+                    placeholder: '[{"$match": {"age": {"$gte": 18}}}, {"$group": {"_id": "$department", "count": {"$sum": 1}}}]'
                 }
             },
-
         ],
     };
 

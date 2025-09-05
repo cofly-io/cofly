@@ -29,121 +29,141 @@ export class SQLServerConnect extends BaseDatabaseConnect {
         ],
         fields: [
             {
-                displayName: '服务器地址',
-                name: 'host',
-                type: 'string' as const,
-                default: 'localhost',
+                label: '服务器地址',
+                fieldName: 'host',
                 description: 'SQL Server服务器的主机地址',
-                placeholder: 'localhost 或 IP地址',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'localhost',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: 'localhost 或 IP地址'
+                }
             },
             {
-                displayName: '端口',
-                name: 'port',
-                type: 'number' as const,
-                default: 1433,
+                label: '端口',
+                fieldName: 'port',
                 description: 'SQL Server服务器端口号',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 65535
-                },
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 1433,
+                    validation: {
+                        required: true
+                    }
+                }
             },
             {
-                displayName: '实例名',
-                name: 'instance',
-                type: 'string' as const,
-                default: '',
+                label: '实例名',
+                fieldName: 'instance',
                 description: 'SQL Server实例名（可选）',
-                placeholder: 'SQLEXPRESS, MSSQLSERVER等',
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    placeholder: 'SQLEXPRESS, MSSQLSERVER等'
+                }
             },
             {
-                displayName: '用户名',
-                name: 'username',
-                type: 'string' as const,
-                default: '',
-                placeholder: "请输入数据库用户名",
+                label: '用户名',
+                fieldName: 'username',
                 description: '数据库用户名',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    },
+                    placeholder: '请输入数据库用户名'
+                }
             },
             {
-                displayName: '密码',
-                name: 'password',
-                type: 'string' as const,
-                default: '',
+                label: '密码',
+                fieldName: 'password',
                 description: '数据库密码',
-                placeholder: "请输入数据库密码",
-                typeOptions: {
-                    password: true
-                },
-                isSecure: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: false
+                    },
+                    placeholder: '请输入数据库密码',
+                    attributes: [{
+                        type: 'password'
+                    }]
+                }
             },
             {
-                displayName: '数据库名',
-                name: 'database',
-                type: 'string' as const,
-                default: '',
+                label: '数据库名',
+                fieldName: 'database',
                 description: '要连接的数据库名称',
-                required: true,
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'string' as const,
+                    defaultValue: '',
+                    validation: {
+                        required: true
+                    }
+                }
             },
             {
-                displayName: '认证方式',
-                name: 'authenticationType',
-                type: 'options' as const,
-                default: 'default',
+                label: '认证方式',
+                fieldName: 'authenticationType',
                 description: 'SQL Server认证方式',
-                options: [
-                    { name: 'SQL Server认证', value: 'default' },
-                    { name: 'Windows认证', value: 'ntlm' },
-                    { name: 'Azure AD认证', value: 'azure-active-directory-default' }
-                ],
-                controlType: "select"
+                control: {
+                    name: 'select' as const,
+                    dataType: 'string' as const,
+                    defaultValue: 'default',
+                    options: [
+                        { name: 'SQL Server认证', value: 'default' },
+                        { name: 'Windows认证', value: 'ntlm' },
+                        { name: 'Azure AD认证', value: 'azure-active-directory-default' }
+                    ]
+                }
             },
             {
-                displayName: '启用加密',
-                name: 'encrypt',
-                type: 'boolean' as const,
-                default: true,
+                label: '启用加密',
+                fieldName: 'encrypt',
                 description: '是否启用连接加密（Azure SQL必须启用）',
-                controlType: "CheckBox"
+                control: {
+                    name: 'switch' as const,
+                    dataType: 'boolean' as const,
+                    defaultValue: true
+                }
             },
             {
-                displayName: '信任服务器证书',
-                name: 'trustServerCertificate',
-                type: 'boolean' as const,
-                default: false,
+                label: '信任服务器证书',
+                fieldName: 'trustServerCertificate',
                 description: '是否信任服务器证书（开发环境可启用）',
-                controlType: "CheckBox"
+                control: {
+                    name: 'switch' as const,
+                    dataType: 'boolean' as const,
+                    defaultValue: false
+                }
             },
             {
-                displayName: '连接超时(秒)',
-                name: 'connectionTimeout',
-                type: 'number' as const,
-                default: 15,
+                label: '连接超时(秒)',
+                fieldName: 'connectionTimeout',
                 description: '连接超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 300
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 15
+                }
             },
             {
-                displayName: '请求超时(秒)',
-                name: 'requestTimeout',
-                type: 'number' as const,
-                default: 15,
+                label: '请求超时(秒)',
+                fieldName: 'requestTimeout',
                 description: '请求超时时间，单位：秒',
-                typeOptions: {
-                    minValue: 1,
-                    maxValue: 300
-                },
-                controlType: "input"
+                control: {
+                    name: 'input' as const,
+                    dataType: 'number' as const,
+                    defaultValue: 15
+                }
             }
         ],
         validateConnection: true,
