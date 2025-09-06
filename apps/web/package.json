@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack --port 3000",
     "build": "next build && pnpm run copy-node-assets",
+    "build:release": "BUILD_STANDALONE=true next build && pnpm run copy-node-assets",
     "copy-node-assets": "copyfiles -u 6 ../../packages/node-set/dist/nodes/**/*.{json,svg,png} public/nodes && copyfiles -u 6 ../../packages/node-set/dist/connects/**/*.{json,svg,png} public/connects",
     "start": "next start --port 3000",
     "lint": "next lint --max-warnings 0",
@@ -36,6 +37,7 @@
     "@repo/services": "workspace:*",
     "@repo/engine": "workspace:*",
     "@repo/node-set": "workspace:*",
+    "@repo/knowledge-base": "workspace:*",
     "@repo/mcp-workflow-tools": "workspace:*",
     "@repo/ui": "workspace:*",
     "@types/bcryptjs": "^3.0.0",
