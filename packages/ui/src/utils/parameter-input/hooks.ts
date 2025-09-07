@@ -74,14 +74,14 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
     const dependentValue = formValues[field.linkage.dependsOn];
     const prevDependentValue = prevDependentValueRef.current;
 
-    console.log('🔍 [useLinkageData] useEffect 触发:', {
-      fieldName: field.fieldName,
-      dependsOn: field.linkage.dependsOn,
-      dependentValue,
-      prevDependentValue,
-      isInitialized: isInitializedRef.current,
-      trigger: field.linkage.trigger
-    });
+    // console.log('🔍 [useLinkageData] useEffect 触发:', {
+    //   fieldName: field.fieldName,
+    //   dependsOn: field.linkage.dependsOn,
+    //   dependentValue,
+    //   prevDependentValue,
+    //   isInitialized: isInitializedRef.current,
+    //   trigger: field.linkage.trigger
+    // });
 
     // 检查是否需要响应变化
     const hasTrigger = field.linkage.trigger === 'onclick' || field.linkage.trigger === 'onChange' || field.linkage.trigger === 'onBlur';
@@ -89,13 +89,13 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
     const isModelConnectidLinkage = field.fieldName === 'models' && field.linkage.dependsOn === 'connectid';
     const shouldRespondToChange = hasTrigger || (field.linkage.dependsOn === 'datasource') || isModelConnectidLinkage;
 
-    console.log('🎯 [useLinkageData] 响应条件检查:', {
-      hasTrigger,
-      shouldRespondToChange,
-      trigger: field.linkage.trigger,
-      isModelConnectidLinkage,
-      fieldLinkage: field.linkage
-    });
+    // console.log('🎯 [useLinkageData] 响应条件检查:', {
+    //   hasTrigger,
+    //   shouldRespondToChange,
+    //   trigger: field.linkage.trigger,
+    //   isModelConnectidLinkage,
+    //   fieldLinkage: field.linkage
+    // });
 
     // 初始化或值发生变化时
     const valueChanged = prevDependentValue !== dependentValue;

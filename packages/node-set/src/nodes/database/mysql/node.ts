@@ -224,6 +224,7 @@ export class MySQL implements INode {
 		],
 	};
 
+	
 	async execute(opts: IExecuteOptions): Promise<any> {
 		const operation = opts.inputs?.operation;
 		let connection: mysql.Connection | null = null;
@@ -274,6 +275,9 @@ export class MySQL implements INode {
 		}
 	}
 
+	// async DataList(opts: IExecuteOptions): Promise<any> {
+	// 	console.log("listttttttttttt",await credentialManager.mediator?.list());
+	// }
 
 
 	private async createConnection(inputs: any): Promise<mysql.Connection> {

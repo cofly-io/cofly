@@ -8,7 +8,7 @@ import {
 } from '../../../utils/llm-fields';
 
 const ConnectConfig: ILLMOverview = {
-    id: 'google',
+    id: 'Gemini',
     name: 'Gemini',
     type: 'llm' as const,
     provider: 'google',

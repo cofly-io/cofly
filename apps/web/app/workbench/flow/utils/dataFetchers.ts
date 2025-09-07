@@ -12,54 +12,54 @@ import type { ConnectConfig } from '../types/node';
  * @returns 连接实例数组
  */
 export const fetchConnectInstances = async (connectType?: string) => {
-  try {
-    // 如果connectType是'kb'，则调用知识库服务
-    if (connectType === 'kb') {
-      const { AiRagService } = await import('@/services/aiRagService');
-      const result = await AiRagService.getAiRags();
+  // try {
+  //   // 如果connectType是'kb'，则调用知识库服务
+  //   if (connectType === 'kb') {
+  //     const { AiRagService } = await import('@/services/aiRagService');
+  //     const result = await AiRagService.getAiRags();
 
-      if (!result.success) {
-        throw new Error(result.error || '获取知识库实例失败');
-      }
+  //     if (!result.success) {
+  //       throw new Error(result.error || '获取知识库实例失败');
+  //     }
 
-      const mappedData = (result.data || []).map(item => {
-        return {
-          id: item.id || '',
-          name: item.name,
-          nodeinfo: {}, // 空对象，不包含任何敏感信息
-          description: `知识库`
-        };
-      });
-      return mappedData;
-    }
+  //     const mappedData = (result.data || []).map(item => {
+  //       return {
+  //         id: item.id || '',
+  //         name: item.name,
+  //         nodeinfo: {}, // 空对象，不包含任何敏感信息
+  //         description: `知识库`
+  //       };
+  //     });
+  //     return mappedData;
+  //   }
 
-    // 原有的连接配置逻辑
-    const { ConnectConfigService } = await import('@/services/connectConfigService');
-    // 判断connectType如果是llm，则使用mtype参数，否则使用ctype参数
-    const queryParam = connectType ?
-      (connectType === 'llm' ? { mtype: connectType } : { ctype: connectType }) :
-      undefined;
-    const result = await ConnectConfigService.getConnectConfigs(queryParam);
+  //   // 原有的连接配置逻辑
+  //   const { ConnectConfigService } = await import('@/services/connectConfigService');
+  //   // 判断connectType如果是llm，则使用mtype参数，否则使用ctype参数
+  //   const queryParam = connectType ?
+  //     (connectType === 'llm' ? { mtype: connectType } : { ctype: connectType }) :
+  //     undefined;
+  //   const result = await ConnectConfigService.getConnectConfigs(queryParam);
 
-    if (!result.success) {
-      throw new Error(result.error || '获取连接配置失败');
-    }
+  //   if (!result.success) {
+  //     throw new Error(result.error || '获取连接配置失败');
+  //   }
 
-    const mappedData = (result.data || []).map(item => {
-      // selectconnect 只需要基本信息，不需要敏感的配置数据
-      return {
-        id: item.id || '',
-        name: item.name,
-        ctype: item.ctype,
-        mtype: item.mtype || item.ctype, // 如果mtype为undefined，使用ctype作为默认值
-        nodeinfo: {}, // 空对象，不包含任何敏感信息
-        description: `${item.mtype || item.ctype} 连接 - ${item.name}`
-      };
-    });
-    return mappedData;
-  } catch (error) {
-    return [];
-  }
+  //   const mappedData = (result.data || []).map(item => {
+  //     // selectconnect 只需要基本信息，不需要敏感的配置数据
+  //     return {
+  //       id: item.id || '',
+  //       name: item.name,
+  //       ctype: item.ctype,
+  //       mtype: item.mtype || item.ctype, // 如果mtype为undefined，使用ctype作为默认值
+  //       nodeinfo: {}, // 空对象，不包含任何敏感信息
+  //       description: `${item.mtype || item.ctype} 连接 - ${item.name}`
+  //     };
+  //   });
+  //   return mappedData;
+  // } catch (error) {
+  //   return [];
+  // }
 };
 
 /**

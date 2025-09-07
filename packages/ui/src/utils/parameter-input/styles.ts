@@ -90,7 +90,7 @@ export const variantConfigs: Record<ParameterInputVariant, VariantConfig> = {
     input: {
       height: '32px',
       padding: '0 12px',
-      fontSize: '14px',
+      fontSize: '12px',
       borderRadius: '4px',
       border: (theme: any) => theme.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e0e0e010',
       background: (theme: any) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff10',
@@ -293,7 +293,13 @@ export const StyledSelect = styled.select<{ $variant: ParameterInputVariant }>`
 
   option {
     background: ${props => props.theme.mode === 'dark' ? '#1a1a1a' : '#ffffff'};
-    color: ${props => variantConfigs[props.$variant].input.color(props.theme)};
+    color: ${props => {
+      // For dropdown options, use proper contrasting colors
+      if (props.$variant === 'connect') {
+        return props.theme.mode === 'dark' ? '#e2e8f0' : '#1f2937';
+      }
+      return variantConfigs[props.$variant].input.color(props.theme);
+    }};
     padding: 8px 12px;
   }
 

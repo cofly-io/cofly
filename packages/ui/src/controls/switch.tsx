@@ -108,7 +108,7 @@ const StyledSwitch = styled.div<{ $active: boolean; $disabled?: boolean; $size?:
     if ($disabled) {
       return '#94a3b8';
     }
-    return $active ? '#3b82f6' : '#e2e8f0';
+    return $active ? '#ffffff' : '#bfbfbf';
   }};
     border-radius: 50%;
     transition: all 0.3s ease;
@@ -121,6 +121,25 @@ const StyledSwitch = styled.div<{ $active: boolean; $disabled?: boolean; $size?:
       : '0 2px 6px rgba(0, 0, 0, 0.25)';
   }};
   }
+`;
+
+// Switch容器组件
+const SwitchContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+// Switch文本组件
+const SwitchText = styled.span<{ $disabled?: boolean }>`
+  font-size: 12px;
+  color: ${({ theme, $disabled }) => {
+    if ($disabled) {
+      return theme.mode === 'dark' ? 'rgba(148, 163, 184, 0.5)' : '#ffffff';
+    }
+    return theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : '#ffffff';
+  }};
+  user-select: none;
 `;
 
 // Switch控件组件
@@ -142,30 +161,30 @@ export const Switch: React.FC<SwitchProps> = ({
   };
 
   return (
-    <StyledSwitch
-      $active={value}
-      $disabled={disabled}
-      $size={size}
-      onClick={handleClick}
-      role="switch"
-      aria-checked={value}
-      aria-disabled={disabled}
-      tabIndex={disabled ? -1 : 0}
-      onKeyDown={(e) => {
-        if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
-          e.preventDefault();
-          handleClick(e as any);
-        }
-      }}
-    >
-      <span style={{ fontSize: '14px' }}>
+    <SwitchContainer>
+      <StyledSwitch
+        $active={value}
+        $disabled={disabled}
+        $size={size}
+        onClick={handleClick}
+        role="switch"
+        aria-checked={value}
+        aria-disabled={disabled}
+        tabIndex={disabled ? -1 : 0}
+        onKeyDown={(e) => {
+          if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
+            e.preventDefault();
+            handleClick(e as any);
+          }
+        }}
+      />
+      <SwitchText $disabled={disabled}>
         {text ?
           (value ? text?.split(',')[0] : text?.split(',')[1]) :
           (value ? '是' : '否')
         }
-      </span>
-      <div />
-    </StyledSwitch>
+      </SwitchText>
+    </SwitchContainer>
   );
 };
 

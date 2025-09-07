@@ -359,6 +359,19 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             }
 
             case 'input': {
+                // 获取输入框类型，优先使用 attributes 中的 type，其次是根据 dataType 判断
+                const getInputType = () => {
+                    // 检查 attributes 中是否定义了 type
+                    const attributeType = controlConfig.attributes?.[0]?.type;
+                    if (attributeType) {
+                        return attributeType; // 可能是 'password', 'email', 'url' 等
+                    }
+                    // 回退到根据 dataType 判断
+                    return controlConfig.dataType === 'number' ? "number" : "text";
+                };
+
+                const inputType = getInputType();
+
                 if (variant === 'node') {
                     // node 模式下使用 Input 组件
                     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -379,7 +392,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
                     const control = (
                         <Input
-                            type={controlConfig.dataType === 'number' ? "number" : "text"}
+                            type={inputType}
                             value={value || ''}
                             onChange={handleInputChange}
                             placeholder={field.description || controlConfig.placeholder}
@@ -392,7 +405,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                     const control = (
                         <StyledTextInput
                             $variant={variant}
-                            type={controlConfig.dataType === 'number' ? "number" : "text"}
+                            type={inputType}
                             value={value || ''}
                             onChange={(e) => onChange(field.fieldName, e.target.value)}
                             placeholder={field.description || controlConfig.placeholder}
