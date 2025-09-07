@@ -21,7 +21,7 @@ export class PostgreSQL implements INode {
 			{
 				label: '连接源',
 				fieldName: 'datasource',
-				connectType: "postgresql",
+				dataSourceType: "postgresql",
 				control: {
 					name: 'selectconnect',
 					dataType: 'string',

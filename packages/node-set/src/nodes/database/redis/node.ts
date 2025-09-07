@@ -19,7 +19,7 @@ export class Redis implements INode {
 			{
 				label: '连接源',
 				fieldName: 'datasource',
-				connectType: "redis",
+				dataSourceType: "redis",
 				control: {
 					name: 'selectconnect',
 					dataType: 'string',

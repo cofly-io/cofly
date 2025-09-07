@@ -18,7 +18,7 @@ export class DingdingRobot implements INode {
             {
                 label: '连接源',
                 fieldName: 'datasource',
-                connectType: 'dingding-robot',
+                dataSourceType: 'dingding-robot',
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',

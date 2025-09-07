@@ -27,7 +27,7 @@ export class FeishuBitable implements INode {
                 label: '飞书多维表格连接',
                 fieldName: 'credential',
                 description: '选择飞书多维表格连接配置',
-                connectType: 'feishu-bitable',
+                //dataSourceType: 'feishu-bitable',
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',

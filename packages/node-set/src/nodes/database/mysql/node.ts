@@ -20,7 +20,7 @@ export class MySQL implements INode {
 			{
 				label: '连接源',
 				fieldName: 'datasource',
-				connectType: "mysql",
+				dataSourceType: "mysql",
 				control: {
 					name: 'selectconnect',
 					dataType: 'string',

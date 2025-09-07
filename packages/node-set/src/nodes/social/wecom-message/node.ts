@@ -26,7 +26,7 @@ export class WecomSender implements INode {
                 label: '企业微信连接',
                 fieldName: 'credential',
                 description: '选择企业微信连接配置',
-                connectType: 'wecom',
+                // dataSourceType: 'wecom',
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',

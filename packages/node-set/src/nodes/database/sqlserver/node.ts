@@ -20,7 +20,7 @@ export class SQLServer implements INode {
 			{
 				label: '连接源',
 				fieldName: 'datasource',
-				connectType: "sqlserver",
+				dataSourceType: "sqlserver",
 				control: {
 					name: 'selectconnect',
 					dataType: 'string',

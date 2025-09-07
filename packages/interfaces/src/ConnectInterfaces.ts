@@ -18,19 +18,6 @@ export interface ModelInfo {
     tags?: string[];
 }
 
-export type ConnectType =
-    | 'db'
-    | 'nosql-db'
-    | 'vector-db'
-    | 'http'
-    | 'llm'
-    | 'llm-embedding'
-    | 'file'
-    | 'api'
-    | 'mq'
-    | 'social'
-    | 'other';
-
 // 连接分类常量定义
 export const ConnectCategory = {
     llm: {
@@ -62,6 +49,8 @@ export const ConnectCategory = {
         desc: '消息队列服务，如RabbitMQ、Kafka等'
     }
 } as const;
+
+export type ConnectType = keyof typeof ConnectCategory;
 
 export type ConnectCategoryType =
     (typeof ConnectCategory)[keyof typeof ConnectCategory];

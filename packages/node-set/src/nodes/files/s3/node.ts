@@ -34,7 +34,7 @@ export class S3 implements INode {
             {
                 label: '连接配置',
                 fieldName: 'connection',
-                connectType: 'llm',
+                dataSourceType: 'llm',
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',

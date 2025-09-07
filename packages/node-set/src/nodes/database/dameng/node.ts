@@ -20,7 +20,7 @@ export class Dameng implements INode {
 			{
 				label: '连接源',
 				fieldName: 'datasource',
-				connectType: "dameng",
+				dataSourceType: "dameng",
 				control: {
 					name: 'selectconnect',
 					dataType: 'string',

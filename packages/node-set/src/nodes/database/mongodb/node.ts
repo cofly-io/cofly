@@ -19,7 +19,7 @@ export class MongoDB implements INode {
             {
                 label: '连接源',
                 fieldName: 'datasource',
-                connectType: "mongodb",
+                dataSourceType: "mongodb",
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',

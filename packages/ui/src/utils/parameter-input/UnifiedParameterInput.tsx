@@ -97,10 +97,10 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
     useEffect(() => {
         if (field.control.name === 'selectconnect') {
             const fetchConfigs = async () => {
-                const connectType = field.control.connectType;
-                if (connectType && onFetchConnectInstances) {
+                const dataSourceType = field.dataSourceType;
+                if (dataSourceType && onFetchConnectInstances) {
                     try {
-                        const configs = await onFetchConnectInstances(connectType);
+                        const configs = await onFetchConnectInstances(dataSourceType);
                         const configsWithMtype = configs.map(config => ({
                             ...config,
                             mtype: config.mtype
@@ -109,14 +109,14 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                     } catch (error) {
                         console.error('❌ [UnifiedParameterInput] 获取连接配置失败:', error);
                         const filteredConfigs = connectConfigs.filter(config =>
-                            connectType ? (config.mtype === connectType || config.ctype === connectType) : true
+                            dataSourceType ? (config.mtype === dataSourceType || config.ctype === dataSourceType) : true
                         );
                         setDynamicConnectConfigs(filteredConfigs);
                     }
                 } else {
                     const filteredConfigs = connectConfigs.filter(config => {
-                        if (!connectType) return true;
-                        return config.mtype === connectType || config.ctype === connectType;
+                        if (!dataSourceType) return true;
+                        return config.mtype === dataSourceType || config.ctype === dataSourceType;
                     });
                     setDynamicConnectConfigs(filteredConfigs);
                 }
@@ -124,7 +124,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
             fetchConfigs();
         }
-    }, [field.control.name, field.control.connectType, field.fieldName, onFetchConnectInstances, connectConfigs]);
+    }, [field.control.name, field.dataSourceType, field.fieldName, onFetchConnectInstances, connectConfigs]);
 
     // 通用的验证错误检查函数
     const hasValidationError = (fieldName: string) => {
@@ -313,7 +313,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                 return renderWithOptionalLabel(control);
             }
 
-             case 'jsoncode': {
+            case 'jsoncode': {
                 const height = controlConfig.attributes?.[0]?.height ? `${controlConfig.attributes[0].height}px` : "180px";
                 const control = (
                     <JsonCode
@@ -535,6 +535,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                 return renderWithOptionalLabel(control);
             }
 
+
             case 'selectconnect':
                 const connectDatasource = dynamicConnectConfigs.map(config => {
                     const connectInfo = {
@@ -553,10 +554,26 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                 const handleSelectConnectChange = (selectedValue: string | number) => {
                     try {
                         // 解析 JSON 格式的 value
-                        // const connectInfo = JSON.parse(selectedValue as string);
+                        const connectInfo = JSON.parse(selectedValue as string);
 
                         // 保存完整的连接信息到字段值
                         onChange(field.fieldName, selectedValue);
+
+                        // 约束：只有当 selectconnect 字段配置了 linkage 时，才触发联动逻辑
+                        // if (field.linkage && field.linkage.targets && field.linkage.targets.length > 0) {
+                        //   console.log('🔗 [selectconnect] 触发联动逻辑:', {
+                        //     fieldName: field.name,
+                        //     targets: field.linkage.targets,
+                        //     selectedValue
+                        //   });
+                        //   // 联动逻辑会由 useLinkageData hook 自动处理
+                        // } else {
+                        //   console.log('⚠️ [selectconnect] 跳过联动逻辑 - 未配置 linkage:', {
+                        //     fieldName: field.name,
+                        //     hasLinkage: !!field.linkage,
+                        //     hasTargets: !!(field.linkage?.targets?.length)
+                        //   });
+                        // }
                     } catch (error) {
                         console.error('❌ [UnifiedParameterInput] 解析连接信息失败:', error);
                         // 如果解析失败，按旧格式处理（向后兼容）
@@ -588,16 +605,93 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
                 const displayValue = getDisplayValue();
 
+                // 在 collection 内部时，标签已经在外层渲染，这里只返回控件
+                if (isInCollection) {
+                    return (
+                        <SelecConnect
+                            datasource={connectDatasource}
+                            value={displayValue}
+                            onChange={handleSelectConnectChange}
+                            placeholder={field.description || field.control?.placeholder || '请选择连接'}
+                        />
+                    );
+                }
 
-                const control = (
-                    <SelecConnect
-                        datasource={connectDatasource}
-                        value={displayValue}
-                        onChange={(val) => onChange(field.fieldName, val)}
-                        placeholder={field.description || controlConfig.placeholder}
-                    />
+                return (
+                    <>
+                        {renderLabel()}
+                        <SelecConnect
+                            datasource={connectDatasource}
+                            value={displayValue}
+                            onChange={handleSelectConnectChange}
+                            placeholder={field.description ||  field.control?.placeholder  || '请选择连接'}
+                        />
+                    </>
                 );
-                return renderWithOptionalLabel(control);
+
+            // case 'selectconnect':
+            //     const connectDatasource = dynamicConnectConfigs.map(config => {
+            //         const connectInfo = {
+            //             id: config.id,
+            //             ctype: config.ctype,
+            //             mtype: config.mtype
+            //         };
+            //         return {
+            //             value: JSON.stringify(connectInfo),
+            //             text: config.name,
+            //             description: config.description || `${config.mtype || config.ctype} 连接`
+            //         };
+            //     });
+
+            //     // 处理 selectconnect 的 onChange 事件，value 包含完整的连接信息
+            //     const handleSelectConnectChange = (selectedValue: string | number) => {
+            //         try {
+            //             // 解析 JSON 格式的 value
+            //             // const connectInfo = JSON.parse(selectedValue as string);
+
+            //             // 保存完整的连接信息到字段值
+            //             onChange(field.fieldName, selectedValue);
+            //         } catch (error) {
+            //             console.error('❌ [UnifiedParameterInput] 解析连接信息失败:', error);
+            //             // 如果解析失败，按旧格式处理（向后兼容）
+            //             onChange(field.fieldName, selectedValue);
+            //         }
+            //     };
+
+            //     // 处理 value 的兼容性显示
+            //     const getDisplayValue = () => {
+            //         if (!value) return value;
+
+            //         try {
+            //             // 尝试解析为 JSON，如果成功说明是新格式
+            //             JSON.parse(value as string);
+            //             return value; // 新格式直接返回
+            //         } catch {
+            //             // 解析失败说明是旧格式（简单ID），需要转换为新格式
+            //             const matchedConfig = dynamicConnectConfigs.find(config => config.id === value);
+            //             if (matchedConfig) {
+            //                 return JSON.stringify({
+            //                     id: matchedConfig.id,
+            //                     ctype: matchedConfig.ctype,
+            //                     mtype: matchedConfig.mtype
+            //                 });
+            //             }
+            //             return value; // 如果找不到匹配的配置，返回原值
+            //         }
+            //     };
+
+            //     const displayValue = getDisplayValue();
+
+
+            //     const control = (
+            //         <SelecConnect
+            //             datasource={connectDatasource}
+            //             value={displayValue}
+            //             onChange={(val) => onChange(field.fieldName, val)}
+            //             placeholder={field.description || controlConfig.placeholder}
+            //         />
+            //     );
+            //     return renderWithOptionalLabel(control);
 
             case 'selectadd': {
                 // selectadd 控件的特殊处理逻辑
@@ -664,8 +758,8 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                     <SelectAdd
                         options={controlConfig.options?.map((opt: any) => ({
                             value: opt.value,
-                            label : opt.name || opt.value
-                        }))|| []}
+                            label: opt.name || opt.value
+                        })) || []}
                         onChange={handleSelectAddChange}
                         placeholder={field.description || controlConfig.placeholder}
                     />
@@ -691,11 +785,11 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                 const switchAttributes = controlConfig.attributes?.[0] || {};
                 const control = (
                     <Switch
-                        value={ value || controlConfig.defaultValue || false }
+                        value={value || controlConfig.defaultValue || false}
                         onChange={(checked) => onChange(field.fieldName, checked)}
                         text={switchAttributes.text}
                         {...field.control.attributes}
-                        // size={field.typeOptions?.size || 'small'}
+                    // size={field.typeOptions?.size || 'small'}
                     />
                 );
                 return renderWithOptionalLabel(control);
@@ -713,7 +807,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
             case 'note': {
                 const control = (
-                    <Note value={field.control.defaultValue ? String(field.control.defaultValue ) : ''} />
+                    <Note value={field.control.defaultValue ? String(field.control.defaultValue) : ''} />
                 );
                 return renderWithOptionalLabel(control);
             }
@@ -722,12 +816,12 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                 // collection 控件不需要类型判断和必填判断
                 return (
                     <CollectionContainer $variant={variant}>
-                        <CollectionHeader  $variant={variant}>
-                            <CollectionTitle  $variant={variant}>{field.label}</CollectionTitle>
+                        <CollectionHeader $variant={variant}>
+                            <CollectionTitle $variant={variant}>{field.label}</CollectionTitle>
                         </CollectionHeader>
                         <CollectionFields>
                             {controlConfig.options?.map((subField: any, index: number) => (
-                                <InlineFieldContainer key={subField.fieldName || index}  $variant={variant}>
+                                <InlineFieldContainer key={subField.fieldName || index} $variant={variant}>
                                     <InlineInputWrapper>
                                         <UnifiedParameterInput
                                             variant={variant}

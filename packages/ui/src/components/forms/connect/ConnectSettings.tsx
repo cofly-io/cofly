@@ -249,7 +249,7 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
   const { showSuccess } = useToast();
 
   // 判断是否为LLM连接，添加安全检查
-  const isLLMConnect = connect?.overview?.type === 'llm' || connect?.overview?.type === 'llm-embedding';
+  const isLLMConnect = connect?.overview?.type === 'llm';
 
   // 初始化表单值
   useEffect(() => {

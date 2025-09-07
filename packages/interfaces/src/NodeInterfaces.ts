@@ -71,6 +71,28 @@ export type WorkflowActivateMode =
     | 'leadershipChange';
 
 
+type ConnectInstanceType =
+    // db
+    | 'dameng'
+    | 'kingbase'
+    | 'mysql'
+    | 'oracle'
+    | 'postgresql'
+    | 'sqlserver'
+    // nosql-db
+    | 'mongodb'
+    | 'redis'
+    // social
+    | 'dingding'
+    | 'dingding-robot'
+    | 'feishu'
+    | 'feishu-bitable'
+    | 'wecom'
+    // vector-db
+    | 'milvus'
+    | 'kb'
+    | 'llm'
+
 export interface ICredentialDataDecryptedObject {
     [key: string]: CredentialInformation;
 }
@@ -685,15 +707,16 @@ export interface IComponentAttributes {
         [cssProperty: string]: string | number;
     };
 }
+
 export interface IControlConfiguration {
     name: ComponentType;
     dataType: NodePropertyTypes;
     connectType?: string;
     defaultValue?: GenericValue;
     placeholder?: string;
-    validation?: IValidationRules    
+    validation?: IValidationRules
     //下拉框内容
-    options?: Array<INodePropertyOption | INodeFields>;  
+    options?: Array<INodePropertyOption | INodeFields>;
     //控件额外的属性
     attributes?: IComponentAttributes[];
 }
@@ -708,6 +731,7 @@ export interface IValidationRules {
     max?: number | { value: number; message?: string };
 }
 
+
 export interface INodeFields {
     label: string;
     fieldName: string;
@@ -716,7 +740,7 @@ export interface INodeFields {
     //根据控件的交互来显示或者隐藏、增加对应的控件
     conditionRules?: IConditionRules;
     //即connect的Ctype
-    connectType?: string;
+    dataSourceType?: ConnectInstanceType|'';
     // 渲染对应的控件
     control: IControlConfiguration;
     // 新增：联动配置

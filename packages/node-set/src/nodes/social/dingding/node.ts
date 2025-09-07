@@ -26,7 +26,7 @@ export class Dingding implements INode {
             {
                 label: '钉钉连接',
                 fieldName: 'credential',
-                connectType: 'dingding',
+                dataSourceType: 'dingding',
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',

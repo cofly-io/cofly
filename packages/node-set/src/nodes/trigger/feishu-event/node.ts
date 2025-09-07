@@ -19,7 +19,7 @@ export class FeishuEvent implements INode{
                 label: '飞书连接',
                 fieldName: 'credential',
                 description: '选择飞书连接配置',
-                connectType: 'feishu',
+                dataSourceType: 'feishu',
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',
