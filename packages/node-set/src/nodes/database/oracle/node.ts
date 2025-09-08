@@ -25,11 +25,6 @@ export class Oracle implements INode {
 					dataType: 'string',
 					defaultValue: '',
 					validation: { required: true }
-				},
-				// 联动配置：影响表名字段
-				linkage: {
-					targets: ['table'],
-					trigger: 'onChange'
 				}
 			},
 			// 操作类型选择器

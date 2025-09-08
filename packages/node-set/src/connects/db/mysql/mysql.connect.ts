@@ -1,6 +1,5 @@
 import {
     Icon,
-    credentialManager,
     IDatabaseMetadataOptions,
     IDatabaseMetadataResult,
     IDatabaseExecutionOptions,
@@ -228,19 +227,17 @@ export class MySQLConnect extends BaseDatabaseConnect {
 
     async metadata(opts: IDatabaseMetadataOptions): Promise<IDatabaseMetadataResult> {
         try {
-            switch (opts.type) {
-                case 'tables':
-                    return await this.getTableNames(opts.datasourceId, opts.search);
-                case 'columns':
-                    return await this.getColumnNames(opts.datasourceId, opts.tableName, opts.search);
-                case 'schemas':
-                    return await this.getSchemaNames(opts.datasourceId, opts.search);
-                default:
-                    return {
-                        success: false,
-                        error: `不支持的元数据类型: ${opts.type}`
-                    };
-            }
+            const connectionConfig = {
+                host: opts.host,
+                port: opts.port,
+                user: opts.user,
+                password: opts.password,
+                database: opts.database,
+                charset: opts.charset,
+                ssl: opts.ssl ? {} : false,
+                connectTimeout: (opts.connectTimeout || 10) * 1000,
+            };
+            return await this.getTableNames(connectionConfig, opts.search);
         } catch (error: any) {
             console.error('❌ [MySQL Node] metadata 执行错误:', error.message);
             return {
@@ -251,75 +248,12 @@ export class MySQLConnect extends BaseDatabaseConnect {
     }
 
     /**
-    * 统一的连接管理函数
-    * 自动处理连接的创建、使用和关闭
-    */
-    private async withConnection<T>(
-        datasourceId: string,
-        callback: (connection: mysql.Connection) => Promise<T>
-    ): Promise<T> {
-        let connection: mysql.Connection | null = null;
-
-        try {
-            // 获取连接配置
-            const connectConfig = await credentialManager.mediator?.get(datasourceId);
-            if (!connectConfig) {
-                throw new Error(`连接配置不存在: ${datasourceId}`);
-            }
-
-            const configData = connectConfig.config;
-            const connectionConfig = {
-                host: configData.host || 'localhost',
-                port: configData.port || 3306,
-                database: configData.database,
-                user: configData.username || configData.user,
-                password: configData.password || '',
-                connectTimeout: (configData.connectionTimeout || 30) * 1000,
-                ssl: configData.ssl || false
-            };
-
-            // 创建连接
-            connection = await mysql.createConnection(connectionConfig);
-            console.log('✅ [MySQL Connect] 数据库连接已建立');
-
-            // 执行回调函数
-            const result = await callback(connection);
-
-            return result;
-
-        } catch (error: any) {
-            console.error('❌ [MySQL Connect] 连接操作失败:', error.message);
-            throw error;
-        } finally {
-            // 确保连接总是被正确关闭
-            if (connection) {
-                try {
-                    await connection.end();
-                    console.log('✅ [MySQL Connect] 数据库连接已关闭');
-                } catch (closeError: any) {
-                    console.error('⚠️ [MySQL Connect] 关闭连接时出错:', closeError.message);
-                }
-            }
-        }
-    }
-
-    /**
      * 获取表名列表
      */
-    private async getTableNames(datasourceId?: string, search?: string): Promise<IDatabaseMetadataResult> {
-        if (!datasourceId) {
-            return {
-                success: false,
-                error: '数据源ID不能为空'
-            };
-        }
-
+    private async getTableNames(connectionConfig?: any, search?: string): Promise<IDatabaseMetadataResult> {
         try {
-            const tables = await this.withConnection(datasourceId, async (connection) => {
-                // 获取数据库名称（用于查询）
-                const connectConfig = await credentialManager.mediator?.get(datasourceId);
-                const databaseName = connectConfig?.config?.database;
-
+            const tables = await this.withConnection(connectionConfig, async (connection) => {
+                const databaseName = connectionConfig.database;
                 // 查询表名
                 let query = 'SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = ?';
                 const values = [databaseName];
@@ -329,11 +263,8 @@ export class MySQLConnect extends BaseDatabaseConnect {
                     query += ' AND TABLE_NAME LIKE ?';
                     values.push(`%${search}%`);
                 }
-
                 query += ' ORDER BY TABLE_NAME';
-
                 const [rows] = await connection.execute(query, values);
-
                 // 格式化结果
                 return (rows as any[]).map((row) => ({
                     value: row.TABLE_NAME || row.table_name,
@@ -356,110 +287,37 @@ export class MySQLConnect extends BaseDatabaseConnect {
     }
 
     /**
-     * 获取表的列名列表
-     */
-    private async getColumnNames(datasourceId?: string, tableName?: string, search?: string): Promise<IDatabaseMetadataResult> {
-        if (!datasourceId) {
-            return {
-                success: false,
-                error: '数据源ID不能为空'
-            };
-        }
-
-        if (!tableName) {
-            return {
-                success: false,
-                error: '表名不能为空'
-            };
-        }
-
+    * 统一的连接管理函数
+    * 自动处理连接的创建、使用和关闭
+    */
+    private async withConnection<T>(
+        connectionConfig: any,
+        callback: (connection: mysql.Connection) => Promise<T>
+    ): Promise<T> {
+        let connection: mysql.Connection | null = null;
         try {
-            const columns = await this.withConnection(datasourceId, async (connection) => {
-                // 获取数据库名称（用于查询）
-                const connectConfig = await credentialManager.mediator?.get(datasourceId);
-                const databaseName = connectConfig?.config?.database;
+            // 创建连接
+            connection = await mysql.createConnection(connectionConfig);
+            console.log('✅ [MySQL Connect] 数据库连接已建立');
 
-                // 查询列名
-                let query = 'SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = ? AND table_name = ?';
-                const values = [databaseName, tableName];
+            // 执行回调函数
+            const result = await callback(connection);
 
-                // 如果有搜索关键词，添加过滤条件
-                if (search) {
-                    query += ' AND COLUMN_NAME LIKE ?';
-                    values.push(`%${search}%`);
-                }
-
-                query += ' ORDER BY ORDINAL_POSITION';
-
-                const [rows] = await connection.execute(query, values);
-
-                // 格式化结果
-                return (rows as any[]).map((row) => ({
-                    value: row.COLUMN_NAME || row.column_name,
-                    label: row.COLUMN_NAME || row.column_name,
-                    description: `${row.DATA_TYPE || row.data_type}${row.IS_NULLABLE === 'YES' ? ' (可空)' : ' (非空)'}`
-                }));
-            });
-
-            return {
-                success: true,
-                data: columns
-            };
+            return result;
 
         } catch (error: any) {
-            console.error('❌ [MySQL Node] 获取列名失败:', error.message);
-            return {
-                success: false,
-                error: `获取列名失败: ${error.message}`
-            };
-        }
-    }
-
-    /**
-     * 获取数据库schema列表
-     */
-    private async getSchemaNames(datasourceId?: string, search?: string): Promise<IDatabaseMetadataResult> {
-        if (!datasourceId) {
-            return {
-                success: false,
-                error: '数据源ID不能为空'
-            };
-        }
-
-        try {
-            const schemas = await this.withConnection(datasourceId, async (connection) => {
-                // 查询schema名
-                let query = 'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA';
-                const values: string[] = [];
-
-                // 如果有搜索关键词，添加过滤条件
-                if (search) {
-                    query += ' WHERE SCHEMA_NAME LIKE ?';
-                    values.push(`%${search}%`);
+            console.error('❌ [MySQL Connect] 连接操作失败:', error.message);
+            throw error;
+        } finally {
+            // 确保连接总是被正确关闭
+            if (connection) {
+                try {
+                    await connection.end();
+                    console.log('✅ [MySQL Connect] 数据库连接已关闭');
+                } catch (closeError: any) {
+                    console.error('⚠️ [MySQL Connect] 关闭连接时出错:', closeError.message);
                 }
-
-                query += ' ORDER BY SCHEMA_NAME';
-
-                const [rows] = await connection.execute(query, values);
-
-                // 格式化结果
-                return (rows as any[]).map((row) => ({
-                    value: row.SCHEMA_NAME || row.schema_name,
-                    label: row.SCHEMA_NAME || row.schema_name
-                }));
-            });
-
-            return {
-                success: true,
-                data: schemas
-            };
-
-        } catch (error: any) {
-            console.error('❌ [MySQL Node] 获取schema失败:', error.message);
-            return {
-                success: false,
-                error: `获取schema失败: ${error.message}`
-            };
+            }
         }
     }
 
@@ -501,8 +359,6 @@ export class MySQLConnect extends BaseDatabaseConnect {
             } as IDatabaseExecutionResult;
         }
     }
-
-
 }
 
 /**
@@ -578,7 +434,6 @@ async function testWithMysqlDriver(config: Record<string, any>): Promise<{ drive
 
     return new Promise((resolve, reject) => {
         const connection = mysql.createConnection(connectionConfig);
-
         // 设置总超时时间
         const timeout = setTimeout(() => {
             connection.destroy();

@@ -30,10 +30,6 @@ export class ArrayHandle implements INode {
 			{
 				label: '处理类型',
 				fieldName: 'operation',
-				linkage: {
-					targets: ['sortField', 'sortOrder', 'filterField', 'filterOperator', 'filterValue', 'uniqueField', 'mapExpression', 'groupField', 'aggregateField', 'aggregateFunction', 'sliceStart', 'sliceEnd', 'joinSeparator'],
-					trigger: 'onChange'
-				},
 				control: {
 					name: 'selectwithdesc',
 					dataType: 'string',

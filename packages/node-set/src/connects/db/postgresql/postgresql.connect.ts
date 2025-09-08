@@ -1,6 +1,12 @@
-import { Icon, IDatabaseMetadataOptions, IDatabaseMetadataResult, credentialManager } from '@repo/common';
+import {
+    Icon,
+    IDatabaseMetadataOptions,
+    IDatabaseMetadataResult,
+    IDatabaseExecutionOptions,
+    IDatabaseExecutionResult,
+    ConnectTestResult
+} from '@repo/common';
 import { BaseDatabaseConnect } from '../../base/BaseDatabaseConnect';
-import { ConnectTestResult } from '@repo/common';
 import { Client } from 'pg';
 
 /**
@@ -176,22 +182,17 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
     }
 
     async metadata(opts: IDatabaseMetadataOptions): Promise<IDatabaseMetadataResult> {
-        console.log('🔧 [PostgreSQL Connect] metadata 方法被调用:', opts);
-
         try {
-            switch (opts.type) {
-                case 'tables':
-                    return await this.getTableNames(opts.datasourceId, opts.search);
-                case 'columns':
-                    return await this.getColumnNames(opts.datasourceId, opts.tableName, opts.search);
-                case 'schemas':
-                    return await this.getSchemaNames(opts.datasourceId, opts.search);
-                default:
-                    return {
-                        success: false,
-                        error: `不支持的元数据类型: ${opts.type}`
-                    };
-            }
+            const connectionConfig = {
+                host: opts.host,
+                port: opts.port,
+                user: opts.user,
+                password: opts.password,
+                database: opts.database,
+                ssl: opts.ssl ? { rejectUnauthorized: false } : false,
+                connectionTimeoutMillis: (opts.connectTimeout || 10) * 1000,
+            };
+            return await this.getTableNames(connectionConfig, opts.search);
         } catch (error: any) {
             console.error('❌ [PostgreSQL Connect] metadata 执行错误:', error.message);
             return {
@@ -204,40 +205,9 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
     /**
      * 获取表名列表
      */
-    private async getTableNames(datasourceId?: string, search?: string): Promise<IDatabaseMetadataResult> {
-        if (!datasourceId) {
-            return {
-                success: false,
-                error: '数据源ID不能为空'
-            };
-        }
-
+    private async getTableNames(connectionConfig?: any, search?: string): Promise<IDatabaseMetadataResult> {
         try {
-            // 获取连接配置
-            const connectConfig = await credentialManager.mediator?.get(datasourceId);
-            if (!connectConfig) {
-                return {
-                    success: false,
-                    error: `连接配置不存在: ${datasourceId}`
-                };
-            }
-
-            const configData = connectConfig.config;
-            const connectionConfig = {
-                host: configData.host || 'localhost',
-                port: configData.port || 5432,
-                database: configData.database,
-                user: configData.username || configData.user,
-                password: configData.password || '',
-                connectionTimeoutMillis: (configData.connectionTimeout || 30) * 1000,
-                ssl: configData.ssl || false
-            };
-
-            // 创建数据库连接
-            const client = new Client(connectionConfig);
-            await client.connect();
-
-            try {
+            const tables = await this.withConnection(connectionConfig, async (client) => {
                 // 查询表名
                 let query = 'SELECT tablename FROM pg_tables WHERE schemaname = $1';
                 const values = ['public'];
@@ -247,26 +217,20 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
                     query += ' AND tablename ILIKE $2';
                     values.push(`%${search}%`);
                 }
-
                 query += ' ORDER BY tablename';
 
                 const result = await client.query(query, values);
-
                 // 格式化结果
-                const tables = result.rows.map((row: any) => ({
+                return result.rows.map((row: any) => ({
                     value: row.tablename,
                     label: row.tablename
                 }));
+            });
 
-                return {
-                    success: true,
-                    data: tables
-                };
-
-            } finally {
-                // 关闭连接
-                await client.end();
-            }
+            return {
+                success: true,
+                data: tables
+            };
 
         } catch (error: any) {
             console.error('❌ [PostgreSQL Connect] 获取表名失败:', error.message);
@@ -278,170 +242,75 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
     }
 
     /**
-     * 获取表的列名列表
-     */
-    private async getColumnNames(datasourceId?: string, tableName?: string, search?: string): Promise<IDatabaseMetadataResult> {
-        if (!datasourceId) {
-            return {
-                success: false,
-                error: '数据源ID不能为空'
-            };
-        }
-
-        if (!tableName) {
-            return {
-                success: false,
-                error: '表名不能为空'
-            };
-        }
-
+    * 统一的连接管理函数
+    * 自动处理连接的创建、使用和关闭
+    */
+    private async withConnection<T>(
+        connectionConfig: any,
+        callback: (client: Client) => Promise<T>
+    ): Promise<T> {
+        let client: Client | null = null;
         try {
-            // 获取连接配置
-            const connectConfig = await credentialManager.mediator?.get(datasourceId);
-            if (!connectConfig) {
-                return {
-                    success: false,
-                    error: `连接配置不存在: ${datasourceId}`
-                };
-            }
-
-            const configData = connectConfig.config;
-            const connectionConfig = {
-                host: configData.host || 'localhost',
-                port: configData.port || 5432,
-                database: configData.database,
-                user: configData.username || configData.user,
-                password: configData.password || '',
-                connectionTimeoutMillis: (configData.connectionTimeout || 30) * 1000,
-                ssl: configData.ssl || false
-            };
-
-            // 创建数据库连接
-            const client = new Client(connectionConfig);
+            // 创建连接
+            client = new Client(connectionConfig);
             await client.connect();
+            console.log('✅ [PostgreSQL Connect] 数据库连接已建立');
 
-            try {
-                // 查询列名
-                let query = `
-                    SELECT 
-                        column_name, 
-                        data_type, 
-                        is_nullable, 
-                        column_default 
-                    FROM information_schema.columns 
-                    WHERE table_schema = $1 AND table_name = $2
-                `;
-                const values = ['public', tableName];
+            // 执行回调函数
+            const result = await callback(client);
 
-                // 如果有搜索关键词，添加过滤条件
-                if (search) {
-                    query += ' AND column_name ILIKE $3';
-                    values.push(`%${search}%`);
-                }
-
-                query += ' ORDER BY ordinal_position';
-
-                const result = await client.query(query, values);
-
-                // 格式化结果
-                const columns = result.rows.map((row: any) => ({
-                    value: row.column_name,
-                    label: row.column_name,
-                    description: `${row.data_type}${row.is_nullable === 'YES' ? ' (可空)' : ' (非空)'}`
-                }));
-
-                return {
-                    success: true,
-                    data: columns
-                };
-
-            } finally {
-                // 关闭连接
-                await client.end();
-            }
+            return result;
 
         } catch (error: any) {
-            console.error('❌ [PostgreSQL Connect] 获取列名失败:', error.message);
-            return {
-                success: false,
-                error: `获取列名失败: ${error.message}`
-            };
+            console.error('❌ [PostgreSQL Connect] 连接操作失败:', error.message);
+            throw error;
+        } finally {
+            // 确保连接总是被正确关闭
+            if (client) {
+                try {
+                    await client.end();
+                    console.log('✅ [PostgreSQL Connect] 数据库连接已关闭');
+                } catch (closeError: any) {
+                    console.error('⚠️ [PostgreSQL Connect] 关闭连接时出错:', closeError.message);
+                }
+            }
         }
     }
 
-    /**
-     * 获取数据库schema列表
-     */
-    private async getSchemaNames(datasourceId?: string, search?: string): Promise<IDatabaseMetadataResult> {
-        if (!datasourceId) {
-            return {
-                success: false,
-                error: '数据源ID不能为空'
-            };
-        }
-
+    async execute(opts: IDatabaseExecutionOptions): Promise<IDatabaseExecutionResult> {
         try {
-            // 获取连接配置
-            const connectConfig = await credentialManager.mediator?.get(datasourceId);
-            if (!connectConfig) {
-                return {
-                    success: false,
-                    error: `连接配置不存在: ${datasourceId}`
-                };
-            }
+            console.log('📍 [PostgreSQL Connect] 执行SQL:', {
+                sql: opts.sql,
+                params: opts.prams,
+                datasourceId: opts.datasourceId
+            });
 
-            const configData = connectConfig.config;
-            const connectionConfig = {
-                host: configData.host || 'localhost',
-                port: configData.port || 5432,
-                database: configData.database,
-                user: configData.username || configData.user,
-                password: configData.password || '',
-                connectionTimeoutMillis: (configData.connectionTimeout || 30) * 1000,
-                ssl: configData.ssl || false
-            };
+            const rows = await this.withConnection(opts.datasourceId, async (client) => {
+                const result = await client.query(opts.sql, Object.values(opts.prams || {}));
+                return result.rows;
+            });
 
-            // 创建数据库连接
-            const client = new Client(connectionConfig);
-            await client.connect();
+            console.log('📍 [PostgreSQL Connect] SQL执行成功:', {
+                rowCount: Array.isArray(rows) ? rows.length : 0,
+                dataType: typeof rows
+            });
 
-            try {
-                // 查询schema名
-                let query = 'SELECT schema_name FROM information_schema.schemata';
-                const values: string[] = [];
-
-                // 如果有搜索关键词，添加过滤条件
-                if (search) {
-                    query += ' WHERE schema_name ILIKE $1';
-                    values.push(`%${search}%`);
-                }
-
-                query += ' ORDER BY schema_name';
-
-                const result = await client.query(query, values);
-
-                // 格式化结果
-                const schemas = result.rows.map((row: any) => ({
-                    value: row.schema_name,
-                    label: row.schema_name
-                }));
-
-                return {
-                    success: true,
-                    data: schemas
-                };
-
-            } finally {
-                // 关闭连接
-                await client.end();
-            }
+            return {
+                success: true,
+                data: rows,
+            } as IDatabaseExecutionResult;
 
         } catch (error: any) {
-            console.error('❌ [PostgreSQL Connect] 获取schema失败:', error.message);
+            console.error('❌ [PostgreSQL Connect] 执行SQL失败:', {
+                message: error.message,
+                code: error.code,
+                sql: opts.sql,
+                params: opts.prams
+            });
             return {
                 success: false,
-                error: `获取schema失败: ${error.message}`
-            };
+                error: `执行SQL失败: ${error.message}`
+            } as IDatabaseExecutionResult;
         }
     }
 }

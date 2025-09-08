@@ -22,17 +22,11 @@ export interface UnifiedParameterInputProps {
   connectConfigs?: Array<{
     id: string;
     name: string;
-    ctype: string;
-    mtype: string;
-    nodeinfo: Record<string, any>;
     description?: string;
   }>; // 添加连接配置数据源
   onFetchConnectInstances?: (ctype: string) => Promise<Array<{
     id: string;
     name: string;
-    ctype: string;
-    mtype: string;
-    nodeinfo: Record<string, any>;
     description?: string;
   }>>; // 动态获取连接配置的回调
   onFetchConnectDetail?: (datasourceId: string) => Promise<{

@@ -132,13 +132,8 @@ export interface WorkflowCanvasProps {
   }>;
   // 连接配置查询回调，当NodeSettings需要特定类型的连接配置时调用
   onFetchConnectInstances?: (ctype?: string) => Promise<Array<{
-
     id: string;
     name: string;
-    ctype: string;
-    mtype: string;
-    nodeinfo: Record<string, any>;
-    description?: string;
   }>>;
   // 表名获取回调，当SelectFilter需要获取数据库表名时调用
   onFetchConnectDetail?: (datasourceId: string) => Promise<{

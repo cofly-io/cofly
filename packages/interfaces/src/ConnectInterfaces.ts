@@ -150,11 +150,26 @@ export interface IDatabaseConnectConfig {
     instance?: string; // SQL Server
 }
 
+export interface MetadataResult {
+    success: boolean;
+    data?: Array<{
+        value: string;
+        label: string;
+        description?: string;
+    }>;
+    error?: string;
+}
+
 export interface IDatabaseMetadataOptions {
-    type: 'tables' | 'columns' | 'schemas' | 'models';
-    datasourceId?: string;
-    tableName?: string;
+    host:string;
+    port: number;
+    database: string;
+    user: string;
+    password: string;
+    connectTimeout:number;
+    ssl: boolean;
     search?: string;
+    charset?:string;
 }
 
 export interface IDatabaseMetadataResult {

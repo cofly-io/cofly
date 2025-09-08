@@ -21,10 +21,10 @@ import {
     SQLText,
     Note,
     TextArea,
-    AIhelp
+    AIhelp,
+    SelecConnect,
+    SqlCode
 } from '../../controls';
-import { SqlCode } from '../../controls/sqlcode';
-import { SelecConnect } from '../../controls/selectconnect';
 
 import { UnifiedParameterInputProps } from './types';
 import {
@@ -85,7 +85,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
     const { shouldShow, shouldEnable } = useFieldVisibility(field, formValues, addedFields);
 
     // 联动数据管理
-    const { linkageData, linkageLoading, linkageError } = useLinkageData(field, formValues, linkageCallbacks);
+    const { linkageData, linkageLoading, linkageError } = useLinkageData(field, formValues, allFields, linkageCallbacks);
 
     // 动态连接配置状态
     const [dynamicConnectConfigs, setDynamicConnectConfigs] = useState(connectConfigs);
@@ -93,38 +93,72 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
     // AI助手loading状态
     const [aiLoading, setAiLoading] = useState(false);
 
-    // 处理 selectconnect 类型字段的连接配置获取
-    useEffect(() => {
-        if (field.control.name === 'selectconnect') {
-            const fetchConfigs = async () => {
-                const dataSourceType = field.dataSourceType;
-                if (dataSourceType && onFetchConnectInstances) {
-                    try {
-                        const configs = await onFetchConnectInstances(dataSourceType);
-                        const configsWithMtype = configs.map(config => ({
-                            ...config,
-                            mtype: config.mtype
-                        }));
-                        setDynamicConnectConfigs(configsWithMtype);
-                    } catch (error) {
-                        console.error('❌ [UnifiedParameterInput] 获取连接配置失败:', error);
-                        const filteredConfigs = connectConfigs.filter(config =>
-                            dataSourceType ? (config.mtype === dataSourceType || config.ctype === dataSourceType) : true
-                        );
-                        setDynamicConnectConfigs(filteredConfigs);
-                    }
-                } else {
-                    const filteredConfigs = connectConfigs.filter(config => {
-                        if (!dataSourceType) return true;
-                        return config.mtype === dataSourceType || config.ctype === dataSourceType;
-                    });
-                    setDynamicConnectConfigs(filteredConfigs);
-                }
-            };
+    // 通用的动态配置获取方法
+    const fetchDynamicConfigs = async (dataSourceType?: string) => {
+        if (dataSourceType && onFetchConnectInstances) {
+            try {
+                const configs = await onFetchConnectInstances(dataSourceType);
+                console.log("configs", configs);
+                setDynamicConnectConfigs(configs);
+            } catch (error) {
+                console.error('❌ [UnifiedParameterInput] 获取连接配置失败:', error);
+            }
+        } 
+    };
 
-            fetchConfigs();
+    // 处理需要数据源类型的控件的动态配置获取和联动逻辑
+    useEffect(() => {
+        const controlsWithDataSource = ['select', 'selectfilter', 'selectwithdesc', 'selectconnect', 'inputselect'];
+        const controlsWithLinkage = ['select', 'selectfilter', 'selectwithdesc', 'selectconnect'];
+
+        // 处理数据源类型的动态配置获取
+        if (controlsWithDataSource.includes(field.control.name) && field.control.dataSourceType) {
+            fetchDynamicConfigs(field.control.dataSourceType);
         }
-    }, [field.control.name, field.dataSourceType, field.fieldName, onFetchConnectInstances, connectConfigs]);
+
+        // 处理联动逻辑：当控件有linkage配置且targets存在时，监听该字段的值变化
+        if (controlsWithLinkage.includes(field.control.name) && field.control.linkage?.targets && field.control.linkage.targets.length > 0) {
+            const currentValue = formValues[field.fieldName];
+
+            // 当当前控件的值发生变化时，触发联动逻辑
+            if (currentValue && onFetchConnectDetail) {
+                console.log('🔗 [UnifiedParameterInput] 触发联动逻辑:', {
+                    fieldName: field.fieldName,
+                    controlName: field.control.name,
+                    targets: field.control.linkage.targets,
+                    currentValue
+                });
+
+                // 为每个target字段执行数据获取
+                field.control.linkage.targets.forEach(async (targetFieldName: string) => {
+                    try {
+                        let datasourceId = currentValue;
+                        console.log('📞 [UnifiedParameterInput] 为目标字段获取数据:', {
+                            targetFieldName,
+                            datasourceId
+                        });
+
+                        // 执行联动数据获取
+                        // const result = await onFetchConnectDetail(datasourceId);
+
+                        // 如果有linkageCallbacks，也通过其更新目标字段数据
+                        if (linkageCallbacks?.fetchConnectDetail) {
+                            const linkageData = await linkageCallbacks.fetchConnectDetail(datasourceId);
+                            console.log('✅ [UnifiedParameterInput] 联动数据获取成功:', {
+                                targetFieldName,
+                                dataCount: linkageData.length
+                            });
+                        }
+                    } catch (error) {
+                        console.error('❌ [UnifiedParameterInput] 联动数据获取失败:', {
+                            targetFieldName,
+                            error
+                        });
+                    }
+                });
+            }
+        }
+    }, [field.control.name, field.control.dataSourceType, field.fieldName, field.control.linkage, formValues[field.fieldName], onFetchConnectInstances, onFetchConnectDetail, linkageCallbacks, connectConfigs]);
 
     // 通用的验证错误检查函数
     const hasValidationError = (fieldName: string) => {
@@ -250,14 +284,6 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
         const errorMessage = hasValidationError(field.fieldName) ? '此字段为必填项' : undefined;
 
         // 只在 node 模式下显示的控件
-        // const nodeOnlyControls = ['button', 'card', 'jscode', 'cmdcode', 'sqlcode', 'selectfilter', 
-        //                          'selectwithdesc', 'selectconnect', 'selectadd', 'slider', 'switch', 
-        //                          'sqltext', 'note', 'collection'];
-
-        // if (nodeOnlyControls.includes(controlName) && variant !== 'node') {
-        //   return null;
-        // }
-
         switch (controlName) {
             case 'button':
                 return (
@@ -418,16 +444,45 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             case 'select': {
                 if (variant === 'node') {
                     // node 模式下使用 SelectControl 组件
-                    const selectOptions = controlConfig.options?.map((opt: any) => ({
-                        value: opt.value,
-                        label: opt.name || String(opt.value)
-                    })) || [];
+                    // 优先使用动态配置，回退到静态配置
+                    const selectOptions = field.control.dataSourceType && dynamicConnectConfigs.length > 0
+                        ? dynamicConnectConfigs.map(config => ({
+                            value: config.id,
+                            label: config.name || String(config.id)
+                        }))
+                        : controlConfig.options?.map((opt: any) => ({
+                            value: opt.value,
+                            label: opt.name || String(opt.value)
+                        })) || [];
+
+                    // 处理联动onChange事件
+                    const handleSelectChange = (val: any) => {
+                        onChange(field.fieldName, val);
+
+                        // 处理联动逻辑
+                        if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail && val) {
+                            console.log('🔗 [select] 触发联动逻辑:', {
+                                fieldName: field.fieldName,
+                                targets: field.control.linkage.targets,
+                                selectedValue: val
+                            });
+
+                            field.control.linkage.targets.forEach(async (targetFieldName: string) => {
+                                try {
+                                    await onFetchConnectDetail(val);
+                                    console.log('✅ [select] 联动数据获取成功:', { targetFieldName });
+                                } catch (error) {
+                                    console.error('❌ [select] 联动数据获取失败:', { targetFieldName, error });
+                                }
+                            });
+                        }
+                    };
 
                     const control = (
                         <SelectControl
                             options={selectOptions}
                             value={value}
-                            onChange={(val) => onChange(field.fieldName, val)}
+                            onChange={handleSelectChange}
                             placeholder={field.description || controlConfig.placeholder}
                             error={errorMessage}
                         />
@@ -435,14 +490,47 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                     return renderWithOptionalLabel(control);
                 } else {
                     // connect 模式下使用样式化的 select
+                    const selectOptions = field.control.dataSourceType && dynamicConnectConfigs.length > 0
+                        ? dynamicConnectConfigs
+                        : controlConfig.options || [];
+
+                    // 处理联动onChange事件
+                    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+                        const val = e.target.value;
+                        onChange(field.fieldName, val);
+
+                        // 处理联动逻辑
+                        if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail && val) {
+                            console.log('🔗 [select] 触发联动逻辑:', {
+                                fieldName: field.fieldName,
+                                targets: field.control.linkage.targets,
+                                selectedValue: val
+                            });
+
+                            field.control.linkage.targets.forEach(async (targetFieldName: string) => {
+                                try {
+                                    await onFetchConnectDetail(val);
+                                    console.log('✅ [select] 联动数据获取成功:', { targetFieldName });
+                                } catch (error) {
+                                    console.error('❌ [select] 联动数据获取失败:', { targetFieldName, error });
+                                }
+                            });
+                        }
+                    };
+
                     const control = (
-                        <StyledSelect $variant={variant} value={value || ''} onChange={(e) => onChange(field.fieldName, e.target.value)}>
+                        <StyledSelect $variant={variant} value={value || ''} onChange={handleSelectChange}>
                             <option value="">选择一个选项</option>
-                            {controlConfig.options?.map((option: any) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.name || option.value}
-                                </option>
-                            ))}
+                            {selectOptions.map((option: any) => {
+                                // 处理动态配置和静态配置的不同格式
+                                const optionValue = option.id || option.value;
+                                const optionLabel = option.name || option.label || optionValue;
+                                return (
+                                    <option key={optionValue} value={optionValue}>
+                                        {optionLabel}
+                                    </option>
+                                );
+                            })}
                         </StyledSelect>
                     );
                     return renderWithOptionalLabel(control);
@@ -476,19 +564,54 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             }
 
             case 'selectfilter': {
-                const hasLinkageData = field.linkage?.dependsOn && linkageData.length > 0;
-                const selectFilterOptions = hasLinkageData
-                    ? linkageData.map(item => ({ label: item.label, value: item.value }))
-                    : controlConfig.options?.map((opt: any) => ({
+                // 使用新的联动数据，基于targeting机制
+                let selectFilterOptions = [];
+
+                if (linkageData.length > 0) {
+                    // 优先使用联动数据
+                    selectFilterOptions = linkageData.map(item => ({ label: item.label, value: item.value }));
+                } else if (field.control.dataSourceType && dynamicConnectConfigs.length > 0) {
+                    // 使用动态配置
+                    selectFilterOptions = dynamicConnectConfigs.map(config => ({
+                        label: config.name,
+                        value: config.id
+                    }));
+                } else {
+                    // 回退到静态配置
+                    selectFilterOptions = controlConfig.options?.map((opt: any) => ({
                         value: opt.value,
                         label: opt.name || String(opt.value)
                     })) || [];
+                }
+
+                // 处理联动onChange事件
+                const handleSelectFilterChange = (val: any) => {
+                    onChange(field.fieldName, val);
+
+                    // 处理联动逻辑
+                    if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail && val) {
+                        console.log('🔗 [selectfilter] 触发联动逻辑:', {
+                            fieldName: field.fieldName,
+                            targets: field.control.linkage.targets,
+                            selectedValue: val
+                        });
+
+                        field.control.linkage.targets.forEach(async (targetFieldName: string) => {
+                            try {
+                                await onFetchConnectDetail(val);
+                                console.log('✅ [selectfilter] 联动数据获取成功:', { targetFieldName });
+                            } catch (error) {
+                                console.error('❌ [selectfilter] 联动数据获取失败:', { targetFieldName, error });
+                            }
+                        });
+                    }
+                };
 
                 const control = (
                     <SelectFilter
                         options={selectFilterOptions}
                         value={value}
-                        onChange={(val) => onChange(field.fieldName, val)}
+                        onChange={handleSelectFilterChange}
                         placeholder={field.description || controlConfig.placeholder}
                         disabled={!shouldEnable || linkageLoading}
                         loading={linkageLoading}
@@ -500,15 +623,52 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             }
 
             case 'selectwithdesc': {
+                let datasource = [];
+
+                if (field.control.dataSourceType && dynamicConnectConfigs.length > 0) {
+                    // 使用动态配置
+                    datasource = dynamicConnectConfigs.map(config => ({
+                        value: config.id,
+                        text: config.name,
+                        description: config.description
+                    }));
+                } else {
+                    // 回退到静态配置
+                    datasource = controlConfig.options?.map((opt: any) => ({
+                        value: opt.value,
+                        text: opt.name || opt.value,
+                        description: opt.description
+                    })) || [];
+                }
+
+                // 处理联动onChange事件
+                const handleSelectWithDescChange = (value: string | number) => {
+                    onChange(field.fieldName, value);
+
+                    // 处理联动逻辑
+                    if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail && value) {
+                        console.log('🔗 [selectwithdesc] 触发联动逻辑:', {
+                            fieldName: field.fieldName,
+                            targets: field.control.linkage.targets,
+                            selectedValue: value
+                        });
+
+                        field.control.linkage.targets.forEach(async (targetFieldName: string) => {
+                            try {
+                                await onFetchConnectDetail(value as string);
+                                console.log('✅ [selectwithdesc] 联动数据获取成功:', { targetFieldName });
+                            } catch (error) {
+                                console.error('❌ [selectwithdesc] 联动数据获取失败:', { targetFieldName, error });
+                            }
+                        });
+                    }
+                };
+
                 const control = (
                     <SelectWithDesc
-                        datasource={controlConfig.options?.map((opt: any) => ({
-                            value: opt.value,
-                            text: opt.name || opt.value,
-                            description: opt.description
-                        })) || []}
+                        datasource={datasource}
                         value={value}
-                        onChange={(value: string | number) => onChange(field.fieldName, value)}
+                        onChange={handleSelectWithDescChange}
                         placeholder={field.description || controlConfig.placeholder}
                     />
                 );
@@ -516,12 +676,21 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             }
 
             case 'inputselect': {
-                const hasInputSelectLinkageData = field.linkage?.dependsOn && linkageData.length > 0;
-                const inputSelectOptions = hasInputSelectLinkageData
-                    ? linkageData.map(item => item.label || item.value || item)
-                    : controlConfig.options?.map((option: any) =>
+                // 使用新的联动数据，基于targeting机制
+                let inputSelectOptions = [];
+
+                if (linkageData.length > 0) {
+                    // 优先使用联动数据
+                    inputSelectOptions = linkageData.map(item => item.label || item.value || item);
+                } else if (field.control.dataSourceType && dynamicConnectConfigs.length > 0) {
+                    // 使用动态配置
+                    inputSelectOptions = dynamicConnectConfigs.map(config => config.name || config.id);
+                } else {
+                    // 回退到静态配置
+                    inputSelectOptions = controlConfig.options?.map((option: any) =>
                         typeof option === 'string' ? option : (option.name || option.value)
                     ) || [];
+                }
 
                 const control = (
                     <InputSelect
@@ -537,43 +706,45 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
 
             case 'selectconnect':
-                const connectDatasource = dynamicConnectConfigs.map(config => {
-                    const connectInfo = {
-                        id: config.id,
-                        ctype: config.ctype,
-                        mtype: config.mtype
-                    };
-                    return {
-                        value: JSON.stringify(connectInfo),
-                        text: config.name,
-                        description: config.description || `${config.mtype || config.ctype} 连接`
-                    };
-                });
+                const connectDatasource = dynamicConnectConfigs.map(config => ({
+                    value: config.id,
+                    text: config.name,
+                    ...(config.description && { description: config.description })
+                }));
 
-                // 处理 selectconnect 的 onChange 事件，value 包含完整的连接信息
+                // 处理 selectconnect 的 onChange 事件，同时处理联动逻辑
                 const handleSelectConnectChange = (selectedValue: string | number) => {
                     try {
                         // 解析 JSON 格式的 value
-                        const connectInfo = JSON.parse(selectedValue as string);
+                        // const connectInfo = JSON.parse(selectedValue as string);
 
                         // 保存完整的连接信息到字段值
                         onChange(field.fieldName, selectedValue);
 
-                        // 约束：只有当 selectconnect 字段配置了 linkage 时，才触发联动逻辑
-                        // if (field.linkage && field.linkage.targets && field.linkage.targets.length > 0) {
-                        //   console.log('🔗 [selectconnect] 触发联动逻辑:', {
-                        //     fieldName: field.name,
-                        //     targets: field.linkage.targets,
-                        //     selectedValue
-                        //   });
-                        //   // 联动逻辑会由 useLinkageData hook 自动处理
-                        // } else {
-                        //   console.log('⚠️ [selectconnect] 跳过联动逻辑 - 未配置 linkage:', {
-                        //     fieldName: field.name,
-                        //     hasLinkage: !!field.linkage,
-                        //     hasTargets: !!(field.linkage?.targets?.length)
-                        //   });
-                        // }
+                        // 处理联动逻辑：当字段配置了 linkage 且有 targets 时
+                        if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail) {
+                            console.log('🔗 [selectconnect] 触发联动逻辑:', {
+                                fieldName: field.fieldName,
+                                targets: field.control.linkage.targets,
+                                connectId: selectedValue
+                            });
+
+                            // 为每个目标字段获取数据
+                            field.control.linkage.targets.forEach(async (targetFieldName: string) => {
+                                try {
+                                    const result = await onFetchConnectDetail(selectedValue as string);
+                                    console.log('✅ [selectconnect] 联动数据获取成功:', {
+                                        targetFieldName,
+                                        tableCount: result.tableOptions?.length || 0
+                                    });
+                                } catch (error) {
+                                    console.error('❌ [selectconnect] 联动数据获取失败:', {
+                                        targetFieldName,
+                                        error
+                                    });
+                                }
+                            });
+                        }
                     } catch (error) {
                         console.error('❌ [UnifiedParameterInput] 解析连接信息失败:', error);
                         // 如果解析失败，按旧格式处理（向后兼容）
@@ -581,117 +752,15 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                     }
                 };
 
-                // 处理 value 的兼容性显示
-                const getDisplayValue = () => {
-                    if (!value) return value;
-
-                    try {
-                        // 尝试解析为 JSON，如果成功说明是新格式
-                        JSON.parse(value as string);
-                        return value; // 新格式直接返回
-                    } catch {
-                        // 解析失败说明是旧格式（简单ID），需要转换为新格式
-                        const matchedConfig = dynamicConnectConfigs.find(config => config.id === value);
-                        if (matchedConfig) {
-                            return JSON.stringify({
-                                id: matchedConfig.id,
-                                ctype: matchedConfig.ctype,
-                                mtype: matchedConfig.mtype
-                            });
-                        }
-                        return value; // 如果找不到匹配的配置，返回原值
-                    }
-                };
-
-                const displayValue = getDisplayValue();
-
-                // 在 collection 内部时，标签已经在外层渲染，这里只返回控件
-                if (isInCollection) {
-                    return (
-                        <SelecConnect
-                            datasource={connectDatasource}
-                            value={displayValue}
-                            onChange={handleSelectConnectChange}
-                            placeholder={field.description || field.control?.placeholder || '请选择连接'}
-                        />
-                    );
-                }
-
-                return (
-                    <>
-                        {renderLabel()}
-                        <SelecConnect
-                            datasource={connectDatasource}
-                            value={displayValue}
-                            onChange={handleSelectConnectChange}
-                            placeholder={field.description ||  field.control?.placeholder  || '请选择连接'}
-                        />
-                    </>
+                const control = (
+                    <SelecConnect
+                        datasource={connectDatasource}
+                        value={value}
+                        onChange={handleSelectConnectChange}
+                        placeholder={field.description || field.control?.placeholder || '请选择连接'}
+                    />
                 );
-
-            // case 'selectconnect':
-            //     const connectDatasource = dynamicConnectConfigs.map(config => {
-            //         const connectInfo = {
-            //             id: config.id,
-            //             ctype: config.ctype,
-            //             mtype: config.mtype
-            //         };
-            //         return {
-            //             value: JSON.stringify(connectInfo),
-            //             text: config.name,
-            //             description: config.description || `${config.mtype || config.ctype} 连接`
-            //         };
-            //     });
-
-            //     // 处理 selectconnect 的 onChange 事件，value 包含完整的连接信息
-            //     const handleSelectConnectChange = (selectedValue: string | number) => {
-            //         try {
-            //             // 解析 JSON 格式的 value
-            //             // const connectInfo = JSON.parse(selectedValue as string);
-
-            //             // 保存完整的连接信息到字段值
-            //             onChange(field.fieldName, selectedValue);
-            //         } catch (error) {
-            //             console.error('❌ [UnifiedParameterInput] 解析连接信息失败:', error);
-            //             // 如果解析失败，按旧格式处理（向后兼容）
-            //             onChange(field.fieldName, selectedValue);
-            //         }
-            //     };
-
-            //     // 处理 value 的兼容性显示
-            //     const getDisplayValue = () => {
-            //         if (!value) return value;
-
-            //         try {
-            //             // 尝试解析为 JSON，如果成功说明是新格式
-            //             JSON.parse(value as string);
-            //             return value; // 新格式直接返回
-            //         } catch {
-            //             // 解析失败说明是旧格式（简单ID），需要转换为新格式
-            //             const matchedConfig = dynamicConnectConfigs.find(config => config.id === value);
-            //             if (matchedConfig) {
-            //                 return JSON.stringify({
-            //                     id: matchedConfig.id,
-            //                     ctype: matchedConfig.ctype,
-            //                     mtype: matchedConfig.mtype
-            //                 });
-            //             }
-            //             return value; // 如果找不到匹配的配置，返回原值
-            //         }
-            //     };
-
-            //     const displayValue = getDisplayValue();
-
-
-            //     const control = (
-            //         <SelecConnect
-            //             datasource={connectDatasource}
-            //             value={displayValue}
-            //             onChange={(val) => onChange(field.fieldName, val)}
-            //             placeholder={field.description || controlConfig.placeholder}
-            //         />
-            //     );
-            //     return renderWithOptionalLabel(control);
+                return renderWithOptionalLabel(control);
 
             case 'selectadd': {
                 // selectadd 控件的特殊处理逻辑

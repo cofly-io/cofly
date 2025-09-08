@@ -23,12 +23,12 @@ export class AiAgentSystem implements INode {
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',
-                    connectType: "llm",
-                    validation: { required: true }
+                    dataSourceType: "llm",
+                    validation: { required: true },
+                    linkage: {
+                        targets: ['model']
+                    }
                 },
-                linkage: {
-                    targets: ['model']
-                }
             },
             {
                 label: '模型名称',
@@ -37,9 +37,6 @@ export class AiAgentSystem implements INode {
                     name: 'input',
                     dataType: 'string',
                     validation: { required: true }
-                },
-                linkage: {
-                    dependsOn: 'connectid'
                 }
             },
             {

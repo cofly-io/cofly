@@ -46,16 +46,16 @@ export type {
 
     // ToastType,
     // AI 相关类型
-    AiEvent,
+    // AiEvent,
     
     // 赋值相关类型
-    AssignmentCollectionValue,
+    // AssignmentCollectionValue,
     // AssignmentTypeOptions,
     
     // 二进制数据类型
-    BinaryFileType,
-    IBinaryData,
-    IBinaryKeyData,
+    // BinaryFileType,
+    // IBinaryData,
+    // IBinaryKeyData,
     
     // 分类相关类型
     CatalogType,
@@ -77,14 +77,14 @@ export type {
     IConnectRegistry,
     
     // 上下文相关类型
-    ContextType,
-    IContextObject,
+    // ContextType,
+    // IContextObject,
     
     // 凭证相关类型
     CredentialData,
     CredentialInformation,
     CredentialListOptions,
-    ICredentialDataDecryptedObject,
+    // ICredentialDataDecryptedObject,
     ICredentialLoader,
     
     // 数据库相关类型
@@ -104,17 +104,18 @@ export type {
     // EnsureTypeOptions,
     
     // 执行相关类型
-    IExecuteData,
+    // IExecuteData,
     IExecuteResult,
     IExecuteOptions,
+    MetadataResult,
     // IExecuteSingleFunctions,
     
     // 表达式相关类型
-    ExpressionString,
+    // ExpressionString,
     
     // 字段相关类型
-    FieldType,
-    FieldTypeMap,
+    // FieldType,
+    // FieldTypeMap,
     IFieldLinkageConfig,
     
     FilterValue,
@@ -123,7 +124,7 @@ export type {
     // FunctionsBase,
     
     // 通用值类型
-    GenericValue,
+    CommonValue,
     
     // HTTP 相关类型
     HttpAuthType,
@@ -170,31 +171,31 @@ export type {
     // INodeCredentials,
     // INodeCredentialsDetails,
     INodeDetail,
-    INodeExecutionData,
+    // INodeExecutionData,
     ComponentType,
     INodeFields,
     IControlConfiguration,
     INodePropertyOption,
-    INodeInputConfiguration,
-    INodeInputFilter,
-    INodeOutputConfiguration,
-    INodeParameterResourceLocator,
+    // INodeInputConfiguration,
+    // INodeInputFilter,
+    // INodeOutputConfiguration,
+    // INodeParameterResourceLocator,
     // INodeParameters,
     // INodePropertyCollection,
     // INodePropertyMode,
     INodePropertyModeTypeOptions,
     INodePropertyModeValidation,
     // INodePropertyOptions,
-    INodePropertyRouting,
+    // INodePropertyRouting,
     //INodePropertyTypeOptions,
     // INodeRequestOutput,
-    INodeTypeBaseDescription,
+    // INodeTypeBaseDescription,
     INodes,
     IWebhookMessage,
     NodeGroupType,
     NodeLinkType,
     AvailableResource,
-    NodeParameterValue,
+    // NodeParameterValue,
     // NodeParameterValueType,
     NodePropertyTypes,
     NodeTestResults,
@@ -204,16 +205,16 @@ export type {
     StatusType,
     
     // 可观察对象类型
-    IObservableObject,
+    // IObservableObject,
     
     // 错误处理类型
-    OnError,
+    // OnError,
     
     // 配对项数据类型
-    IPairedItemData,
+    // IPairedItemData,
     
     // Pin 数据类型
-    IPinData,
+    // IPinData,
     
     // 插件相关类型
     IPluginLoader,
@@ -227,26 +228,26 @@ export type {
     // ProxyInput,
     
     // 相关执行类型
-    RelatedExecution,
+    // RelatedExecution,
     
     // 请求选项类型
-    IRequestOptionsSimplifiedAuth,
+    // IRequestOptionsSimplifiedAuth,
     
     // 资源定位器相关类型
-    IResourceLocatorResult,
-    ResourceLocatorModes,
-    ResourceMapperTypeOptionsExternal,
-    ResourceMapperTypeOptionsLocal,
-    ResourceMapperValue,
+    // IResourceLocatorResult,
+    // ResourceLocatorModes,
+    // ResourceMapperTypeOptionsExternal,
+    // ResourceMapperTypeOptionsLocal,
+    // ResourceMapperValue,
 
     // 源数据类型
-    ISourceData,
+    // ISourceData,
     
     // 任务相关类型
-    ITaskDataConnections,
-    ITaskDataConnectionsSource,
-    ITaskMetadata,
-    ITaskSubRunMetadata,
+    // ITaskDataConnections,
+    // ITaskDataConnectionsSource,
+    // ITaskMetadata,
+    // ITaskSubRunMetadata,
     
     // 测试结果类型
     TestResult,
@@ -255,7 +256,7 @@ export type {
     Themed,
     
     // 版本化节点类型
-    IVersionedNodeType,
+    // IVersionedNodeType,
     
     // 工作流相关类型
     // IWorkflowDataProxyData,

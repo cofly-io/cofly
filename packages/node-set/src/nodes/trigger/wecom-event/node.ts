@@ -26,11 +26,11 @@ export class WecomEvent implements INode{
             {
                 label: '企业微信连接',
                 fieldName: 'credential',
-                description: '选择企业微信连接配置',
-                dataSourceType: 'wecom',
+                description: '选择企业微信连接配置',                
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',
+                    dataSourceType: 'wecom',
                     validation: { required: true },
                     defaultValue: ''
                 }

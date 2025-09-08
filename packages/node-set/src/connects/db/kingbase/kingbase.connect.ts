@@ -1,5 +1,11 @@
-import { Icon } from '@repo/common';
-import { ConnectTestResult } from '@repo/common';
+import {
+    Icon,
+    IDatabaseMetadataOptions,
+    IDatabaseMetadataResult,
+    IDatabaseExecutionOptions,
+    IDatabaseExecutionResult,
+    ConnectTestResult
+} from '@repo/common';
 import { BaseDatabaseConnect } from '../../base/BaseDatabaseConnect';
 
 /**
@@ -258,6 +264,157 @@ export class KingbaseConnect extends BaseDatabaseConnect {
                 message: `KingbaseES连接失败: ${error instanceof Error ? error.message : String(error)}`,
                 latency: Date.now() - startTime
             };
+        }
+    }
+
+    async metadata(opts: IDatabaseMetadataOptions): Promise<IDatabaseMetadataResult> {
+        try {
+            const connectionConfig = {
+                user: opts.user,
+                host: opts.host,
+                database: opts.database,
+                password: opts.password,
+                port: opts.port,
+                ssl: opts.ssl ? { rejectUnauthorized: false } : false,
+                statement_timeout: (opts.connectTimeout || 30) * 1000,
+                query_timeout: (opts.connectTimeout || 30) * 1000,
+                connectionTimeoutMillis: (opts.connectTimeout || 30) * 1000
+            };
+            return await this.getTableNames(connectionConfig, opts.search);
+        } catch (error: any) {
+            console.error('❌ [KingbaseES Connect] metadata 执行错误:', error.message);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * 获取表名列表
+     */
+    private async getTableNames(connectionConfig?: any, search?: string): Promise<IDatabaseMetadataResult> {
+        try {
+            const tables = await this.withConnection(connectionConfig, async (client) => {
+                // 查询表名
+                let query = 'SELECT tablename FROM pg_tables WHERE schemaname = $1';
+                const values = ['public'];
+
+                // 如果有搜索关键词，添加过滤条件
+                if (search) {
+                    query += ' AND tablename ILIKE $2';
+                    values.push(`%${search}%`);
+                }
+                query += ' ORDER BY tablename';
+
+                const result = await client.query(query, values);
+                // 格式化结果
+                return result.rows.map((row: any) => ({
+                    value: row.tablename,
+                    label: row.tablename
+                }));
+            });
+
+            return {
+                success: true,
+                data: tables
+            };
+
+        } catch (error: any) {
+            console.error('❌ [KingbaseES Connect] 获取表名失败:', error.message);
+            return {
+                success: false,
+                error: `获取表名失败: ${error.message}`
+            };
+        }
+    }
+
+    /**
+    * 统一的连接管理函数
+    * 自动处理连接的创建、使用和关闭
+    */
+    private async withConnection<T>(
+        connectionConfig: any,
+        callback: (client: any) => Promise<T>
+    ): Promise<T> {
+        let client: any = null;
+        try {
+            // 尝试使用官方KingbaseES驱动或PostgreSQL兼容驱动
+            let Client: any;
+            let driverUsed = '';
+            
+            try {
+                // 首先尝试使用官方KingbaseES驱动
+                const kbModule = await import('kb');
+                Client = (kbModule as any).Client;
+                driverUsed = 'KingbaseES官方驱动(kb)';
+            } catch (kbError) {
+                // 如果官方驱动不可用，尝试使用PostgreSQL兼容驱动
+                const pgModule = await import('pg');
+                Client = (pgModule as any).Client;
+                driverUsed = 'PostgreSQL兼容驱动(pg)';
+            }
+
+            // 创建连接
+            client = new Client(connectionConfig);
+            await client.connect();
+            console.log(`✅ [KingbaseES Connect] 数据库连接已建立 (${driverUsed})`);
+
+            // 执行回调函数
+            const result = await callback(client);
+
+            return result;
+
+        } catch (error: any) {
+            console.error('❌ [KingbaseES Connect] 连接操作失败:', error.message);
+            throw error;
+        } finally {
+            // 确保连接总是被正确关闭
+            if (client) {
+                try {
+                    await client.end();
+                    console.log('✅ [KingbaseES Connect] 数据库连接已关闭');
+                } catch (closeError: any) {
+                    console.error('⚠️ [KingbaseES Connect] 关闭连接时出错:', closeError.message);
+                }
+            }
+        }
+    }
+
+    async execute(opts: IDatabaseExecutionOptions): Promise<IDatabaseExecutionResult> {
+        try {
+            console.log('📍 [KingbaseES Connect] 执行SQL:', {
+                sql: opts.sql,
+                params: opts.prams,
+                datasourceId: opts.datasourceId
+            });
+
+            const rows = await this.withConnection(opts.datasourceId, async (client) => {
+                const result = await client.query(opts.sql, Object.values(opts.prams || {}));
+                return result.rows;
+            });
+
+            console.log('📍 [KingbaseES Connect] SQL执行成功:', {
+                rowCount: Array.isArray(rows) ? rows.length : 0,
+                dataType: typeof rows
+            });
+
+            return {
+                success: true,
+                data: rows,
+            } as IDatabaseExecutionResult;
+
+        } catch (error: any) {
+            console.error('❌ [KingbaseES Connect] 执行SQL失败:', {
+                message: error.message,
+                code: error.code,
+                sql: opts.sql,
+                params: opts.prams
+            });
+            return {
+                success: false,
+                error: `执行SQL失败: ${error.message}`
+            } as IDatabaseExecutionResult;
         }
     }
 };

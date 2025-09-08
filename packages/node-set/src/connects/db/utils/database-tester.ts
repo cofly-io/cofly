@@ -10,7 +10,7 @@ import {
   OracleConnect,
   KingbaseConnect,
   DamengConnect
-} from '../index';
+} from '../../index';
 
 export type DatabaseProvider = 'mysql' | 'postgresql' | 'sqlserver' | 'oracle' |  'kingbase' | 'dameng';
 

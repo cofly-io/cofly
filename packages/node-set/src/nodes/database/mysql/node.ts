@@ -20,35 +20,29 @@ export class MySQL implements INode {
 			{
 				label: '连接源',
 				fieldName: 'datasource',
-				dataSourceType: "mysql",
 				control: {
 					name: 'selectconnect',
 					dataType: 'string',
+					dataSourceType: "mysql",
 					defaultValue: '',
-					validation: { required: true }
+					validation: { required: true },
+					linkage: {
+						targets: ['table'],
+					}
 				},
-				// 联动配置：影响表名字段
-				linkage: {
-					targets: ['table'],
-					trigger: 'onChange'
-				}
 			},
+			// 联动配置：影响表名字段
+
 			// 表名（除了执行SQL操作外都需要）
 			{
 				label: '表名',
-				fieldName: 'table',			
+				fieldName: 'table',
 				control: {
 					name: 'selectfilter',
 					dataType: 'string',
 					defaultValue: '',
 					validation: { required: true },
 					placeholder: '例如: users',
-				},
-				// 联动配置：依赖连接源字段
-				linkage: {
-					dependsOn: 'datasource',
-					// clearOnChange: true,
-					// enableWhen: (value) => !!value
 				}
 			},
 			// 操作类型选择器
@@ -92,7 +86,7 @@ export class MySQL implements INode {
 			{
 				label: '查询字段',
 				fieldName: 'columns',
-				
+
 				conditionRules: {
 					showBy: {
 						operation: ['select']
@@ -224,7 +218,7 @@ export class MySQL implements INode {
 		],
 	};
 
-	
+
 	async execute(opts: IExecuteOptions): Promise<any> {
 		const operation = opts.inputs?.operation;
 		let connection: mysql.Connection | null = null;

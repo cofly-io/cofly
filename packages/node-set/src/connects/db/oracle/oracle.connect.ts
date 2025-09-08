@@ -1,6 +1,12 @@
-import { Icon } from '@repo/common';
+import {
+    Icon,
+    IDatabaseMetadataOptions,
+    IDatabaseMetadataResult,
+    IDatabaseExecutionOptions,
+    IDatabaseExecutionResult,
+    ConnectTestResult
+} from '@repo/common';
 import { BaseDatabaseConnect } from '../../base/BaseDatabaseConnect';
-import { ConnectTestResult } from '@repo/common';
 
 /**
  * Oracle 数据库连接定义
@@ -204,7 +210,7 @@ export class OracleConnect extends BaseDatabaseConnect {
         const startTime = Date.now();
         try {
             // 验证必填字段
-            const requiredFields = ['host', 'port', 'database', 'username'];
+            const requiredFields = ['host', 'port', 'sid', 'username'];
             for (const field of requiredFields) {
                 if (!config[field]) {
                     return {
@@ -226,6 +232,143 @@ export class OracleConnect extends BaseDatabaseConnect {
                 message: `连接失败: ${error instanceof Error ? error.message : String(error)}`,
                 latency: Date.now() - startTime
             };
+        }
+    }
+
+    async metadata(opts: IDatabaseMetadataOptions): Promise<IDatabaseMetadataResult> {
+        try {
+            const connectionConfig = {
+                user: opts.user,
+                password: opts.password,
+                connectString: `${opts.host}:${opts.port}/${opts.database}`,
+                connectTimeout: (opts.connectTimeout || 30) * 1000,
+            };
+            return await this.getTableNames(connectionConfig, opts.search);
+        } catch (error: any) {
+            console.error('❌ [Oracle Connect] metadata 执行错误:', error.message);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * 获取表名列表
+     */
+    private async getTableNames(connectionConfig?: any, search?: string): Promise<IDatabaseMetadataResult> {
+        try {
+            const tables = await this.withConnection(connectionConfig, async (connection) => {
+                // 查询表名
+                let query = 'SELECT table_name FROM user_tables';
+                const values = [];
+
+                // 如果有搜索关键词，添加过滤条件
+                if (search) {
+                    query += ' WHERE table_name LIKE :search';
+                    values.push(`%${search.toUpperCase()}%`);
+                }
+                query += ' ORDER BY table_name';
+
+                const result = await connection.execute(query, values);
+                // 格式化结果
+                return (result.rows as any[]).map((row) => ({
+                    value: row[0],
+                    label: row[0]
+                }));
+            });
+
+            return {
+                success: true,
+                data: tables
+            };
+
+        } catch (error: any) {
+            console.error('❌ [Oracle Connect] 获取表名失败:', error.message);
+            return {
+                success: false,
+                error: `获取表名失败: ${error.message}`
+            };
+        }
+    }
+
+    /**
+    * 统一的连接管理函数
+    * 自动处理连接的创建、使用和关闭
+    */
+    private async withConnection<T>(
+        connectionConfig: any,
+        callback: (connection: any) => Promise<T>
+    ): Promise<T> {
+        let connection: any = null;
+        try {
+            // 尝试动态导入 oracledb 驱动
+            let oracledb: any;
+            try {
+                oracledb = await import('oracledb');
+            } catch (error) {
+                throw new Error(`Oracle驱动(oracledb)未安装: ${error instanceof Error ? error.message : String(error)}`);
+            }
+
+            // 创建连接
+            connection = await oracledb.getConnection(connectionConfig);
+            console.log('✅ [Oracle Connect] 数据库连接已建立');
+
+            // 执行回调函数
+            const result = await callback(connection);
+
+            return result;
+
+        } catch (error: any) {
+            console.error('❌ [Oracle Connect] 连接操作失败:', error.message);
+            throw error;
+        } finally {
+            // 确保连接总是被正确关闭
+            if (connection) {
+                try {
+                    await connection.close();
+                    console.log('✅ [Oracle Connect] 数据库连接已关闭');
+                } catch (closeError: any) {
+                    console.error('⚠️ [Oracle Connect] 关闭连接时出错:', closeError.message);
+                }
+            }
+        }
+    }
+
+    async execute(opts: IDatabaseExecutionOptions): Promise<IDatabaseExecutionResult> {
+        try {
+            console.log('📍 [Oracle Connect] 执行SQL:', {
+                sql: opts.sql,
+                params: opts.prams,
+                datasourceId: opts.datasourceId
+            });
+
+            const rows = await this.withConnection(opts.datasourceId, async (connection) => {
+                const result = await connection.execute(opts.sql, Object.values(opts.prams || {}));
+                return result.rows;
+            });
+
+            console.log('📍 [Oracle Connect] SQL执行成功:', {
+                rowCount: Array.isArray(rows) ? rows.length : 0,
+                dataType: typeof rows
+            });
+
+            return {
+                success: true,
+                data: rows,
+            } as IDatabaseExecutionResult;
+
+        } catch (error: any) {
+            console.error('❌ [Oracle Connect] 执行SQL失败:', {
+                message: error.message,
+                code: error.code,
+                sql: opts.sql,
+                params: opts.prams
+            });
+            return {
+                success: false,
+                error: `执行SQL失败: ${error.message}`
+            } as IDatabaseExecutionResult;
         }
     }
 }

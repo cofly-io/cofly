@@ -3,24 +3,16 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { UnifiedParameterField, LinkageCallbacks } from './types';
 import { getGlobalAddedFields, addFieldToGlobal, removeFieldFromGlobal, addFieldsToGlobal, removeFieldsFromGlobal } from './state-management';
 
-// 联动数据管理 Hook
-export const useLinkageData = (field: UnifiedParameterField, formValues: Record<string, any>, linkageCallbacks?: LinkageCallbacks) => {
+// 联动数据管理 Hook - 现在基于控件的target配置
+export const useLinkageData = (field: UnifiedParameterField, formValues: Record<string, any>, allFields: UnifiedParameterField[] = [], linkageCallbacks?: LinkageCallbacks) => {
   const [linkageData, setLinkageData] = useState<any[]>([]);
   const [linkageLoading, setLinkageLoading] = useState(false);
   const [linkageError, setLinkageError] = useState<string | null>(null);
   const linkageCacheRef = useRef<Map<string, any[]>>(new Map());
-  const isInitializedRef = useRef(false);
-  const prevDependentValueRef = useRef<any>(undefined);
 
   // 联动数据获取逻辑
-  const fetchLinkageData = useCallback(async (dependentValue: any) => {
-    // console.log('🔄 [fetchLinkageData] 开始获取联动数据:', {
-    //   fieldName: field.fieldName,
-    //   dependentValue,
-    //   hasLinkageCallbacks: !!linkageCallbacks
-    // });
-
-    if (!linkageCallbacks || !dependentValue) {
+  const fetchLinkageData = useCallback(async (sourceValue: any) => {
+    if (!linkageCallbacks || !sourceValue) {
       console.log('⚠️ [fetchLinkageData] 缺少必要参数，清空数据');
       setLinkageData([]);
       return;
@@ -33,8 +25,8 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
       return;
     }
 
-    // 生成缓存键 - 使用更详细的键来避免冲突
-    const cacheKey = `${field.fieldName}_fetchConnectDetail_${JSON.stringify(dependentValue)}`;
+    // 生成缓存键
+    const cacheKey = `${field.fieldName}_fetchConnectDetail_${JSON.stringify(sourceValue)}`;
     console.log('🔑 [fetchLinkageData] 缓存键:', cacheKey);
 
     // 检查缓存
@@ -50,7 +42,7 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
       setLinkageError(null);
       console.log('🌐 [fetchLinkageData] 调用联动方法: fetchConnectDetail');
 
-      const data = await fetchMethod(dependentValue);
+      const data = await fetchMethod(sourceValue);
       const resultData = data || [];
 
       console.log('✅ [fetchLinkageData] 获取数据成功:', resultData.length, '项');
@@ -65,69 +57,66 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
     } finally {
       setLinkageLoading(false);
     }
-  }, [field.linkage, linkageCallbacks, field.fieldName]);
+  }, [field.fieldName, linkageCallbacks]);
 
-  // 联动数据初始化和变化监听 - 合并为一个 useEffect
+  // 监听是否有其他字段target到当前字段
   useEffect(() => {
-    if (!field.linkage?.dependsOn) return;
+    // 查找所有target到当前字段的字段
+    const sourceFields = allFields.filter(sourceField => 
+      sourceField.control.linkage?.targets?.includes(field.fieldName)
+    );
 
-    const dependentValue = formValues[field.linkage.dependsOn];
-    const prevDependentValue = prevDependentValueRef.current;
+    if (sourceFields.length === 0) {
+      // 如果没有字段target到当前字段，清空数据
+      setLinkageData([]);
+      return;
+    }
 
-    // console.log('🔍 [useLinkageData] useEffect 触发:', {
-    //   fieldName: field.fieldName,
-    //   dependsOn: field.linkage.dependsOn,
-    //   dependentValue,
-    //   prevDependentValue,
-    //   isInitialized: isInitializedRef.current,
-    //   trigger: field.linkage.trigger
-    // });
-
-    // 检查是否需要响应变化
-    const hasTrigger = field.linkage.trigger === 'onclick' || field.linkage.trigger === 'onChange' || field.linkage.trigger === 'onBlur';
-    // 对于 model 字段依赖 connectid 的情况，强制启用 onChange 响应
-    const isModelConnectidLinkage = field.fieldName === 'models' && field.linkage.dependsOn === 'connectid';
-    const shouldRespondToChange = hasTrigger || (field.linkage.dependsOn === 'datasource') || isModelConnectidLinkage;
-
-    // console.log('🎯 [useLinkageData] 响应条件检查:', {
-    //   hasTrigger,
-    //   shouldRespondToChange,
-    //   trigger: field.linkage.trigger,
-    //   isModelConnectidLinkage,
-    //   fieldLinkage: field.linkage
-    // });
-
-    // 初始化或值发生变化时
-    const valueChanged = prevDependentValue !== dependentValue;
-    const shouldProcess = !isInitializedRef.current || (isInitializedRef.current && valueChanged);
-    const shouldExecute = !isInitializedRef.current || shouldRespondToChange;
-
-    console.log('🚦 [useLinkageData] 执行条件:', {
-      valueChanged,
-      shouldProcess,
-      shouldExecute,
-      willExecute: shouldProcess && shouldExecute
+    console.log('🔗 [useLinkageData] 找到target到当前字段的源字段:', {
+      targetField: field.fieldName,
+      sourceFields: sourceFields.map(f => f.fieldName)
     });
 
-    if (shouldProcess && shouldExecute) {
-      if (dependentValue) {
-        console.log('📞 [useLinkageData] 调用 fetchLinkageData');
-        fetchLinkageData(dependentValue);
-        if (!isInitializedRef.current) {
-          isInitializedRef.current = true;
-          console.log('✅ [useLinkageData] 标记为已初始化');
+    // 监听所有源字段的值变化
+    const sourceValues = sourceFields.map(sourceField => {
+      const value = formValues[sourceField.fieldName];
+      
+      // 如果是JSON格式的值（如selectconnect），尝试解析ID
+      if (typeof value === 'string' && value.startsWith('{')) {
+        try {
+          const connectInfo = JSON.parse(value);
+          return connectInfo.id;
+        } catch {
+          return value;
         }
-      } else {
-        console.log('🗑️ [useLinkageData] 依赖值为空，清空数据');
-        setLinkageData([]);
       }
+      
+      return value;
+    });
 
-      prevDependentValueRef.current = dependentValue;
-      console.log('💾 [useLinkageData] 更新 prevDependentValue:', dependentValue);
+    // 获取第一个有值的源字段值
+    const validSourceValue = sourceValues.find(value => value && value !== '');
+    
+    if (validSourceValue) {
+      console.log('📞 [useLinkageData] 检测到源字段值变化，获取联动数据:', {
+        targetField: field.fieldName,
+        sourceValue: validSourceValue
+      });
+      
+      fetchLinkageData(validSourceValue);
     } else {
-      console.log('⏭️ [useLinkageData] 跳过执行');
+      console.log('🗑️ [useLinkageData] 所有源字段值为空，清空数据');
+      setLinkageData([]);
     }
-  }, [field.linkage?.dependsOn ? formValues[field.linkage.dependsOn] : undefined, fetchLinkageData, field.linkage, formValues, field.fieldName]);
+  }, [
+    // 监听所有可能的源字段值变化
+    ...allFields
+      .filter(sourceField => sourceField.control.linkage?.targets?.includes(field.fieldName))
+      .map(sourceField => formValues[sourceField.fieldName]),
+    field.fieldName,
+    allFields,
+    fetchLinkageData
+  ]);
 
   return {
     linkageData,
@@ -352,12 +341,9 @@ export const useFieldVisibility = (field: UnifiedParameterField, formValues: Rec
 
   // 检查字段是否应该启用（基于联动配置）
   const shouldEnable = useMemo(() => {
-    if (!field.linkage?.dependsOn) return true;
-
-    // 简化逻辑，只检查依赖字段是否有值
-    const dependentValue = formValues[field.linkage.dependsOn];
-    return !!dependentValue;
-  }, [field.linkage, formValues]);
+    // 现在linkage只用于targeting，不再有dependsOn，所以默认启用所有字段
+    return true;
+  }, []);
 
   return {
     shouldShow,

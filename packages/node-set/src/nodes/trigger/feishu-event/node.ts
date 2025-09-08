@@ -18,11 +18,11 @@ export class FeishuEvent implements INode{
             {
                 label: '飞书连接',
                 fieldName: 'credential',
-                description: '选择飞书连接配置',
-                dataSourceType: 'feishu',
+                description: '选择飞书连接配置',                
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',
+                    dataSourceType: 'feishu',
                     validation: { required: true },
                     defaultValue: ''
                 }

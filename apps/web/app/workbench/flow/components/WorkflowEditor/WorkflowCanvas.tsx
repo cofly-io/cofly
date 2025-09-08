@@ -196,9 +196,9 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
     return connectConfigs.map(config => ({
       id: config.id,
       name: config.name,
-      ctype: config.ctype,
-      mtype: config.mtype,
-      nodeinfo: config.nodeinfo,
+      // ctype: config.ctype,
+      // mtype: config.mtype,
+      // nodeinfo: config.nodeinfo,
       description: config.description
     }));
   }, [connectConfigs]);
@@ -211,15 +211,12 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
 
     try {
       const configs = await onFetchConnectInstances(connectType);
-      logger.debug('应用层获取连接配置成功', { connectType, count: configs.length });
+      //logger.debug('应用层获取连接配置成功', { connectType, count: configs.length });
 
       // 转换格式以适配UI层
       return configs.map(config => ({
         id: config.id,
         name: config.name,
-        ctype: config.ctype,
-        mtype: config.mtype,
-        nodeinfo: config.nodeinfo,
         description: config.description
       }));
     } catch (error) {
@@ -264,7 +261,6 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
   // 配置联动回调函数
   const linkageCallbacks = useMemo(() => ({
     fetchConnectDetail: async (datasourceId: string) => {
-      console.log('🔧 [linkageCallbacks.fetchConnectDetail] 被调用:', { datasourceId });
       const result = await handleFetchConnectDetail(datasourceId);
       // 转换为联动回调期望的格式
       return result.tableOptions?.map(option => ({
@@ -301,7 +297,7 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
         onPasteNodes={onPasteNodes}
         nodesTestResultsMap={nodesTestResultsMap}
         getLatestNodesTestResultsMap={getLatestNodesTestResultsMap}
-        connectConfigs={uiConnectConfigs}
+        //connectConfigs={uiConnectConfigs}
         onFetchConnectInstances={handleFetchConnectConfigs}
         onFetchConnectDetail={handleFetchConnectDetail}
         linkageCallbacks={linkageCallbacks}

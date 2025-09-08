@@ -17,12 +17,12 @@ export class DingdingRobot implements INode {
         fields: [
             {
                 label: '连接源',
-                fieldName: 'datasource',
-                dataSourceType: 'dingding-robot',
+                fieldName: 'datasource',                
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',
                     defaultValue: '',
+                    dataSourceType: 'dingding-robot',
                     validation: {
                         required: true
                     }

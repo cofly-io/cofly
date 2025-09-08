@@ -24,12 +24,12 @@ export class KnowledgeBase implements INode {
         fields: [
             {
                 label: '知识库',
-                fieldName: 'kbConfig',
-                dataSourceType: 'kb',
+                fieldName: 'kbConfig',                
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',
                     defaultValue: '',
+                    dataSourceType: 'kb',
                     validation: {
                         required: true
                     }

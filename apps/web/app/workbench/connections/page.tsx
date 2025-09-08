@@ -113,9 +113,9 @@ export default function AgentPageContainer() {
   };
 
   // 获取连接详情的回调函数
-  const handleFetchConnectDetails = async (connectId: string) => {
+  const handleFetchConnectDetails = async (datasourceId: string) => {
     try {
-      const result = await ConnectService.getConnectDetail(connectId);
+      const result = await ConnectService.getConnectDetail(datasourceId);
       if (result.success) {
         // 将平面数据结构转换为嵌套结构，以匹配 ConnectSettings 的期望
         const transformedData = {

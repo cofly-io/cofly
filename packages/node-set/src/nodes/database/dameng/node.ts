@@ -19,19 +19,14 @@ export class Dameng implements INode {
 			// 数据库连接配置
 			{
 				label: '连接源',
-				fieldName: 'datasource',
-				dataSourceType: "dameng",
+				fieldName: 'datasource',				
 				control: {
 					name: 'selectconnect',
 					dataType: 'string',
 					defaultValue: '',
+					dataSourceType: "dameng",
 					validation: { required: true }
 				},
-				// 联动配置：影响表名字段
-				linkage: {
-					targets: ['table'],
-					trigger: 'onChange'
-				}
 			},
 			// 操作类型选择器
 			{
@@ -86,10 +81,6 @@ export class Dameng implements INode {
 					defaultValue: '',
 					placeholder: '例如: users',
 					validation: { required: true }
-				},
-				// 联动配置：依赖连接源字段
-				linkage: {
-					dependsOn: 'datasource',
 				}
 			},
 

@@ -22,9 +22,6 @@ interface ParameterInputProps {
   onFetchConnectInstances?: (connectType: string) => Promise<Array<{
     id: string;
     name: string;
-    ctype: string;
-    mtype: string;
-    nodeinfo: Record<string, any>;
     description?: string;
   }>>;
   onFetchConnectDetail?: (datasourceId: string) => Promise<{
@@ -67,7 +64,6 @@ export const ParameterInput: React.FC<ParameterInputProps> = ({
     tooltip: parameter.tooltip,
     conditionRules: parameter.conditionRules,
     control: parameter.control,
-    linkage: parameter.linkage,
     AIhelp: parameter.AIhelp
   };
 
@@ -79,7 +75,6 @@ export const ParameterInput: React.FC<ParameterInputProps> = ({
     tooltip: param.tooltip,
     conditionRules: param.conditionRules,
     control: param.control,
-    linkage: param.linkage,
     AIhelp: param.AIhelp
   }));
 

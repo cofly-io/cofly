@@ -1,4 +1,4 @@
-import { Icon, IDatabaseMetadataOptions, IDatabaseMetadataResult } from '@repo/common';
+import { Icon, ILLMMetadataOptions, ILLMMetadataResult } from '@repo/common';
 import { ConnectTestResult, ILLMOverview } from '@repo/common';
 import { BaseLLMConnect } from '../../base/BaseLLMConnect';
 import {
@@ -71,17 +71,9 @@ export class OpenRouterConnect extends BaseLLMConnect {
         );
     }
 
-    async metadata(opts: IDatabaseMetadataOptions): Promise<IDatabaseMetadataResult> {
+    async metadata(opts: ILLMMetadataOptions): Promise<ILLMMetadataResult> {
         try {
-            switch (opts.type) {
-                case 'models':
-                    return await this.getModels(opts.datasourceId, opts.search);
-                default:
-                    return {
-                        success: false,
-                        error: `不支持的元数据类型: ${opts.type}`
-                    };
-            }
+            return await this.getModels(opts.connectInfo, opts.search);
         } catch (error: any) {
             console.error('❌ [OpenRouter Connect] metadata 执行错误:', error.message);
             return {
@@ -94,9 +86,9 @@ export class OpenRouterConnect extends BaseLLMConnect {
     /**
      * 获取LLM模型列表
      */
-    private async getModels(datasourceId?: string, search?: string): Promise<IDatabaseMetadataResult> {
+    private async getModels(connectInfo?: any, search?: string): Promise<ILLMMetadataResult> {
         return getLLMModels(
-            datasourceId,
+            connectInfo,
             search,
             'OpenRouter',
             this.overview.api.url,

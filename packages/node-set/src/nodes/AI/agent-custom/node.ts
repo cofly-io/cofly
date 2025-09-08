@@ -25,14 +25,13 @@ export class AiAgentCustom implements INode {
                 fieldName: 'connectid',
                 control: {
                     name: 'selectconnect',
-                    dataType: 'json',
-                    connectType: "llm",
+                    dataType: 'string',
+                    dataSourceType: 'llm',
                     validation: { required: true },        // 是否必填
+                    linkage: {
+                        targets: ['models']
+                    }
                 },
-                // 联动配置：影响表名字段
-                linkage: {
-                    targets: ['models']
-                }
             },
             {
                 label: '模型名称',
@@ -41,9 +40,6 @@ export class AiAgentCustom implements INode {
                     name: 'inputselect',
                     dataType: 'string',
                     validation: { required: true },        // 是否必填
-                },
-                linkage: {
-                    dependsOn: 'connectid'
                 }
             },
             {
@@ -60,7 +56,7 @@ export class AiAgentCustom implements INode {
                 fieldName: 'prompt',
                 conditionRules: {             // 显示条件
                     addBy: {
-                        addoptions: ['addoptions'], // 当mode为htmlToMarkdown时显示
+                        addoptions: ['addoptions'], // 当addoptions控件选中该项则增加
                     },
                 },
                 control: {

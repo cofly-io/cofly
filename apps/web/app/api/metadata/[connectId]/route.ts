@@ -1,37 +1,99 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { initializeConnects } from '@repo/node-set';
-import { IDatabaseConnect, IDatabaseMetadataOptions,ILLMConnect,ILLMMetadataOptions } from '@repo/common';
+import { IDatabaseConnect, IDatabaseMetadataOptions, ILLMConnect, ILLMMetadataOptions } from '@repo/common';
 import { prisma } from "@repo/database";
+
+/**
+ * 通用的连接实例获取和验证函数
+ */
+async function getAndValidateConnectInstance(
+    provider: string,
+    mtype: 'db' | 'llm'
+): Promise<{ success: boolean; instance?: any; error?: string; status?: number }> {
+    const connectRegistry = await initializeConnects();
+    const connectInstance = mtype === 'db' 
+        ? connectRegistry.getConnectById(provider) as IDatabaseConnect
+        : connectRegistry.getConnectById(provider) as ILLMConnect;
+
+    if (!connectInstance) {
+        const errorMsg = mtype === 'db' 
+            ? `连接类型不存在: ${provider}`
+            : `该连接未获取在线模型列表[${provider}]`;
+        return {
+            success: false,
+            error: errorMsg,
+            status: 404
+        };
+    }
+
+    // 检查节点是否支持metadata方法
+    if (!connectInstance.metadata) {
+        const errorMsg = mtype === 'db' 
+            ? `连接类型不支持元数据获取: ${provider}`
+            : `该连接未获取在线模型列表[${provider}]`;
+        return {
+            success: false,
+            error: errorMsg,
+            status: 400
+        };
+    }
+
+    return {
+        success: true,
+        instance: connectInstance
+    };
+}
+
+/**
+ * 构建数据库元数据选项
+ */
+function buildDatabaseMetadataOptions(
+    connectInfo: any,
+    search: string | null
+): IDatabaseMetadataOptions {
+    return {
+        host: connectInfo.host || 'localhost',
+        port: connectInfo.port || 3306,
+        database: connectInfo.database,
+        user: connectInfo.username || connectInfo.user,
+        password: connectInfo.password || '',
+        connectTimeout: (connectInfo.connectTimeout || 30) * 1000,
+        ssl: connectInfo.ssl || false,
+        charset: connectInfo.charset || 'utf8mb4',
+        search: search || undefined,
+    };
+}
+
+/**
+ * 构建LLM元数据选项
+ */
+function buildLLMMetadataOptions(
+    connectInfo: any,
+    search: string | null
+): ILLMMetadataOptions {
+    return {
+        connectInfo: {
+            apiKey: connectInfo.apiKey,
+            baseUrl: connectInfo.baseUrl
+        },
+        search: search || undefined,
+    };
+}
 
 /**
  * GET /api/nodes/[nodeID]/metadata
  * 获取节点的元数据（如表名、列名等）
- * 
- * 查询参数:
- * - type: 元数据类型 ('tables' | 'columns' | 'schemas')
- * - datasourceId: 数据源ID
- * - tableName: 表名（获取列名时需要）
- * - search: 搜索关键词（可选）
- */
+ **/
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ connectId: string }> }
 ) {
     try {
-        const { connectId } = await params; // nodeID实际上是nodeKind
+        const { connectId } = await params;
         const { searchParams } = new URL(request.url);
+        const search = searchParams.get('search');
 
-        if (!connectId) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: '缺少必填参数: connectId'
-                },
-                { status: 400 }
-            );
-        }
-
-        //根据ID获取connect的配置信息
+        // 根据ID获取connect的配置信息
         const connectConfig = await prisma.connectConfig.findUnique({
             where: { id: connectId }
         });
@@ -45,110 +107,47 @@ export async function GET(
             });
         }
 
-        const mtype = connectConfig.mtype;
+        const provider = connectConfig.ctype;
+        const mtype = connectConfig.mtype as 'db' | 'llm';
 
-        if (mtype === 'db') {
-            const provider = connectConfig.ctype;
-            const type = searchParams.get('type') as 'tables' | 'columns' | 'schemas' | 'models';
-            const tableName = searchParams.get('tableName');
-            const search = searchParams.get('search');
-
-            // 验证必填参数
-            if (!type) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error: '缺少必填参数: type'
-                    },
-                    { status: 400 }
-                );
-            }
-
-            // 获取节点实例 - 先尝试通过ID获取，如果没有则通过provider获取
-            const connectRegistry = await initializeConnects();
-            let connectInstance = connectRegistry.getConnectById(provider) as IDatabaseConnect;
-            
-            if (!connectInstance) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error: `连接类型不存在: ${provider}`
-                    },
-                    { status: 404 }
-                );
-            }
-
-            // 检查节点是否支持metadata方法
-            if (!connectInstance.metadata) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                         error: `该连接未获取在线模型列表[${provider}]`
-                    },
-                    { status: 400 }
-                );
-            }
-
-            // 构建metadata选项
-            const metadataOptions: IDatabaseMetadataOptions = {
-                type,
-                datasourceId: connectId,
-                tableName: tableName || undefined,
-                search: search || undefined,
-            };
-
-            // 调用节点的metadata方法
-            const result = await connectInstance.metadata(metadataOptions);
-
-            return NextResponse.json(result);
-        } else if (mtype === 'llm') {
-            const provider = connectConfig.ctype;
-            const search = searchParams.get('search');
-
-            // 获取节点实例 - 先尝试通过ID获取，如果没有则通过provider获取
-            const connectRegistry = await initializeConnects();
-            let connectInstance = connectRegistry.getConnectById(provider) as ILLMConnect;
-            if (!connectInstance) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error:  `该连接未获取在线模型列表[${provider}]`
-                    },
-                    { status: 404 }
-                );
-            }
-
-            // 检查节点是否支持metadata方法
-            if (!connectInstance.metadata) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error: `该连接未获取在线模型列表[${provider}]`
-                    },
-                    { status: 400 }
-                );
-            }
-
-            // 构建metadata选项
-            const metadataOptions: ILLMMetadataOptions = {
-                connectInfo: {
-                    apiKey: JSON.parse(connectConfig.configinfo).apiKey,
-                    baseUrl:  JSON.parse(connectConfig.configinfo).baseUrl
+        // 验证连接类型
+        if (mtype !== 'db' && mtype !== 'llm') {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: '不支持该节点类型'
                 },
-                search: search || undefined,
-            };
-            // 调用节点的metadata方法
-            const result = await connectInstance.metadata(metadataOptions);
-            return NextResponse.json(result);
+                { status: 400 }
+            );
         }
 
-        return NextResponse.json(
-            {
-                success: false,
-                error: '不支持该节点类型'
-            },
-            { status: 400 }
-        );
+        // 获取和验证连接实例
+        const validation = await getAndValidateConnectInstance(provider, mtype);
+        if (!validation.success) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: validation.error
+                },
+                { status: validation.status! }
+            );
+        }
+
+        const connectInstance = validation.instance!;
+        const connectInfo = JSON.parse(connectConfig.configinfo);
+
+        // 根据类型构建元数据选项并执行
+        let result;
+        if (mtype === 'db') {
+            const metadataOptions = buildDatabaseMetadataOptions(connectInfo, search);
+            result = await connectInstance.metadata(metadataOptions);
+        } else { // mtype === 'llm'
+            const metadataOptions = buildLLMMetadataOptions(connectInfo, search);
+            result = await connectInstance.metadata(metadataOptions);
+        }
+
+        return NextResponse.json(result);
+
     } catch (error) {
         console.error('❌ [Node Metadata API] 执行失败:', error);
         return NextResponse.json(

@@ -1,12 +1,6 @@
-// export type CodeAutocompleteTypes = 'function' | 'functionItem';
-
-export type GenericValue = string | object | number | boolean | undefined | null;
-
-// export type EditorType = 'codeNodeEditor' | 'jsEditor' | 'htmlEditor' | 'sqlEditor' | 'cssEditor';
+export type CommonValue = string | object | number | boolean | undefined | null;
 
 export type ToastType = 'success' | 'info' | 'warning' | 'error';
-
-// export const LOG_LEVELS = ['silent', 'error', 'warn', 'info', 'debug'] as const;
 
 export type Themed<T> = T | { light: T; dark: T };
 export type IconName = `${string}.svg` | `${string}.png`;
@@ -14,33 +8,33 @@ export type Icon = Themed<IconName>;
 
 
 export interface IDataObject {
-    [key: string]: GenericValue | IDataObject | GenericValue[] | IDataObject[];
+    [key: string]: CommonValue | IDataObject | CommonValue[] | IDataObject[];
 }
 
 
 // Enforce at least one of resourceMapperMethod or localResourceMapperMethod
-export type ResourceMapperTypeOptionsLocal = {
-    resourceMapperMethod: string;
-    localResourceMapperMethod?: never; // Explicitly disallows this property
-};
+// export type ResourceMapperTypeOptionsLocal = {
+//     resourceMapperMethod: string;
+//     localResourceMapperMethod?: never; // Explicitly disallows this property
+// };
 
-export type ResourceMapperTypeOptionsExternal = {
-    localResourceMapperMethod: string;
-    resourceMapperMethod?: never; // Explicitly disallows this property
-};
+// export type ResourceMapperTypeOptionsExternal = {
+//     localResourceMapperMethod: string;
+//     resourceMapperMethod?: never; // Explicitly disallows this property
+// };
 
-export interface IRequestOptionsSimplifiedAuth {
-    auth?: {
-        username: string;
-        password: string;
-        sendImmediately?: boolean;
-    };
-    body?: IDataObject;
-    headers?: IDataObject;
-    qs?: IDataObject;
-    url?: string;
-    skipSslCertificateValidation?: boolean | string;
-}
+// export interface IRequestOptionsSimplifiedAuth {
+//     auth?: {
+//         username: string;
+//         password: string;
+//         sendImmediately?: boolean;
+//     };
+//     body?: IDataObject;
+//     headers?: IDataObject;
+//     qs?: IDataObject;
+//     url?: string;
+//     skipSslCertificateValidation?: boolean | string;
+// }
 
 // The encrypted credentials which the nodes can access
 export type CredentialInformation =
@@ -93,9 +87,9 @@ type ConnectInstanceType =
     | 'kb'
     | 'llm'
 
-export interface ICredentialDataDecryptedObject {
-    [key: string]: CredentialInformation;
-}
+// export interface ICredentialDataDecryptedObject {
+//     [key: string]: CredentialInformation;
+// }
 
 export interface IWorkflowMetadata {
     id?: string;
@@ -103,24 +97,24 @@ export interface IWorkflowMetadata {
     active: boolean;
 }
 
-export type BinaryFileType = 'text' | 'json' | 'image' | 'audio' | 'video' | 'pdf' | 'html';
-export interface IBinaryData {
-    [key: string]: string | number | undefined;
-    data: string;
-    mimeType: string;
-    fileType?: BinaryFileType;
-    fileName?: string;
-    directory?: string;
-    fileExtension?: string;
-    fileSize?: string; // TODO: change this to number and store the actual value
-    id?: string;
-}
+// export type BinaryFileType = 'text' | 'json' | 'image' | 'audio' | 'video' | 'pdf' | 'html';
+// export interface IBinaryData {
+//     [key: string]: string | number | undefined;
+//     data: string;
+//     mimeType: string;
+//     fileType?: BinaryFileType;
+//     fileName?: string;
+//     directory?: string;
+//     fileExtension?: string;
+//     fileSize?: string; // TODO: change this to number and store the actual value
+//     id?: string;
+// }
 
-export interface ISourceData {
-    previousNode: string;
-    previousNodeOutput?: number; // If undefined "0" gets used
-    previousNodeRun?: number; // If undefined "0" gets used
-}
+// export interface ISourceData {
+//     previousNode: string;
+//     previousNodeOutput?: number; // If undefined "0" gets used
+//     previousNodeRun?: number; // If undefined "0" gets used
+// }
 
 // export type NodeTypeAndVersion = {
 //     name: string;
@@ -130,53 +124,53 @@ export interface ISourceData {
 //     parameters?: INodeParameters;
 // };
 
-export interface IPinData {
-    [nodeName: string]: INodeExecutionData[];
-}
+// export interface IPinData {
+//     [nodeName: string]: INodeExecutionData[];
+// }
 
 export interface INodes {
     [key: string]: INode;
 }
 
-export interface IObservableObject {
-    [key: string]: any;
-    __dataChanged: boolean;
-}
+// export interface IObservableObject {
+//     [key: string]: any;
+//     __dataChanged: boolean;
+// }
 
-export interface IBinaryKeyData {
-    [key: string]: IBinaryData;
-}
+// export interface IBinaryKeyData {
+//     [key: string]: IBinaryData;
+// }
 
-export interface IPairedItemData {
-    item: number;
-    input?: number; // If undefined "0" gets used
-    sourceOverwrite?: ISourceData;
-}
+// export interface IPairedItemData {
+//     item: number;
+//     input?: number; // If undefined "0" gets used
+//     sourceOverwrite?: ISourceData;
+// }
 
-export interface RelatedExecution {
-    executionId: string;
-    workflowId: string;
-}
+// export interface RelatedExecution {
+//     executionId: string;
+//     workflowId: string;
+// }
 
 
-export interface INodeExecutionData {
-    [key: string]:
-    | IDataObject
-    | IBinaryKeyData
-    | IPairedItemData
-    | IPairedItemData[]
-    //| NodeApiError
-    //| NodeOperationError
-    | number
-    | undefined;
-    json: IDataObject;
-    binary?: IBinaryKeyData;
-    //error?: NodeApiError | NodeOperationError;
-    pairedItem?: IPairedItemData | IPairedItemData[] | number;
-    metadata?: {
-        subExecution: RelatedExecution;
-    };
-}
+// export interface INodeExecutionData {
+//     [key: string]:
+//     | IDataObject
+//     | IBinaryKeyData
+//     | IPairedItemData
+//     | IPairedItemData[]
+//     //| NodeApiError
+//     //| NodeOperationError
+//     | number
+//     | undefined;
+//     json: IDataObject;
+//     binary?: IBinaryKeyData;
+//     //error?: NodeApiError | NodeOperationError;
+//     pairedItem?: IPairedItemData | IPairedItemData[] | number;
+//     metadata?: {
+//         subExecution: RelatedExecution;
+//     };
+// }
 
 // export interface FunctionsBase {
 //     // logger: Logger;
@@ -212,45 +206,39 @@ export interface INodeExecutionData {
 //     [K in Keys]: NonNullable<FunctionsBase[K]>;
 // };
 
-export interface ITaskSubRunMetadata {
-    node: string;
-    runIndex: number;
-}
+// export interface ITaskSubRunMetadata {
+//     node: string;
+//     runIndex: number;
+// }
 
 
-export interface ITaskMetadata {
-    subRun?: ITaskSubRunMetadata[];
-    parentExecution?: RelatedExecution;
-    subExecution?: RelatedExecution;
-    subExecutionsCount?: number;
-}
+// export interface ITaskMetadata {
+//     subRun?: ITaskSubRunMetadata[];
+//     parentExecution?: RelatedExecution;
+//     subExecution?: RelatedExecution;
+//     subExecutionsCount?: number;
+// }
 
-export type ContextType = 'flow' | 'node';
-export type IContextObject = {
-    [key: string]: any;
-};
+// export type ContextType = 'flow' | 'node';
+// export type IContextObject = {
+//     [key: string]: any;
+// };
 
-export interface ITaskDataConnections {
-    // Key for each input type and because there can be multiple inputs of the same type it is an array
-    // null is also allowed because if we still need data for a later while executing the workflow set temporary to null
-    // the nodes get as input TaskDataConnections which is identical to this one except that no null is allowed.
-    [key: string]: Array<INodeExecutionData[] | null>;
-}
+// export interface ITaskDataConnections {
+//     [key: string]: Array<INodeExecutionData[] | null>;
+// }
 
-export interface ITaskDataConnectionsSource {
-    // Key for each input type and because there can be multiple inputs of the same type it is an array
-    // null is also allowed because if we still need data for a later while executing the workflow set temporary to null
-    // the nodes get as input TaskDataConnections which is identical to this one except that no null is allowed.
-    [key: string]: Array<ISourceData | null>;
-}
+// export interface ITaskDataConnectionsSource {
+//     [key: string]: Array<ISourceData | null>;
+// }
 
 
-export interface IExecuteData {
-    data: ITaskDataConnections;
-    metadata?: ITaskMetadata;
-    node: INode;
-    source: ITaskDataConnectionsSource | null;
-}
+// export interface IExecuteData {
+//     data: ITaskDataConnections;
+//     metadata?: ITaskMetadata;
+//     node: INode;
+//     source: ITaskDataConnectionsSource | null;
+// }
 
 // export interface ProxyInput {
 //     all: () => INodeExecutionData[];
@@ -289,30 +277,30 @@ export interface IExecuteData {
 //     constructor: any;
 // }
 
-export type AiEvent =
-    | 'ai-messages-retrieved-from-memory'
-    | 'ai-message-added-to-memory'
-    | 'ai-output-parsed'
-    | 'ai-documents-retrieved'
-    | 'ai-document-embedded'
-    | 'ai-query-embedded'
-    | 'ai-document-processed'
-    | 'ai-text-split'
-    | 'ai-tool-called'
-    | 'ai-vector-store-searched'
-    | 'ai-llm-generated-output'
-    | 'ai-llm-errored'
-    | 'ai-vector-store-populated'
-    | 'ai-vector-store-updated';
+// export type AiEvent =
+//     | 'ai-messages-retrieved-from-memory'
+//     | 'ai-message-added-to-memory'
+//     | 'ai-output-parsed'
+//     | 'ai-documents-retrieved'
+//     | 'ai-document-embedded'
+//     | 'ai-query-embedded'
+//     | 'ai-document-processed'
+//     | 'ai-text-split'
+//     | 'ai-tool-called'
+//     | 'ai-vector-store-searched'
+//     | 'ai-llm-generated-output'
+//     | 'ai-llm-errored'
+//     | 'ai-vector-store-populated'
+//     | 'ai-vector-store-updated';
 
-type AiEventPayload = {
-    msg: string;
-    workflowName: string;
-    executionId: string;
-    nodeName: string;
-    workflowId?: string;
-    nodeType?: string;
-};
+// type AiEventPayload = {
+//     msg: string;
+//     workflowName: string;
+//     executionId: string;
+//     nodeName: string;
+//     workflowId?: string;
+//     nodeType?: string;
+// };
 
 // type BaseExecutionFunctions = FunctionsBaseWithRequiredKeys<'getMode'> & {
 //     continueOnFail(): boolean;
@@ -412,23 +400,23 @@ export type ExecuteType = 'once' | 'each';
 //     target?: string;
 // };
 
-export type NodeParameterValue = string | number | boolean | undefined | null;
+// export type NodeParameterValue = string | number | boolean | undefined | null;
 
-export type ResourceLocatorModes = 'id' | 'url' | 'list' | string;
-export interface IResourceLocatorResult {
-    name: string;
-    value: string;
-    url?: string;
-}
+// export type ResourceLocatorModes = 'id' | 'url' | 'list' | string;
+// export interface IResourceLocatorResult {
+//     name: string;
+//     value: string;
+//     url?: string;
+// }
 
-export interface INodeParameterResourceLocator {
-    __rl: true;
-    mode: ResourceLocatorModes;
-    value: NodeParameterValue;
-    cachedResultName?: string;
-    cachedResultUrl?: string;
-    __regex?: string;
-}
+// export interface INodeParameterResourceLocator {
+//     __rl: true;
+//     mode: ResourceLocatorModes;
+//     value: NodeParameterValue;
+//     cachedResultName?: string;
+//     cachedResultUrl?: string;
+//     __regex?: string;
+// }
 
 export type FilterValue = {
     // options: FilterOptionsValue;
@@ -437,18 +425,18 @@ export type FilterValue = {
 };
 
 
-export type ResourceMapperValue = {
-    mappingMode: string;
-    value: { [key: string]: string | number | boolean | null } | null;
-    matchingColumns: string[];
-    //schema: ResourceMapperField[];
-    attemptToConvertTypes: boolean;
-    convertFieldsToString: boolean;
-};
+// export type ResourceMapperValue = {
+//     mappingMode: string;
+//     value: { [key: string]: string | number | boolean | null } | null;
+//     matchingColumns: string[];
+//     //schema: ResourceMapperField[];
+//     attemptToConvertTypes: boolean;
+//     convertFieldsToString: boolean;
+// };
 
-export type AssignmentCollectionValue = {
+// export type AssignmentCollectionValue = {
     //assignments: AssignmentValue[];
-};
+// };
 
 // export type NodeParameterValueType =
 //     // TODO: Later also has to be possible to add multiple ones with the name name. So array has to be possible
@@ -463,7 +451,7 @@ export type AssignmentCollectionValue = {
 //     | INodeParameterResourceLocator[]
 //     | ResourceMapperValue[];
 
-export type OnError = 'continueErrorOutput' | 'continueRegularOutput' | 'stopWorkflow';
+// export type OnError = 'continueErrorOutput' | 'continueRegularOutput' | 'stopWorkflow';
 
 //AI节点可使用的资源
 export type AvailableResource =
@@ -548,28 +536,28 @@ export interface IConditionRules {
 }
 
 //这个干什么
-export interface INodePropertyRouting {
+// export interface INodePropertyRouting {
 
-}
+// }
 
-export type FieldTypeMap = {
-    // eslint-disable-next-line id-denylist
-    boolean: boolean;
-    // eslint-disable-next-line id-denylist
-    number: number;
-    // eslint-disable-next-line id-denylist
-    string: string;
-    'string-alphanumeric': string;
-    dateTime: string;
-    time: string;
-    array: unknown[];
-    object: object;
-    options: any;
-    url: string;
-    jwt: string;
-};
+// export type FieldTypeMap = {
+//     // eslint-disable-next-line id-denylist
+//     boolean: boolean;
+//     // eslint-disable-next-line id-denylist
+//     number: number;
+//     // eslint-disable-next-line id-denylist
+//     string: string;
+//     'string-alphanumeric': string;
+//     dateTime: string;
+//     time: string;
+//     array: unknown[];
+//     object: object;
+//     options: any;
+//     url: string;
+//     jwt: string;
+// };
 
-export type FieldType = keyof FieldTypeMap;
+// export type FieldType = keyof FieldTypeMap;
 
 // export interface IExecuteSingleFunctions extends BaseExecutionFunctions {
 //     //getInputData(inputIndex?: number, connectionType?: NodeConnectionType): INodeExecutionData;
@@ -632,40 +620,40 @@ export interface IAIhelp {
     rules?: string;     // AI助手的提示词
 }
 
-export interface INodeTypeBaseDescription {
-    displayName: string;
-    name: string;
-    icon?: Icon;
-    group: NodeGroupType[];
-    description: string;
-    documentationUrl?: string;
-    subtitle?: string;
-    defaultVersion?: number;
-    parameterPane?: 'wide';
-}
+// export interface INodeTypeBaseDescription {
+//     displayName: string;
+//     name: string;
+//     icon?: Icon;
+//     group: NodeGroupType[];
+//     description: string;
+//     documentationUrl?: string;
+//     subtitle?: string;
+//     defaultVersion?: number;
+//     parameterPane?: 'wide';
+// }
 
-export interface INodeInputFilter {
-    Nodes: string[]; // Allowed nodes
-}
+// export interface INodeInputFilter {
+//     Nodes: string[]; // Allowed nodes
+// }
 
-export interface INodeInputConfiguration {
-    catalog?: string;
-    displayName?: string;
-    required?: boolean;
-    // type: NodeConnectionType;
-    filter?: INodeInputFilter;
-    maxConnections?: number;
-}
+// export interface INodeInputConfiguration {
+//     catalog?: string;
+//     displayName?: string;
+//     required?: boolean;
+//     // type: NodeConnectionType;
+//     filter?: INodeInputFilter;
+//     maxConnections?: number;
+// }
 
-export interface INodeOutputConfiguration {
-    catalog?: 'error';
-    displayName?: string;
-    maxConnections?: number;
-    required?: boolean;
-    // type: NodeConnectionType;
-}
+// export interface INodeOutputConfiguration {
+//     catalog?: 'error';
+//     displayName?: string;
+//     maxConnections?: number;
+//     required?: boolean;
+//     // type: NodeConnectionType;
+// }
 
-export type ExpressionString = `=${string}`;
+// export type ExpressionString = `=${string}`;
 
 export interface INodeDetail {//extends INodeTypeBaseDescription {
     fields: INodeFields[];
@@ -674,7 +662,6 @@ export interface INodeDetail {//extends INodeTypeBaseDescription {
 
 // 联动配置接口
 export interface IFieldLinkageConfig {
-    dependsOn?: string;                    // 依赖的字段名
     targets?: string[];                    // 影响的目标字段名列表
     trigger?: 'onclick' | 'onChange' | 'onBlur';       // 触发时机
 }
@@ -711,10 +698,11 @@ export interface IComponentAttributes {
 export interface IControlConfiguration {
     name: ComponentType;
     dataType: NodePropertyTypes;
-    connectType?: string;
-    defaultValue?: GenericValue;
+    defaultValue?: CommonValue;
     placeholder?: string;
-    validation?: IValidationRules
+    validation?: IValidationRules;
+    dataSourceType?: ConnectInstanceType | '';
+    linkage?: IFieldLinkageConfig;
     //下拉框内容
     options?: Array<INodePropertyOption | INodeFields>;
     //控件额外的属性
@@ -740,11 +728,8 @@ export interface INodeFields {
     //根据控件的交互来显示或者隐藏、增加对应的控件
     conditionRules?: IConditionRules;
     //即connect的Ctype
-    dataSourceType?: ConnectInstanceType|'';
     // 渲染对应的控件
     control: IControlConfiguration;
-    // 新增：联动配置
-    linkage?: IFieldLinkageConfig;
     // 新增：AI助手相关配置
     AIhelp?: IAIhelp;
 }
@@ -777,89 +762,19 @@ export enum NodeExecutionStatus {
 }
 
 /**
- * Base description for node McpInterfaces.ts
- */
-// export interface INodeTypeBaseDescription {
-//   displayName: string;
-//   name: string;
-//   group: string[];
-//   version: number;
-//   description: string;
-//   defaults?: {
-//     name?: string;
-//     color?: string;
-//   };
-//   inputs: string[];
-//   outputs: string[];
-//   icon?: string;
-//   codable?: boolean;
-//   hidden?: boolean;
-// }
-
-/**
  * Interface for versioned node McpInterfaces.ts
  */
-export interface IVersionedNodeType {
-    description: INodeTypeBaseDescription;
-    execute(...args: any[]): Promise<any>;
-}
-
-// export interface INodePropertyMode {
-//     displayName: string;
-//     name: string;
-//     type: 'string' | 'list';
-//     hint?: string;
-//     validation?: Array<
-//         INodePropertyModeValidation | { (this: IExecuteSingleFunctions, value: string): void }
-//     >;
-//     placeholder?: string;
-//     url?: string;
-//     //extractValue?: INodePropertyValueExtractor;
-//     initType?: string;
-//     entryTypes?: {
-//         [name: string]: {
-//             selectable?: boolean;
-//             hidden?: boolean;
-//             queryable?: boolean;
-//             data?: {
-//                 request?: IHttpRequestOptions;
-//                 output?: INodeRequestOutput;
-//             };
-//         };
-//     };
-//     //search?: INodePropertyRouting;
-//     typeOptions?: INodePropertyModeTypeOptions;
+// export interface IVersionedNodeType {
+//     description: INodeTypeBaseDescription;
+//     execute(...args: any[]): Promise<any>;
 // }
 
+
 export interface IExecuteOptions {
-    /**
-     * The ID of the action within the workflow instance.  This is used as a reference and must
-     * be unique within the Instance itself.
-     *
-     */
     id: string;
-
-    /**
-     * The action kind, used to look up the EngineAction definition.
-     *
-     */
     kind: string;
-
     name?: string;
     description?: string;
-
-    /**
-     * Inputs is a list of configured inputs for the EngineAction.
-     *
-     * The record key is the key of the EngineAction inoput name, and
-     * the value is the variable's value.
-     *
-     * This will be type checked to match the EngineAction type before
-     * save and before execution.
-     *
-     * Ref inputs for interpolation are "!ref($.<path>)",
-     * eg. "!ref($.event.data.email)"
-     */
     inputs?: Record<string, any>;
     state?: Map<string, any>;
     step?: any;

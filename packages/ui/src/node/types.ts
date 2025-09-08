@@ -37,20 +37,17 @@ export interface NodeSettingsProps {
   getLatestNodesTestResultsMap?: () => Record<string, any>;
   nodesDetailsMap?: Record<string, any>;
   showToast?: ShowToastFn;
-  connectConfigs?: Array<{
+    connectConfigs?: Array<{
     id: string;
     name: string;
     ctype: string;
     mtype: string;
     nodeinfo: Record<string, any>;
     description?: string;
-  }>; // 添加连接配置数据源
+  }>; 
   onFetchConnectInstances?: (connectType?: string) => Promise<Array<{
     id: string;
     name: string;
-    ctype: string;
-    mtype: string;
-    nodeinfo: Record<string, any>;
     description?: string;
   }>>; // 动态获取连接配置的回调
   onFetchConnectDetail?: (datasourceId: string) => Promise<{

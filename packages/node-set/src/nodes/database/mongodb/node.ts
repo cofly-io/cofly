@@ -18,18 +18,13 @@ export class MongoDB implements INode {
             // 数据库连接配置
             {
                 label: '连接源',
-                fieldName: 'datasource',
-                dataSourceType: "mongodb",
+                fieldName: 'datasource',                
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',
                     defaultValue: '',
+                    dataSourceType: "mongodb",
                     validation: { required: true }
-                },
-                // 联动配置：影响集合名字段
-                linkage: {
-                    targets: ['collection'],
-                    trigger: 'onChange'
                 }
             },
             // 操作类型选择器

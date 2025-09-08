@@ -58,13 +58,11 @@ export const useConnectConfig = ({
     // 检查缓存
     if (!isCacheExpired(cacheKey) && connectConfigsCache.has(cacheKey)) {
       const cachedConfigs = connectConfigsCache.get(cacheKey)!;
-      logger.debug('使用缓存的连接配置', { ctype, count: cachedConfigs.length });
       return cachedConfigs;
     }
 
     // 检查是否正在加载
     if (isLoadingConfigs.has(cacheKey)) {
-      logger.debug('连接配置正在加载中', { ctype });
       // 等待加载完成
       return new Promise((resolve) => {
         const checkLoading = () => {
@@ -97,12 +95,6 @@ export const useConnectConfig = ({
         nodeinfo: config.config, // 将config字段映射为nodeinfo
         description: config.description
       }));
-
-      logger.info('成功获取连接配置', {
-        ctype,
-        count: transformedConfigs.length
-      });
-
       return transformedConfigs;
     }, 3, 1000, '获取连接配置失败');
 

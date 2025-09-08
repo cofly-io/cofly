@@ -20,18 +20,14 @@ export class Kingbase implements INode {
             {
                 label: '连接源',
                 fieldName: 'datasource',
-                dataSourceType: "kingbase",
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',
                     defaultValue: '',
+                    dataSourceType: "kingbase",
                     validation: { required: true }
                 },
-                // 联动配置：影响表名字段
-                linkage: {
-                    targets: ['table'],
-                    trigger: 'onChange'
-                }
+
             },
             // 操作类型选择器
             {
@@ -86,10 +82,6 @@ export class Kingbase implements INode {
                     defaultValue: '',
                     placeholder: '例如: users',
                     validation: { required: true }
-                },
-                // 联动配置：依赖连接源字段
-                linkage: {
-                    dependsOn: 'datasource'
                 }
             },
 
@@ -308,7 +300,7 @@ export class Kingbase implements INode {
             // Try KingbaseES official driver first
             try {
                 const kb = await import('kb');
-                const {Client} = kb;
+                const { Client } = kb;
 
                 const client = new Client(connectionConfig);
                 await client.connect();
@@ -318,7 +310,7 @@ export class Kingbase implements INode {
 
                 // Fallback to PostgreSQL driver for compatibility
                 const pg = await import('pg');
-                const {Client} = pg;
+                const { Client } = pg;
 
                 const client = new Client(connectionConfig);
                 await client.connect();

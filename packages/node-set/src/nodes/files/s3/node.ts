@@ -33,12 +33,12 @@ export class S3 implements INode {
             // S3连接配置
             {
                 label: '连接配置',
-                fieldName: 'connection',
-                dataSourceType: 'llm',
+                fieldName: 'connection',                
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',
                     defaultValue: '',
+                    dataSourceType: 'llm',
                     validation: {
                         required: true
                     }

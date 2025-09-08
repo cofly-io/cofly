@@ -18,12 +18,12 @@ export class Redis implements INode {
 			// 数据库连接配置
 			{
 				label: '连接源',
-				fieldName: 'datasource',
-				dataSourceType: "redis",
+				fieldName: 'datasource',				
 				control: {
 					name: 'selectconnect',
 					dataType: 'string',
 					defaultValue: '',
+					dataSourceType: "redis",
 					validation: { required: true }
 				}
 			},

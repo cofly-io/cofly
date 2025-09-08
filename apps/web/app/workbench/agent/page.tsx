@@ -232,9 +232,8 @@ export default function AgentPageContainer() {
       // 导入dataFetchers
       const { fetchConnectDetail } = await import('../flow/utils/dataFetchers');
       // 使用 JSON.stringify 确保格式正确
-      const connectInfoStr = JSON.stringify({ mtype: "llm", id: datasourceId });
       // 调用fetchConnectDetail获取模型列表，传递type参数作为search
-      const result = await fetchConnectDetail(connectInfoStr, search);
+      const result = await fetchConnectDetail(datasourceId, search);
 
       if (!result.error && result.tableOptions && result.tableOptions.length > 0) {
         // 将tableOptions转换为ModelInfo格式，但保持原有的对象结构

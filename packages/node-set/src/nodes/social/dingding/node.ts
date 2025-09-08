@@ -25,12 +25,12 @@ export class Dingding implements INode {
         fields: [
             {
                 label: '钉钉连接',
-                fieldName: 'credential',
-                dataSourceType: 'dingding',
+                fieldName: 'credential',                
                 control: {
                     name: 'selectconnect',
                     dataType: 'string',
                     defaultValue: '',
+                    dataSourceType: 'dingding',
                     validation: {
                         required: true
                     },

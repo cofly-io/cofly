@@ -4,7 +4,7 @@
  * 负责管理节点的详情显示、测试和配置
  * 这个组件主要作为节点相关功能的容器和协调器
  */
-
+import { ToastType } from '@repo/common';
 import React, { useCallback, useState, useMemo } from 'react';
 import styled from 'styled-components';
 
@@ -192,7 +192,7 @@ export const NodeManagement: React.FC<NodeManagementProps> = ({
   /**
    * Toast显示函数
    */
-  const showToast = useCallback((type: 'error' | 'warning', title: string, message: string) => {
+  const showToast = useCallback((type: ToastType, title: string, message: string) => {
     if (type === 'error') {
       showError(title, message);
     } else {

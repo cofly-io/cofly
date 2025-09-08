@@ -1,6 +1,12 @@
-import { Icon, IDatabaseMetadataOptions, IDatabaseMetadataResult, credentialManager } from '@repo/common';
+import {
+    Icon,
+    IDatabaseMetadataOptions,
+    IDatabaseMetadataResult,
+    IDatabaseExecutionOptions,
+    IDatabaseExecutionResult,
+    ConnectTestResult
+} from '@repo/common';
 import { BaseDatabaseConnect } from '../../base/BaseDatabaseConnect';
-import { ConnectTestResult } from '@repo/common';
 import * as sql from 'mssql';
 
 /**
@@ -203,22 +209,17 @@ export class SQLServerConnect extends BaseDatabaseConnect {
     }
 
     async metadata(opts: IDatabaseMetadataOptions): Promise<IDatabaseMetadataResult> {
-        console.log('🔧 [SQL Server Connect] metadata 方法被调用:', opts);
-
         try {
-            switch (opts.type) {
-                case 'tables':
-                    return await this.getTableNames(opts.datasourceId, opts.search);
-                case 'columns':
-                    return await this.getColumnNames(opts.datasourceId, opts.tableName, opts.search);
-                case 'schemas':
-                    return await this.getSchemaNames(opts.datasourceId, opts.search);
-                default:
-                    return {
-                        success: false,
-                        error: `不支持的元数据类型: ${opts.type}`
-                    };
-            }
+            const connectionConfig = this.buildConnectionConfig({
+                host: opts.host,
+                port: opts.port,
+                database: opts.database,
+                username: opts.user,
+                password: opts.password,
+                ssl: opts.ssl,
+                connectionTimeout: opts.connectTimeout || 15
+            });
+            return await this.getTableNames(connectionConfig, opts.search);
         } catch (error: any) {
             console.error('❌ [SQL Server Connect] metadata 执行错误:', error.message);
             return {
@@ -255,31 +256,9 @@ export class SQLServerConnect extends BaseDatabaseConnect {
     /**
      * 获取表名列表
      */
-    private async getTableNames(datasourceId?: string, search?: string): Promise<IDatabaseMetadataResult> {
-        if (!datasourceId) {
-            return {
-                success: false,
-                error: '数据源ID不能为空'
-            };
-        }
-
+    private async getTableNames(connectionConfig?: any, search?: string): Promise<IDatabaseMetadataResult> {
         try {
-            // 获取连接配置
-            const connectConfig = await credentialManager.mediator?.get(datasourceId);
-            if (!connectConfig) {
-                return {
-                    success: false,
-                    error: `连接配置不存在: ${datasourceId}`
-                };
-            }
-
-            const configData = connectConfig.config;
-            const connectionConfig = this.buildConnectionConfig(configData);
-
-            // 创建数据库连接
-            const pool = await sql.connect(connectionConfig);
-
-            try {
+            const tables = await this.withConnection(connectionConfig, async (pool) => {
                 // 查询表名
                 let query = `
                     SELECT TABLE_NAME 
@@ -291,32 +270,26 @@ export class SQLServerConnect extends BaseDatabaseConnect {
                 if (search) {
                     query += ' AND TABLE_NAME LIKE @search';
                 }
-
                 query += ' ORDER BY TABLE_NAME';
 
                 const request = pool.request();
-                request.input('database', sql.VarChar, configData.database);
+                request.input('database', sql.VarChar, connectionConfig.database);
                 if (search) {
                     request.input('search', sql.VarChar, `%${search}%`);
                 }
 
                 const result = await request.query(query);
-
                 // 格式化结果
-                const tables = result.recordset.map((row: any) => ({
+                return result.recordset.map((row: any) => ({
                     value: row.TABLE_NAME,
                     label: row.TABLE_NAME
                 }));
+            });
 
-                return {
-                    success: true,
-                    data: tables
-                };
-
-            } finally {
-                // 关闭连接
-                await pool.close();
-            }
+            return {
+                success: true,
+                data: tables
+            };
 
         } catch (error: any) {
             console.error('❌ [SQL Server Connect] 获取表名失败:', error.message);
@@ -328,159 +301,75 @@ export class SQLServerConnect extends BaseDatabaseConnect {
     }
 
     /**
-     * 获取表的列名列表
-     */
-    private async getColumnNames(datasourceId?: string, tableName?: string, search?: string): Promise<IDatabaseMetadataResult> {
-        if (!datasourceId) {
-            return {
-                success: false,
-                error: '数据源ID不能为空'
-            };
-        }
-
-        if (!tableName) {
-            return {
-                success: false,
-                error: '表名不能为空'
-            };
-        }
-
+    * 统一的连接管理函数
+    * 自动处理连接的创建、使用和关闭
+    */
+    private async withConnection<T>(
+        connectionConfig: any,
+        callback: (pool: any) => Promise<T>
+    ): Promise<T> {
+        let pool: any = null;
         try {
-            // 获取连接配置
-            const connectConfig = await credentialManager.mediator?.get(datasourceId);
-            if (!connectConfig) {
-                return {
-                    success: false,
-                    error: `连接配置不存在: ${datasourceId}`
-                };
-            }
+            // 创建连接
+            pool = await sql.connect(connectionConfig);
+            console.log('✅ [SQL Server Connect] 数据库连接已建立');
 
-            const configData = connectConfig.config;
-            const connectionConfig = this.buildConnectionConfig(configData);
+            // 执行回调函数
+            const result = await callback(pool);
 
-            // 创建数据库连接
-            const pool = await sql.connect(connectionConfig);
-
-            try {
-                // 查询列名
-                let query = `
-                    SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT 
-                    FROM INFORMATION_SCHEMA.COLUMNS 
-                    WHERE TABLE_CATALOG = @database AND TABLE_NAME = @tableName
-                `;
-
-                // 如果有搜索关键词，添加过滤条件
-                if (search) {
-                    query += ' AND COLUMN_NAME LIKE @search';
-                }
-
-                query += ' ORDER BY ORDINAL_POSITION';
-
-                const request = pool.request();
-                request.input('database', sql.VarChar, configData.database);
-                request.input('tableName', sql.VarChar, tableName);
-                if (search) {
-                    request.input('search', sql.VarChar, `%${search}%`);
-                }
-
-                const result = await request.query(query);
-
-                // 格式化结果
-                const columns = result.recordset.map((row: any) => ({
-                    value: row.COLUMN_NAME,
-                    label: row.COLUMN_NAME,
-                    description: `${row.DATA_TYPE}${row.IS_NULLABLE === 'YES' ? ' (可空)' : ' (非空)'}`
-                }));
-
-                return {
-                    success: true,
-                    data: columns
-                };
-
-            } finally {
-                // 关闭连接
-                await pool.close();
-            }
+            return result;
 
         } catch (error: any) {
-            console.error('❌ [SQL Server Connect] 获取列名失败:', error.message);
-            return {
-                success: false,
-                error: `获取列名失败: ${error.message}`
-            };
+            console.error('❌ [SQL Server Connect] 连接操作失败:', error.message);
+            throw error;
+        } finally {
+            // 确保连接总是被正确关闭
+            if (pool) {
+                try {
+                    await pool.close();
+                    console.log('✅ [SQL Server Connect] 数据库连接已关闭');
+                } catch (closeError: any) {
+                    console.error('⚠️ [SQL Server Connect] 关闭连接时出错:', closeError.message);
+                }
+            }
         }
     }
 
-    /**
-     * 获取数据库schema列表
-     */
-    private async getSchemaNames(datasourceId?: string, search?: string): Promise<IDatabaseMetadataResult> {
-        if (!datasourceId) {
-            return {
-                success: false,
-                error: '数据源ID不能为空'
-            };
-        }
-
+    async execute(opts: IDatabaseExecutionOptions): Promise<IDatabaseExecutionResult> {
         try {
-            // 获取连接配置
-            const connectConfig = await credentialManager.mediator?.get(datasourceId);
-            if (!connectConfig) {
-                return {
-                    success: false,
-                    error: `连接配置不存在: ${datasourceId}`
-                };
-            }
+            console.log('📍 [SQL Server Connect] 执行SQL:', {
+                sql: opts.sql,
+                params: opts.prams,
+                datasourceId: opts.datasourceId
+            });
 
-            const configData = connectConfig.config;
-            const connectionConfig = this.buildConnectionConfig(configData);
-
-            // 创建数据库连接
-            const pool = await sql.connect(connectionConfig);
-
-            try {
-                // 查询schema名
-                let query = `
-                    SELECT SCHEMA_NAME 
-                    FROM INFORMATION_SCHEMA.SCHEMATA
-                `;
-
-                // 如果有搜索关键词，添加过滤条件
-                if (search) {
-                    query += ' WHERE SCHEMA_NAME LIKE @search';
-                }
-
-                query += ' ORDER BY SCHEMA_NAME';
-
+            const rows = await this.withConnection(opts.datasourceId, async (pool) => {
                 const request = pool.request();
-                if (search) {
-                    request.input('search', sql.VarChar, `%${search}%`);
-                }
+                const result = await request.query(opts.sql);
+                return result.recordset;
+            });
 
-                const result = await request.query(query);
+            console.log('📍 [SQL Server Connect] SQL执行成功:', {
+                rowCount: Array.isArray(rows) ? rows.length : 0,
+                dataType: typeof rows
+            });
 
-                // 格式化结果
-                const schemas = result.recordset.map((row: any) => ({
-                    value: row.SCHEMA_NAME,
-                    label: row.SCHEMA_NAME
-                }));
-
-                return {
-                    success: true,
-                    data: schemas
-                };
-
-            } finally {
-                // 关闭连接
-                await pool.close();
-            }
+            return {
+                success: true,
+                data: rows,
+            } as IDatabaseExecutionResult;
 
         } catch (error: any) {
-            console.error('❌ [SQL Server Connect] 获取schema失败:', error.message);
+            console.error('❌ [SQL Server Connect] 执行SQL失败:', {
+                message: error.message,
+                code: error.code,
+                sql: opts.sql,
+                params: opts.prams
+            });
             return {
                 success: false,
-                error: `获取schema失败: ${error.message}`
-            };
+                error: `执行SQL失败: ${error.message}`
+            } as IDatabaseExecutionResult;
         }
     }
 }
