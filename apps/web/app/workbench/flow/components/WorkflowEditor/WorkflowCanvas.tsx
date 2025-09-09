@@ -20,9 +20,9 @@ import { StickyNoteComponent } from '@repo/ui/';
 import { AgentNodeWrapper, McpLabelProvider } from '../AgentNodeWrapper';
 import { ActionNodeWrapper, ActionProvider } from '../ActionNodeWrapper';
 import { TriggerNodeWrapper, TriggerProvider } from '../TriggerNodeWrapper';
-
+import { IConnectConfig } from '@repo/common';
 // 导入应用层类型
-import { ConnectConfig, FetchTablesResponse } from "../../types/node";
+import { FetchTablesResponse } from '@/services/databaseService';
 
 // 导入工具函数
 import { logger } from '@/workbench/flow';
@@ -34,6 +34,7 @@ const nodeTypes = {
   agentNode: AgentNodeWrapper,
   stickyNote: StickyNoteComponent
 };
+
 
 interface AppWorkflowCanvasProps {
   nodes: Node[];
@@ -54,8 +55,8 @@ interface AppWorkflowCanvasProps {
   onPasteNodes?: () => void;
   nodesTestResultsMap?: Record<string, any>;
   getLatestNodesTestResultsMap?: () => Record<string, any>;
-  connectConfigs?: ConnectConfig[];
-  onFetchConnectInstances?: (connectType?: string) => Promise<ConnectConfig[]>;
+  connectConfigs?: IConnectConfig[];
+  onFetchConnectInstances?: (connectType?: string) => Promise<IConnectConfig[]>;
   onFetchConnectDetail?: (datasourceId: string, search?: string) => Promise<FetchTablesResponse>;
   onMcpLabelClick?: (nodeId: string) => void;
   onResourceDelete?: (nodeId: string, resourceType: string, resourceId: string) => void;
@@ -233,25 +234,31 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
       return {
         loading: false,
         error: '获取表名功能未实现',
-        tableOptions: []
+        options: []
       };
     }
 
     try {
       const result = await onFetchConnectDetail(datasourceId, search);
-      logger.debug('应用层获取表名成功', {
-        datasourceId,
-        search,
-        count: result.tableOptions.length
-      });
+      
+      // 确保数据结构正确
+      if (!result) {
+        throw new Error('未返回数据');
+      }
+      
+      // 验证数据格式
+      const options = result.options || [];
 
-      return result;
-    } catch (error) {
-      logger.error('应用层获取表名失败', error);
       return {
         loading: false,
-        error: error instanceof Error ? error.message : '获取表名失败',
-        tableOptions: []
+        error: null,
+        options
+      };
+    } catch (error) {
+      return {
+        loading: false,
+        error: error instanceof Error ? error.message : '获取数据失败',
+        options: []
       };
     }
   }, [onFetchConnectDetail]);
@@ -263,7 +270,7 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
     fetchConnectDetail: async (datasourceId: string) => {
       const result = await handleFetchConnectDetail(datasourceId);
       // 转换为联动回调期望的格式
-      return result.tableOptions?.map(option => ({
+      return result.options?.map(option => ({
         label: option.label,
         value: option.value
       })) || [];

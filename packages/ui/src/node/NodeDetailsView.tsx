@@ -58,7 +58,7 @@ interface NodeDetailsViewProps {
   onFetchConnectDetail?: (datasourceId: string) => Promise<{
     loading: boolean;
     error: string | null;
-    tableOptions: Array<{ label: string; value: string; }>;
+    options: Array<{ label: string; value: string; }>;
   }>; // 动态获取表名的回调
   linkageCallbacks?: LinkageCallbacks; // 联动回调函数映射
   isNodeTesting?: boolean; // 节点是否正在测试

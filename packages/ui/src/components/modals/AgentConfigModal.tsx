@@ -710,13 +710,13 @@ export const AgentConfigModal: React.FC<AgentConfigModalProps> = ({
       const connectDetails = await onFetchConnectDetails(selectedConnect.id);
       console.log('[AgentConfigModal] 获取在线模型结果:', connectDetails);
 
-      // 检查返回的数据结构：可能是数组或包含tableOptions的对象
+      // 检查返回的数据结构：可能是数组或包含options的对象
       let modelsArray: any[] = [];
 
       if (Array.isArray(connectDetails)) {
         modelsArray = connectDetails;
-      } else if (connectDetails && connectDetails.tableOptions && Array.isArray(connectDetails.tableOptions)) {
-        modelsArray = connectDetails.tableOptions;
+      } else if (connectDetails && connectDetails.options && Array.isArray(connectDetails.options)) {
+        modelsArray = connectDetails.options;
       }
 
       if (modelsArray.length > 0) {

@@ -269,8 +269,8 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
         try {
             if (onFetchOnlineModels) {
                 const result = await onFetchOnlineModels(connectionId, 'embedding');
-                if (!result.error && result.tableOptions && result.tableOptions.length > 0) {
-                    const modelOptions = result.tableOptions.map((option: any) => ({
+                if (!result.error && result.options && result.options.length > 0) {
+                    const modelOptions = result.options.map((option: any) => ({
                         value: option.value,
                         label: option.label || option.value
                     }));
@@ -309,8 +309,8 @@ export const KnowledgeBaseModal: React.FC<KnowledgeBaseModalProps> = ({
         try {
             if (onFetchOnlineModels) {
                 const result = await onFetchOnlineModels(connectionId, 'reranker');
-                if (!result.error && result.tableOptions && result.tableOptions.length > 0) {
-                    const modelOptions = result.tableOptions.map((option: any) => ({
+                if (!result.error && result.options && result.options.length > 0) {
+                    const modelOptions = result.options.map((option: any) => ({
                         value: option.value,
                         label: option.label || option.value
                     }));

@@ -24,7 +24,7 @@
 //   AIhelp
 // } from '../../controls';
 // import { SqlCode } from '../../controls/sqlcode';
-// import { SelecConnect } from '../../controls/selectconnect';
+// import { SelecConnect } from '../../controls/selectlistdesc';
 
 // import { UnifiedParameterInputProps, UnifiedParameterField } from './types';
 // import type { INodePropertyOptions } from '@repo/common';
@@ -122,7 +122,7 @@
 
 //   // 处理 selectconnect 类型字段的连接配置获取
 //   useEffect(() => {
-//     if (field.controlType === 'selectconnect') {
+//     if (field.controlType === 'selectlistdesc') {
 //       const fetchConfigs = async () => {
 //         const connectType = field.connectType;
 //         if (connectType && onFetchConnectInstances) {

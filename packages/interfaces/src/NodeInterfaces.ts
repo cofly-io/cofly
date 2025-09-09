@@ -1,3 +1,6 @@
+import {IConnectConfig} from './ConnectInterfaces';
+
+
 export type CommonValue = string | object | number | boolean | undefined | null;
 
 export type ToastType = 'success' | 'info' | 'warning' | 'error';
@@ -65,7 +68,7 @@ export type WorkflowActivateMode =
     | 'leadershipChange';
 
 
-type ConnectInstanceType =
+export type ConnectInstanceType =
     // db
     | 'dameng'
     | 'kingbase'
@@ -435,7 +438,7 @@ export type FilterValue = {
 // };
 
 // export type AssignmentCollectionValue = {
-    //assignments: AssignmentValue[];
+//assignments: AssignmentValue[];
 // };
 
 // export type NodeParameterValueType =
@@ -676,8 +679,8 @@ export type ComponentType =
     | 'select'
     | 'selectfilter'
     | 'selectwithdesc'
+    | 'selectlistdesc'
     | 'inputselect'
-    | 'selectconnect'
     | 'selectadd'
     | 'jsoncode'
     | 'slider'
@@ -784,11 +787,5 @@ export interface IExecuteOptions {
      * 连接配置映射，用于获取连接实例的配置信息
      * key为连接实例ID，value为连接配置信息
      */
-    connectConfigs?: Record<string, {
-        id: string;
-        name: string;
-        ctype: string;
-        nodeinfo: Record<string, any>;
-        description?: string;
-    }>;
+    connectConfigs?: Record<string, IConnectConfig>;
 }

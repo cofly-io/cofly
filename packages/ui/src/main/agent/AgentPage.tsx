@@ -728,7 +728,7 @@ export const AgentPage: React.FC<AgentPageProps> = ({
         onFetchOnlineModels={onFetchConnectDetails}
         onLoadModels={onFetchConnectDetails ? async (connectId: string) => {
           const result = await onFetchConnectDetails(connectId);
-          return result.tableOptions || [];
+          return result.options || [];
         } : undefined}
       />
     </GlassContainer>

@@ -1,14 +1,4 @@
-/**
- * 连接配置数据类型
- */
-export interface ConnectConfigData {
-  id?: string;
-  name: string;
-  ctype: string;
-  mtype?: string; // 连接模型类型：database、llm、http等
-  config: Record<string, any>;
-  creator?: string;
-}
+import { IConnectConfig  } from '@repo/common';
 
 /**
  * 保存连接配置的请求数据
@@ -16,7 +6,7 @@ export interface ConnectConfigData {
 export interface SaveConnectConfigRequest {
   connectId: string;
   name: string;
-  mtype?: string; // 连接模型类型
+  mType?: string; // 连接模型类型
   config: Record<string, any>;
   creator?: string;
 }
@@ -26,7 +16,7 @@ export interface SaveConnectConfigRequest {
  */
 export interface ConnectConfigResponse {
   success: boolean;
-  data?: ConnectConfigData;
+  data?: IConnectConfig;
   error?: string;
   message?: string;
 }
@@ -36,7 +26,7 @@ export interface ConnectConfigResponse {
  */
 export interface ConnectConfigListResponse {
   success: boolean;
-  data: ConnectConfigData[];
+  data: IConnectConfig[];
   total: number;
   error?: string;
 }
@@ -87,17 +77,17 @@ export class ConnectConfigService {
    * 获取连接配置列表
    */
   static async getConnectConfigs(filter?: {
-    ctype?: string;
-    mtype?: string;
+    cType?: string;
+    mType?: string;
     creator?: string;
   }): Promise<ConnectConfigListResponse> {
     try {
       const searchParams = new URLSearchParams();
-      if (filter?.ctype) {
-        searchParams.append('ctype', filter.ctype);
+      if (filter?.cType) {
+        searchParams.append('cType', filter.cType);
       }
-      if (filter?.mtype) {
-        searchParams.append('mtype', filter.mtype);
+      if (filter?.mType) {
+        searchParams.append('mType', filter.mType);
       }
       // if (filter?.creator) {
       //   searchParams.append('creator', filter.creator);
@@ -144,9 +134,7 @@ export class ConnectConfigService {
           error: result.error || '获取连接配置失败'
         };
       }
-
       return result;
-
     } catch (error) {
       console.error('获取连接配置失败:', error);
       return {

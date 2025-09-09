@@ -62,7 +62,7 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
   // 监听是否有其他字段target到当前字段
   useEffect(() => {
     // 查找所有target到当前字段的字段
-    const sourceFields = allFields.filter(sourceField => 
+    const sourceFields = allFields.filter(sourceField =>
       sourceField.control.linkage?.targets?.includes(field.fieldName)
     );
 
@@ -80,41 +80,40 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
     // 监听所有源字段的值变化
     const sourceValues = sourceFields.map(sourceField => {
       const value = formValues[sourceField.fieldName];
-      
-      // 如果是JSON格式的值（如selectconnect），尝试解析ID
-      if (typeof value === 'string' && value.startsWith('{')) {
-        try {
-          const connectInfo = JSON.parse(value);
-          return connectInfo.id;
-        } catch {
-          return value;
-        }
-      }
-      
+
+      // 如果是JSON格式的值（如selectlistdesc），尝试解析ID
+      // if (typeof value === 'string' && value.startsWith('{')) {
+      //   try {
+      //     const connectInfo = JSON.parse(value);
+      //     return connectInfo.id;
+      //   } catch {
+      //     return value;
+      //   }
+      // }
+
       return value;
     });
 
     // 获取第一个有值的源字段值
     const validSourceValue = sourceValues.find(value => value && value !== '');
-    
+
     if (validSourceValue) {
       console.log('📞 [useLinkageData] 检测到源字段值变化，获取联动数据:', {
         targetField: field.fieldName,
         sourceValue: validSourceValue
       });
-      
+
       fetchLinkageData(validSourceValue);
     } else {
       console.log('🗑️ [useLinkageData] 所有源字段值为空，清空数据');
       setLinkageData([]);
     }
   }, [
-    // 监听所有可能的源字段值变化
-    ...allFields
+    // 监听所有可能的源字段值变化 - 使用JSON.stringify来稳定依赖
+    JSON.stringify(allFields
       .filter(sourceField => sourceField.control.linkage?.targets?.includes(field.fieldName))
-      .map(sourceField => formValues[sourceField.fieldName]),
+      .map(sourceField => ({ fieldName: sourceField.fieldName, value: formValues[sourceField.fieldName] }))),
     field.fieldName,
-    allFields,
     fetchLinkageData
   ]);
 

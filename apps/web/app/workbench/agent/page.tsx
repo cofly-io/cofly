@@ -197,7 +197,7 @@ export default function AgentPageContainer() {
   // 统一的连接获取函数，支持所有类型的连接
   const handleFetchConnects = async (mtype?: string) => {
     try {
-      const result = await ConnectConfigService.getConnectConfigs({ mtype: mtype });
+      const result = await ConnectConfigService.getConnectConfigs({ mType: mtype });
 
       if (result.success) {
         // LLM连接直接返回原始数据，其他连接需要转换格式
@@ -230,14 +230,14 @@ export default function AgentPageContainer() {
   const handleFetchOnlineModels = async (datasourceId: string, search?: string) => {
     try {
       // 导入dataFetchers
-      const { fetchConnectDetail } = await import('../flow/utils/dataFetchers');
+      const { fetchConnectDetail } = await import('../utils/dataFetchers');
       // 使用 JSON.stringify 确保格式正确
       // 调用fetchConnectDetail获取模型列表，传递type参数作为search
       const result = await fetchConnectDetail(datasourceId, search);
 
-      if (!result.error && result.tableOptions && result.tableOptions.length > 0) {
-        // 将tableOptions转换为ModelInfo格式，但保持原有的对象结构
-        const transformedOptions = result.tableOptions.map((option: any) => ({
+      if (!result.error && result.options && result.options.length > 0) {
+        // 将options转换为ModelInfo格式，但保持原有的对象结构
+        const transformedOptions = result.options.map((option: any) => ({
           value: option.value,
           label: option.label || option.value,
           id: option.value,
@@ -246,23 +246,23 @@ export default function AgentPageContainer() {
           description: option.description || `模型`,
           tags: getModelTags(option.value)
         }));
-        // 返回包含tableOptions的对象，符合AgentConfigModal的期望
+        // 返回包含options的对象，符合AgentConfigModal的期望
         const finalResult = {
           ...result,
-          tableOptions: transformedOptions
+          options: transformedOptions
         };
         return finalResult;
       } else {
         return {
           error: result.error || '未获取到模型数据',
-          tableOptions: []
+          options: []
         };
       }
     } catch (error) {
       console.error('❌ [page.tsx] 获取模型失败:', error);
       return {
         error: error instanceof Error ? error.message : '获取模型失败',
-        tableOptions: []
+        options: []
       };
     }
   };
@@ -649,16 +649,16 @@ export default function AgentPageContainer() {
       const result = await AiRagService.deleteDocument(knowledgeBaseId, documentId);
       const endTime = Date.now();
       
-      console.log('🔧 [AgentPage] AiRagService.deleteDocument 调用完成');
-      console.log('🔧 [AgentPage] 耗时:', endTime - startTime + 'ms');
-      console.log('🔧 [AgentPage] 服务返回结果:', result);
+      // console.log('🔧 [AgentPage] AiRagService.deleteDocument 调用完成');
+      // console.log('🔧 [AgentPage] 耗时:', endTime - startTime + 'ms');
+      // console.log('🔧 [AgentPage] 服务返回结果:', result);
 
       if (result.success) {
-        console.log('🔧 [AgentPage] ✅ 文档删除成功');
-        console.log('🔧 [AgentPage] ========== 删除请求成功结束 ==========');
+        // console.log('🔧 [AgentPage] ✅ 文档删除成功');
+        // console.log('🔧 [AgentPage] ========== 删除请求成功结束 ==========');
         return result;
       } else {
-        console.error('🔧 [AgentPage] ❌ 文档删除失败:', result.error);
+        // console.error('🔧 [AgentPage] ❌ 文档删除失败:', result.error);
         return result;
       }
     } catch (error) {
@@ -667,7 +667,7 @@ export default function AgentPageContainer() {
         message: error instanceof Error ? error.message : '未知错误',
         stack: error instanceof Error ? error.stack : undefined
       });
-      console.log('🔧 [AgentPage] ========== 删除请求异常结束 ==========');
+      // console.log('🔧 [AgentPage] ========== 删除请求异常结束 ==========');
       return {
         success: false,
         error: error instanceof Error ? error.message : '文档删除异常'
@@ -683,14 +683,14 @@ export default function AgentPageContainer() {
       const result = await AiRagService.deleteDocumentChunk(knowledgeBaseId, documentId, chunkId);
 
       if (result.success) {
-        console.log('🔧 [AgentPage] 文档片段删除成功');
+        // console.log('🔧 [AgentPage] 文档片段删除成功');
         return result;
       } else {
-        console.error('🔧 [AgentPage] 文档片段删除失败:', result.error);
+        // console.error('🔧 [AgentPage] 文档片段删除失败:', result.error);
         return result;
       }
     } catch (error) {
-      console.error('🔧 [AgentPage] 文档片段删除异常:', error);
+      // console.error('🔧 [AgentPage] 文档片段删除异常:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : '文档片段删除异常'
@@ -701,12 +701,12 @@ export default function AgentPageContainer() {
   // 重新处理文档处理函数
   const handleReprocessDocument = async (knowledgeBaseId: string, documentId: string) => {
     try {
-      console.log('🔧 [AgentPage] 开始重新处理文档:', { knowledgeBaseId, documentId });
+      // console.log('🔧 [AgentPage] 开始重新处理文档:', { knowledgeBaseId, documentId });
 
       const result = await AiRagService.reprocessDocument(knowledgeBaseId, documentId);
 
       if (result.success) {
-        console.log('🔧 [AgentPage] 文档重新处理成功');
+        // console.log('🔧 [AgentPage] 文档重新处理成功');
         return result;
       } else {
         console.error('🔧 [AgentPage] 文档重新处理失败:', result.error);
@@ -724,12 +724,12 @@ export default function AgentPageContainer() {
   // 下载文档处理函数
   const handleDownloadDocument = async (knowledgeBaseId: string, documentId: string) => {
     try {
-      console.log('🔧 [AgentPage] 开始下载文档:', { knowledgeBaseId, documentId });
+      // console.log('🔧 [AgentPage] 开始下载文档:', { knowledgeBaseId, documentId });
 
       const result = await AiRagService.downloadDocument(knowledgeBaseId, documentId);
 
       if (result.success) {
-        console.log('🔧 [AgentPage] 文档下载成功');
+        // console.log('🔧 [AgentPage] 文档下载成功');
         return result;
       } else {
         console.error('🔧 [AgentPage] 文档下载失败:', result.error);

@@ -34,7 +34,7 @@ import { useWorkflowOperations } from './hooks/useWorkflowOperations';
 import { useNodeTesting } from './hooks/useNodeTesting';
 
 // Utils导入
-import { fetchConnectInstances, fetchConnectDetail } from './utils';
+import { fetchConnectInstances, fetchConnectDetail } from '../utils/dataFetchers';
 
 // Service导入
 import { AgentService } from '@/services/agentService';

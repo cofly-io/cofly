@@ -19,5 +19,3 @@ export * from './errorHandling';
 // 常量定义
 export * from './constants';
 
-// 数据获取相关工具
-export * from './dataFetchers';

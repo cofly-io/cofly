@@ -32,7 +32,7 @@ export interface UnifiedParameterInputProps {
   onFetchConnectDetail?: (datasourceId: string) => Promise<{
     loading: boolean;
     error: string | null;
-    tableOptions: Array<{ label: string; value: string; }>;
+    options: Array<{ label: string; value: string; }>;
   }>; // 动态获取表名的回调
   // 新增：通用联动回调函数映射
   linkageCallbacks?: LinkageCallbacks;

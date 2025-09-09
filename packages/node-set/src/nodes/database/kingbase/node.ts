@@ -21,7 +21,7 @@ export class Kingbase implements INode {
                 label: '连接源',
                 fieldName: 'datasource',
                 control: {
-                    name: 'selectconnect',
+                    name: 'selectlistdesc',
                     dataType: 'string',
                     defaultValue: '',
                     dataSourceType: "kingbase",

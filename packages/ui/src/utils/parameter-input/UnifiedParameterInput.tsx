@@ -14,6 +14,7 @@ import {
     Select as SelectControl,
     SelectFilter,
     SelectWithDesc,
+    SelectListDesc,
     InputSelect,
     SelectAdd,
     SliderControl,
@@ -22,7 +23,6 @@ import {
     Note,
     TextArea,
     AIhelp,
-    SelecConnect,
     SqlCode
 } from '../../controls';
 
@@ -103,13 +103,13 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             } catch (error) {
                 console.error('❌ [UnifiedParameterInput] 获取连接配置失败:', error);
             }
-        } 
+        }
     };
 
     // 处理需要数据源类型的控件的动态配置获取和联动逻辑
     useEffect(() => {
-        const controlsWithDataSource = ['select', 'selectfilter', 'selectwithdesc', 'selectconnect', 'inputselect'];
-        const controlsWithLinkage = ['select', 'selectfilter', 'selectwithdesc', 'selectconnect'];
+        const controlsWithDataSource = ['select', 'selectfilter', 'selectwithdesc', 'selectlistdesc', 'inputselect'];
+        const controlsWithLinkage = ['select', 'selectfilter', 'selectwithdesc', 'selectlistdesc'];
 
         // 处理数据源类型的动态配置获取
         if (controlsWithDataSource.includes(field.control.name) && field.control.dataSourceType) {
@@ -705,15 +705,15 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             }
 
 
-            case 'selectconnect':
+            case 'selectlistdesc':
                 const connectDatasource = dynamicConnectConfigs.map(config => ({
                     value: config.id,
                     text: config.name,
                     ...(config.description && { description: config.description })
                 }));
 
-                // 处理 selectconnect 的 onChange 事件，同时处理联动逻辑
-                const handleSelectConnectChange = (selectedValue: string | number) => {
+                // 处理 selectlistdesc 的 onChange 事件，同时处理联动逻辑
+                const handleselectlistdescChange = (selectedValue: string | number) => {
                     try {
                         // 解析 JSON 格式的 value
                         // const connectInfo = JSON.parse(selectedValue as string);
@@ -723,7 +723,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
                         // 处理联动逻辑：当字段配置了 linkage 且有 targets 时
                         if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail) {
-                            console.log('🔗 [selectconnect] 触发联动逻辑:', {
+                            console.log('🔗 [selectlistdesc] 触发联动逻辑:', {
                                 fieldName: field.fieldName,
                                 targets: field.control.linkage.targets,
                                 connectId: selectedValue
@@ -733,12 +733,12 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                             field.control.linkage.targets.forEach(async (targetFieldName: string) => {
                                 try {
                                     const result = await onFetchConnectDetail(selectedValue as string);
-                                    console.log('✅ [selectconnect] 联动数据获取成功:', {
+                                    console.log('✅ [selectlistdesc] 联动数据获取成功:', {
                                         targetFieldName,
-                                        tableCount: result.tableOptions?.length || 0
+                                        tableCount: result.options?.length || 0
                                     });
                                 } catch (error) {
-                                    console.error('❌ [selectconnect] 联动数据获取失败:', {
+                                    console.error('❌ [selectlistdesc] 联动数据获取失败:', {
                                         targetFieldName,
                                         error
                                     });
@@ -753,10 +753,10 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                 };
 
                 const control = (
-                    <SelecConnect
+                    <SelectListDesc
                         datasource={connectDatasource}
                         value={value}
-                        onChange={handleSelectConnectChange}
+                        onChange={handleselectlistdescChange}
                         placeholder={field.description || field.control?.placeholder || '请选择连接'}
                     />
                 );

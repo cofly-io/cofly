@@ -66,13 +66,14 @@ export type {
     ConnectStatus,
     ConnectTestResult,
     ConnectType,
+    ConnectInstanceType,
     IConnect,
     IConnectBasic,
     ConnectCategoryType,
     IConnectDetail,
     IConnectFactory,
     IConnectField,
-    IConnectInstance,
+    IConnectInstance,    
     IConnectLoaderConfig,
     IConnectRegistry,
     
@@ -289,5 +290,9 @@ export type {
     KnowledgeBaseMetadata,
     KnowledgeBaseHealth,
     IKnowledgeBaseLoader,
-    IKnowledgeBaseInstance
+    IKnowledgeBaseInstance,
+
+    //业务数据接口
+    IConnectConfig
+    
 } from "@cofly-ai/interfaces";

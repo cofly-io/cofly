@@ -20,7 +20,7 @@ export class DingdingEvent implements INode{
                 fieldName: 'credential',
                 description: '选择钉钉连接配置',
                 control: {
-                    name: 'selectconnect',
+                    name: 'selectlistdesc',
                     dataType: 'string',
                     dataSourceType: 'dingding',
                     validation: { required: true },

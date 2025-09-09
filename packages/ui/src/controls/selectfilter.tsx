@@ -9,7 +9,7 @@ interface SelectFilterOption {
 }
 
 interface SelectFilterProps {
-  options?: SelectFilterOption[]; // 静态选项，可选
+  staticOptions?: SelectFilterOption[]; // 静态选项，可选
   value?: string | number;
   onChange?: (value: string | number) => void;
   placeholder?: string;
@@ -20,7 +20,7 @@ interface SelectFilterProps {
   onLoadOptions?: (datasourceId: string, search?: string) => Promise<SelectFilterOption[]>; // 动态加载回调
   enableDynamicLoad?: boolean; // 是否启用动态加载
   // 新增：直接传递表名数据
-  tableOptions?: SelectFilterOption[]; // 表名选项，由上层传递
+  options?: SelectFilterOption[]; // 表名选项，由上层传递
   onFetchConnectDetail?: (datasourceId: string) => Promise<{
     loading: boolean;
     error: string | null;
@@ -42,7 +42,7 @@ const SelectFilterContainer = styled.div`
 const SelectFilterInput = styled.div<{ $disabled?: boolean; $hasError?: boolean }>`
   width: 100%;
   padding: 8px;
-  border: 1px solid ${props => 
+  border: 1px solid ${props =>
     props.$hasError ? '#8B0000' : (props.theme?.colors?.border || '#e5e7eb')
   };
   border-radius: 4px;
@@ -204,7 +204,7 @@ const defaultLoadOptions = async (datasourceId: string, search?: string): Promis
 };
 
 export const SelectFilter: React.FC<SelectFilterProps> = ({
-  options = [],
+  staticOptions = [],
   value,
   onChange,
   placeholder = '请选择',
@@ -213,7 +213,7 @@ export const SelectFilter: React.FC<SelectFilterProps> = ({
   datasourceId,
   onLoadOptions = defaultLoadOptions,
   enableDynamicLoad = false,
-  tableOptions = [],
+  options = [],
   loading = false,
   error = null,
   onFetchConnectDetail,
@@ -230,14 +230,14 @@ export const SelectFilter: React.FC<SelectFilterProps> = ({
   const filterInputRef = useRef<HTMLInputElement>(null);
 
   // 确定当前使用的选项列表
-  // 优先级：tableOptions > dynamicOptions > options
-  const currentOptions = tableOptions.length > 0 ? tableOptions :
-    (enableDynamicLoad ? dynamicOptions : options);
+  // 优先级 ptions > dynamicOptions > staticOption
+  const currentOptions = options.length > 0 ? options :
+    (enableDynamicLoad ? dynamicOptions : staticOptions);
 
   // 确定当前的加载和错误状态
   // 合并内部和外部的loading/error状态
-  const currentLoading = loading || (tableOptions.length > 0 ? false : internalLoading);
-  const currentError = error || (tableOptions.length > 0 ? null : internalError);
+  const currentLoading = loading || (options.length > 0 ? false : internalLoading);
+  const currentError = error || (options.length > 0 ? null : internalError);
 
   // 当前选中的选项
   // 如果在当前选项中找不到，但有值，则创建一个临时选项用于显示
@@ -252,7 +252,7 @@ export const SelectFilter: React.FC<SelectFilterProps> = ({
   // 动态加载数据的函数（仅在没有外部tableOptions时使用）
   const loadOptions = useCallback(async (search?: string) => {
     // 如果有外部传递的tableOptions，则不执行内部加载
-    if (tableOptions.length > 0) {
+    if (options.length > 0) {
       return;
     }
 
@@ -290,11 +290,11 @@ export const SelectFilter: React.FC<SelectFilterProps> = ({
     } finally {
       setInternalLoading(false);
     }
-  }, [enableDynamicLoad, datasourceId, onLoadOptions, onFetchConnectDetail, tableOptions.length, internalLoading, dynamicOptions.length]);
+  }, [enableDynamicLoad, datasourceId, onLoadOptions, onFetchConnectDetail, options.length, internalLoading, dynamicOptions.length]);
 
   // 当数据源ID变化时，清空之前的数据（仅在没有外部tableOptions时）
   useEffect(() => {
-    if (tableOptions.length > 0) {
+    if (options.length > 0) {
       return; // 有外部数据时，不处理内部状态
     }
 
@@ -309,11 +309,11 @@ export const SelectFilter: React.FC<SelectFilterProps> = ({
         setInternalError('请先选择数据源');
       }
     }
-  }, [enableDynamicLoad, datasourceId, tableOptions.length]);
+  }, [enableDynamicLoad, datasourceId, options.length]);
 
   // 当下拉框打开且启用动态加载时，加载数据（仅在没有外部tableOptions时）
   useEffect(() => {
-    if (tableOptions.length > 0) {
+    if (options.length > 0) {
       return; // 有外部数据时，不执行内部加载
     }
 
@@ -349,7 +349,7 @@ export const SelectFilter: React.FC<SelectFilterProps> = ({
 
       loadData();
     }
-  }, [isOpen, enableDynamicLoad, datasourceId, tableOptions.length, dynamicOptions.length, internalLoading, internalError, onFetchConnectDetail, onLoadOptions]); // 包含必要的依赖
+  }, [isOpen, enableDynamicLoad, datasourceId, options.length, dynamicOptions.length, internalLoading, internalError, onFetchConnectDetail, onLoadOptions]); // 包含必要的依赖
 
   // 点击外部关闭下拉框
   useEffect(() => {
@@ -471,13 +471,13 @@ export const SelectFilter: React.FC<SelectFilterProps> = ({
         ) : currentError ? (
           <ErrorMessage>{currentError}</ErrorMessage>
         ) : filteredOptions.length > 0 ? (
-          filteredOptions.map(option => (
+          filteredOptions.map(staticOptions => (
             <Option
-              key={option.value}
-              $isSelected={option.value === value}
-              onClick={() => handleSelect(option)}
+              key={staticOptions.value}
+              $isSelected={staticOptions.value === value}
+              onClick={() => handleSelect(staticOptions)}
             >
-              {option.label}
+              {staticOptions.label}
             </Option>
           ))
         ) : (

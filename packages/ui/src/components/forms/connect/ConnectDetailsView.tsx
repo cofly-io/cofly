@@ -108,13 +108,12 @@ export const ConnectDetailsView: React.FC<ConnectDetailsViewProps> = ({
 
   // 使用 connect.editInfo 而不是 editData
   const actualEditData = (connect as any).editInfo || editData;
-  const actualSavedValues = editMode && actualEditData ? actualEditData.config : savedValues;
 
   return (
     <DetailsContent>
       <ConnectSettings
         connect={connect}
-        savedValues={actualSavedValues}
+        savedValues={savedValues}
         onClose={onClose}
         onSave={handleSave}
         onTest={handleTest}

@@ -563,7 +563,7 @@
 //   // ================ 连接配置管理 ================
 //   /**
 //    * 动态获取连接配置的回调函数
-//    * 当NodeSettings检测到selectconnect控件时调用
+//    * 当NodeSettings检测到selectlistdesc控件时调用
 //    */
 //   const handleFetchConnectConfigs = useCallback(async (ctype?: string) => {
 //     try {

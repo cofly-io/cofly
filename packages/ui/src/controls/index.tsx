@@ -8,7 +8,7 @@ export * from './select';
 export * from './selectfilter';
 export * from './selectwithdesc';
 export * from './inputselect';
-export * from './selectconnect';
+export * from './selectlistdesc';
 export * from './selectadd';
 export * from './slider';
 export * from './switch';

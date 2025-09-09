@@ -107,8 +107,8 @@ export async function GET(
             });
         }
 
-        const provider = connectConfig.ctype;
-        const mtype = connectConfig.mtype as 'db' | 'llm';
+        const provider = connectConfig.cType;
+        const mtype = connectConfig.mType as 'db' | 'llm';
 
         // 验证连接类型
         if (mtype !== 'db' && mtype !== 'llm') {
@@ -134,7 +134,7 @@ export async function GET(
         }
 
         const connectInstance = validation.instance!;
-        const connectInfo = JSON.parse(connectConfig.configinfo);
+        const connectInfo = JSON.parse(connectConfig.configInfo);
 
         // 根据类型构建元数据选项并执行
         let result;

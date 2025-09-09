@@ -26,7 +26,7 @@ export class KnowledgeBase implements INode {
                 label: '知识库',
                 fieldName: 'kbConfig',                
                 control: {
-                    name: 'selectconnect',
+                    name: 'selectlistdesc',
                     dataType: 'string',
                     defaultValue: '',
                     dataSourceType: 'kb',

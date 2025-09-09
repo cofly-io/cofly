@@ -21,7 +21,7 @@ export class FTP implements INode {
                 label: '连接配置',
                 fieldName: 'connection',                
                 control: {
-                    name: 'selectconnect',
+                    name: 'selectlistdesc',
                     dataType: 'string',
                     defaultValue: '',
                     dataSourceType: "llm", // 使用other类型的连接

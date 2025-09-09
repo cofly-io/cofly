@@ -21,7 +21,7 @@ export class AiAgentSystem implements INode {
                 label: '模型连接',
                 fieldName: 'connectid',
                 control: {
-                    name: 'selectconnect',
+                    name: 'selectlistdesc',
                     dataType: 'string',
                     dataSourceType: "llm",
                     validation: { required: true },

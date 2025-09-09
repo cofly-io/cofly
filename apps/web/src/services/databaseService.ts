@@ -2,7 +2,7 @@
  * 数据库服务 - 处理数据库相关的API调用
  */
 
-export interface TableOption {
+export interface option {
   value: string;
   label: string;
 }
@@ -10,14 +10,14 @@ export interface TableOption {
 export interface FetchTablesResponse {
   loading: boolean;
   error: string | null;
-  tableOptions: TableOption[];
+  options: option[];
 }
 
 /**
  * 获取数据库表名列表
  * @param datasourceId 数据源ID
  * @param search 搜索关键词（可选）
- * @returns 包含loading、error和tableOptions的响应对象
+ * @returns 包含loading、error和options的响应对象
  */
 export async function fetchDatabaseTables(
   datasourceId: string,
@@ -54,7 +54,7 @@ export async function fetchDatabaseTables(
     }
 
     // 转换数据格式为TableOption数组
-    const tableOptions: TableOption[] = result.data.tables.map((table: any) => ({
+    const options: option[] = result.data.tables.map((table: any) => ({
       value: table.value || table.name || String(table),
       label: table.label || table.name || String(table)
     }));
@@ -62,7 +62,7 @@ export async function fetchDatabaseTables(
     return {
       loading: false,
       error: null,
-      tableOptions
+      options
     };
   } catch (error) {
     console.error('Failed to fetch database tables:', error);
@@ -70,7 +70,7 @@ export async function fetchDatabaseTables(
     return {
       loading: false,
       error: error instanceof Error ? error.message : 'Failed to fetch tables',
-      tableOptions: []
+      options: []
     };
   }
 }
@@ -85,12 +85,12 @@ export async function fetchDatabaseTables(
 export async function fetchDatabaseTablesLegacy(
   datasourceId: string,
   search?: string
-): Promise<TableOption[]> {
+): Promise<option[]> {
   const response = await fetchDatabaseTables(datasourceId, search);
   
   if (response.error) {
     throw new Error(response.error);
   }
   
-  return response.tableOptions;
+  return response.options;
 }

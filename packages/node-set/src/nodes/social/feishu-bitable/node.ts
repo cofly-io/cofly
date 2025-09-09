@@ -29,7 +29,7 @@ export class FeishuBitable implements INode {
                 description: '选择飞书多维表格连接配置',
                 //dataSourceType: 'feishu-bitable',
                 control: {
-                    name: 'selectconnect',
+                    name: 'selectlistdesc',
                     dataType: 'string',
                     defaultValue: '',
                     validation: {

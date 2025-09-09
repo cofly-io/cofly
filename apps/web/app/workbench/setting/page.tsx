@@ -372,7 +372,7 @@ export default function SettingPage() {
       }
 
       const mappedData = (result.data || []).map(item => {
-        // selectconnect 只需要基本信息，不需要敏感的配置数据
+        // selectlistdesc 只需要基本信息，不需要敏感的配置数据
         return {
           id: item.id || '',
           name: item.name,

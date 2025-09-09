@@ -3,7 +3,7 @@
  */
 
 import { useCallback, useState, useRef } from 'react';
-import { ConnectConfig, FetchTablesResponse } from '../types/node';
+import { IConnectConfig as ConnectConfig } from '@repo/common';
 import { handleAsyncOperation, handleAsyncOperationWithRetry, logger } from '../utils/errorHandling';
 import { ConnectConfigService } from '@/services/connectConfigService';
 import { fetchDatabaseTables } from '@/services/databaseService';
@@ -13,6 +13,12 @@ interface UseConnectConfigProps {
   showError: (title: string, message: string) => void;
   showWarning: (title: string, message: string) => void;
   showSuccess: (title: string, message: string) => void;
+}
+
+interface FetchTablesResponse {
+  loading: boolean;
+  error: string | null;
+  options: Array<{ label: string; value: string }>;
 }
 
 export const useConnectConfig = ({
@@ -92,7 +98,8 @@ export const useConnectConfig = ({
         id: config.id || '',
         name: config.name,
         ctype: config.ctype,
-        nodeinfo: config.config, // 将config字段映射为nodeinfo
+        mtype: config.mtype,
+        nodeinfo: config.nodeinfo, // 将config字段映射为nodeinfo
         description: config.description
       }));
       return transformedConfigs;
@@ -134,7 +141,7 @@ export const useConnectConfig = ({
     // 检查缓存
     if (!isCacheExpired(cacheKey) && tablesCache.has(cacheKey)) {
       const cachedTables = tablesCache.get(cacheKey)!;
-      logger.debug('使用缓存的表名数据', { datasourceId, search, count: cachedTables.tableOptions.length });
+      logger.debug('使用缓存的表名数据', { datasourceId, search, count: cachedTables.options.length });
       return cachedTables;
     }
 
@@ -164,7 +171,7 @@ export const useConnectConfig = ({
       logger.info('成功获取表名', {
         datasourceId,
         search,
-        count: tablesResult.tableOptions.length
+        count: tablesResult.options.length
       });
 
       return tablesResult;
@@ -188,7 +195,7 @@ export const useConnectConfig = ({
       return {
         loading: false,
         error: result.error,
-        tableOptions: []
+        options: []
       };
     }
   }, [
@@ -234,6 +241,7 @@ export const useConnectConfig = ({
         id: responseData.data.id,
         name: config.name,
         ctype: config.ctype,
+        mtype: config.mtype,
         nodeinfo: config.nodeinfo,
         description: config.description
       };

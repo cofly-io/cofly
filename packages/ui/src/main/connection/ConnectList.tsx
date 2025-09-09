@@ -10,6 +10,7 @@ import { ToolbarControls } from '../chat/ToolbarControls';
 import { useGlobalConfirm } from '../../components/basic/GlobalConfirmManager';
 import { useToast, ToastManager } from '../../components/basic/LiquidToast';
 import { useTheme } from '../../context/ThemeProvider';
+import { IConnectConfig } from '@repo/common';
 
 // Models 标签容器
 const ModelsContainer = styled.div`
@@ -43,16 +44,6 @@ const ModelsLabel = styled.span`
   font-weight: 500;
 `;
 
-interface ConnectConfig {
-  id: string;
-  name: string;
-  ctype: string;
-  mtype: string; // 添加 mtype 字段，这是数据库中实际的类型字段
-  configinfo: string;
-  createdtime: Date;
-  updatedtime: Date;
-  creator: string | null;
-}
 
 interface DeleteResult {
   success: boolean;
@@ -62,7 +53,7 @@ interface DeleteResult {
 }
 
 interface ConnectListProps {
-  connects: ConnectConfig[];
+  connects: IConnectConfig[];
   activeTab: string;
   categories: Array<{
     id: string;
@@ -72,8 +63,8 @@ interface ConnectListProps {
   }>;
   onConnectClick?: (connectId: string) => void;
   onDeleteConnect?: (connectId: string) => Promise<DeleteResult | boolean>;
-  onEditConnect?: (connect: ConnectConfig) => Promise<any> | any;
-  onDebugConnect?: (connect: ConnectConfig) => void;
+  onEditConnect?: (connect: IConnectConfig) => Promise<any> | any;
+  onDebugConnect?: (connect: IConnectConfig) => Promise<{success: boolean; message?: string}> | void;
 }
 
 export const ConnectList: React.FC<ConnectListProps> = ({
@@ -95,21 +86,21 @@ export const ConnectList: React.FC<ConnectListProps> = ({
 
     // 如果不是"全部"标签，则按类型过滤
     if (activeTab !== 'all') {
-      filtered = connects.filter(connect => connect.mtype === activeTab);
+      filtered = connects.filter(connect => connect.mType === activeTab);
     }
 
     // 根据搜索词过滤
     if (searchTerm) {
       filtered = filtered.filter(connect =>
         connect.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        connect.mtype.toLowerCase().includes(searchTerm.toLowerCase())
+        (connect.mType && connect.mType.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
     // 排序
     if (sortBy === 'last-updated') {
       filtered = [...filtered].sort((a, b) =>
-        new Date(b.updatedtime).getTime() - new Date(a.updatedtime).getTime()
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
     } else if (sortBy === 'name') {
       filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
@@ -164,7 +155,7 @@ export const ConnectList: React.FC<ConnectListProps> = ({
 
 // 连接配置卡片组件
 interface ConnectCardProps {
-  connect: ConnectConfig;
+  connect: IConnectConfig;
   categories: Array<{
     id: string;
     name: string;
@@ -173,8 +164,8 @@ interface ConnectCardProps {
   }>;
   //onConnectClick?: (connectId: string) => void;
   onDeleteConnect?: (connectId: string) => void;
-  onEditConnect?: (connect: ConnectConfig) => Promise<any> | any;
-  onDebugConnect?: (connect: ConnectConfig) => void;
+  onEditConnect?: (connect: IConnectConfig) => Promise<any> | any;
+  onDebugConnect?: (connect: IConnectConfig) => Promise<{success: boolean; message?: string}> | void;
 }
 
 const ConnectCard: React.FC<ConnectCardProps> = ({
@@ -188,13 +179,73 @@ const ConnectCard: React.FC<ConnectCardProps> = ({
   const { showConfirm } = useGlobalConfirm();
   const { showSuccess, showError, toasts, removeToast } = useToast();
   const { theme } = useTheme();
-  const categoryName = categories.find(c => c.type === connect.mtype)?.name || connect.mtype;
+  const categoryName = categories.find(c => c.type === connect.mType)?.name || connect.mType;
+  
+  // 添加测试状态管理
+  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
+  const [isTestLoading, setIsTestLoading] = useState(false);
 
   // 获取图标路径
-  const getIconPath = (ctype: string, mtype?: string) => {
-    return `/connects/${mtype}/${ctype}/${ctype}.svg`;
+  const getIconPath = (cType: string, mType?: string) => {
+    return `/connects/${mType}/${cType}/${cType}.svg`;
   };
 
+  // 处理测试连接
+  const handleTestConnection = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isTestLoading) return;
+    
+    setIsTestLoading(true);
+    setTestStatus('testing');
+    
+    try {
+      if (onDebugConnect) {
+        const result = await onDebugConnect(connect);
+        
+        // 如果返回了结果对象，根据 success 字段判断
+        if (result && typeof result === 'object' && 'success' in result) {
+          if (result.success) {
+            setTestStatus('success');
+          } else {
+            setTestStatus('error');
+          }
+        } else {
+          // 如果没有返回结果，默认为成功（向后兼容）
+          setTestStatus('success');
+        }
+      }
+      
+      // 3秒后重置状态
+      setTimeout(() => {
+        setTestStatus('idle');
+      }, 5000);
+      
+    } catch (error) {
+      console.error('❌ [ConnectList] 连接测试异常:', error);
+      setTestStatus('error');
+      
+      // 3秒后重置状态
+      setTimeout(() => {
+        setTestStatus('idle');
+      }, 3000);
+    } finally {
+      setIsTestLoading(false);
+    }
+  };
+
+  // 获取测试按钮显示内容
+  const getTestButtonContent = () => {
+    switch (testStatus) {
+      case 'testing':
+        return '⏳ 测试中';
+      case 'success':
+        return '✅ 成功';
+      case 'error':
+        return '❌ 失败';
+      default:
+        return '⚙️ 测试';
+    }
+  };
 
   return (
     <>
@@ -205,13 +256,13 @@ const ConnectCard: React.FC<ConnectCardProps> = ({
             {/* 连接图标 */}
             <ListCardIcons>
               <img
-                src={getIconPath(connect.ctype, connect.mtype)}
+                src={getIconPath(connect.cType, connect.mType)}
                 alt={categoryName}
                 style={{ width: '38px', height: '38px' }}
                 onError={(e) => {
                   // 如果图标加载失败，显示默认图标
                   const img = e.target as HTMLImageElement;
-                  const container = img.parentElement;
+                  //const container = img.parentElement;
                   // if (container) {
                   //   container.innerHTML = '<span style="fontSize: 24px; color: rgba(255, 255, 255, 0.7)">🔗</span>';
                   // }
@@ -239,18 +290,26 @@ const ConnectCard: React.FC<ConnectCardProps> = ({
                 fontSize: '12px',
                 color: theme.page.colors.textTertiary
               }}>
-                创建时间：{new Date(connect.createdtime).toLocaleDateString()}
+                创建时间：{new Date(connect.createdAt).toLocaleDateString()}
                 {connect.creator && ` | 创建者：${connect.creator}`}
               </div>
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: '8px' }}>
-            <ListCardButtons onClick={(e) => {
-              e.stopPropagation();
-              onDebugConnect?.(connect);
-            }}>
-              ⚙️ 调试
+            <ListCardButtons 
+              onClick={handleTestConnection}
+              disabled={isTestLoading}
+              style={{
+                opacity: isTestLoading ? 0.7 : 1,
+                cursor: isTestLoading ? 'not-allowed' : 'pointer',
+                backgroundColor: testStatus === 'success' ? 'rgba(34, 197, 94, 0.2)' : 
+                                testStatus === 'error' ? 'rgba(239, 68, 68, 0.2)' : undefined,
+                borderColor: testStatus === 'success' ? 'rgba(34, 197, 94, 0.3)' : 
+                            testStatus === 'error' ? 'rgba(239, 68, 68, 0.3)' : undefined
+              }}
+            >
+              {getTestButtonContent()}
             </ListCardButtons>
             {/* <button
             onClick={(e) => {

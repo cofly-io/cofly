@@ -228,7 +228,7 @@ export const KnowledgeBaseList: React.FC<KnowledgeBaseListProps> = ({
         onFetchOnlineModels={onFetchConnectDetails}
         onLoadModels={onFetchConnectDetails ? async (connectId: string) => {
           const result = await onFetchConnectDetails(connectId);
-          return result.tableOptions || [];
+          return result.options || [];
         } : undefined}
       />      
     </div>

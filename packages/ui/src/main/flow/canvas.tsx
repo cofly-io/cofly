@@ -139,7 +139,7 @@ export interface WorkflowCanvasProps {
   onFetchConnectDetail?: (datasourceId: string) => Promise<{
     loading: boolean;
     error: string | null;
-    tableOptions: Array<{ label: string; value: string; }>;
+    options: Array<{ label: string; value: string; }>;
   }>;
   // 节点类型映射，允许业务层自定义节点组件
   nodeTypes?: Record<string, React.ComponentType<any>>;

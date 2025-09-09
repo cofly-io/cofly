@@ -9,7 +9,7 @@ interface DataSourceItem {
   description?: string;
 }
 
-interface SelecConnectProps {
+interface SelectListDescProps {
   datasource: DataSourceItem[];
   value?: string | number;
   onChange?: (value: string | number) => void;
@@ -149,7 +149,7 @@ const PlaceholderText = styled.span`
   font-size: 12px;
 `;
 
-export const SelecConnect: React.FC<SelecConnectProps> = ({
+export const SelectListDesc: React.FC<SelectListDescProps> = ({
   datasource,
   value,
   onChange,

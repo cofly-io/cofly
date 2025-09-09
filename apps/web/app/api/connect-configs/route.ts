@@ -6,18 +6,18 @@ import { prisma } from '@repo/database';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const ctype = searchParams.get('ctype');
-    const mtype = searchParams.get('mtype');
+    const ctype = searchParams.get('cType');
+    const mtype = searchParams.get('mType');
     const creator = searchParams.get('creator');
 
     const where: any = {};
     
     if (ctype) {
-      where.ctype = ctype;
+      where.cType = ctype;
     }
 
     if (mtype) {
-      where.mtype = mtype;
+      where.mType = mtype;
     }
     
     if (creator) {
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const configs = await prisma.connectConfig.findMany({
       where,
       orderBy: {
-        createdtime: 'desc'
+        createdAt: 'desc'
       }
     });
 
@@ -55,14 +55,16 @@ export async function GET(request: NextRequest) {
     const configsWithDecryptedData = await Promise.all(configs.map(async (config: any) => {
       try {
         // 开发阶段：直接解析未加密的JSON字符串
-        const configData = JSON.parse(config.configinfo);
+        const configData = JSON.parse(config.configInfo);
         
         return {
           id: config.id,
           name: config.name,
-          ctype: config.ctype,
-          mtype: config.mtype || undefined,
-          config: createSafeConfig(configData),
+          cType: config.cType,
+          mType: config.mType || undefined,
+          configInfo: createSafeConfig(configData),
+          createdAt: config.createdAt,
+          updatedAt: config.updatedAt,
           creator: config.creator || undefined
         };
       } catch (error) {
@@ -70,9 +72,11 @@ export async function GET(request: NextRequest) {
         return {
           id: config.id,
           name: config.name,
-          ctype: config.ctype,
-          mtype: config.mtype || undefined,
-          config: {},
+          cType: config.cType,
+          mType: config.mType || undefined,
+          configInfo: {},
+          createdAt: config.createdAt,
+          updatedAt: config.updatedAt,
           creator: config.creator || undefined
         };
       }
@@ -133,9 +137,9 @@ export async function POST(request: NextRequest) {
       data: {
         id: configId,
         name: name,
-        ctype: connectId,
-        mtype: mtype || null,
-        configinfo: encryptedConfig,
+        cType: connectId,
+        mType: mtype || null,
+        configInfo: encryptedConfig,
         creator: creator || 'system'
       }
     });
@@ -145,9 +149,11 @@ export async function POST(request: NextRequest) {
        data: {
         id: savedConfig.id,
         name: savedConfig.name,
-        ctype: savedConfig.ctype,
-        mtype: savedConfig.mtype || undefined,
-        config: config, // 返回未加密的配置
+        cType: savedConfig.cType,
+        mType: savedConfig.mType || undefined,
+        configInfo: config, // 返回未加密的配置
+        createdAt: savedConfig.createdAt,
+        updatedAt: savedConfig.updatedAt,
         creator: savedConfig.creator || undefined
       },
       message: '连接配置保存成功'

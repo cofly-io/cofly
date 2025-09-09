@@ -26,24 +26,7 @@ import { SiGitconnected } from "react-icons/si";
 import { CoButton, useToast } from '../../components/basic';
 import { ConnectConfigModal } from '../../components/modals/ConnectConfigModal';
 import { ConnectList } from './ConnectList';
-
-// interface Category {
-//   id: string;
-//   name: string;
-//   description: string;
-//   type: string;
-// }
-
-interface ConnectConfig {
-  id: string;
-  name: string;
-  ctype: string;
-  mtype: string; // 数据库中实际的类型字段
-  configinfo: string;
-  createdtime: Date;
-  updatedtime: Date;
-  creator: string | null;
-}
+import { IConnectConfig } from '@repo/common';
 
 interface DeleteResult {
   success: boolean;
@@ -63,13 +46,13 @@ interface ConnectPageProps {
     description: string;
     type: string;
   }>;
-  connectConfigs?: ConnectConfig[];
+  connectConfigs?: IConnectConfig[];
   onConnectSave?: (data: any) => Promise<boolean>;
   onFetchConnects?: () => Promise<any[]>;
   onFetchConnectDetails?: (connectId: string) => Promise<any>;
-  onFetchConnectConfigs?: () => Promise<ConnectConfig[]>;
+  onFetchConnectConfigs?: () => Promise<IConnectConfig[]>;
   onDeleteConnect?: (connectId: string) => Promise<DeleteResult | boolean>;
-  onEditConnect?: (connect: ConnectConfig) => Promise<any> | any;
+  onEditConnect?: (connect: IConnectConfig) => Promise<any> | any;
   onTest?: (config: Record<string, any>, message?: string) => Promise<any>;
   onStreamTest?: (config: Record<string, any>, message: string, onChunk: (chunk: string) => void) => Promise<any>;
 }
@@ -94,7 +77,7 @@ export const ConnectPage: React.FC<ConnectPageProps> = ({
   const [activeTab, setActiveTab] = useState('all');
   // const { showSuccess } = useToast();
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
-  const [editingConnect, setEditingConnect] = useState<ConnectConfig | null>(null);
+  const [editingConnect, setEditingConnect] = useState<IConnectConfig | null>(null);
 
   const handleCreateConnect = () => {
 
@@ -141,7 +124,7 @@ export const ConnectPage: React.FC<ConnectPageProps> = ({
     };
   };
 
-  const handleEditConnectFromList = async (connect: ConnectConfig) => {
+  const handleEditConnectFromList = async (connect: IConnectConfig) => {
     if (onEditConnect) {
       // 调用父组件的编辑处理函数，获取准备好的编辑数据
       const editData = await onEditConnect(connect);
@@ -157,14 +140,88 @@ export const ConnectPage: React.FC<ConnectPageProps> = ({
     }
   };
 
-  const handleDebugConnect = (connect: ConnectConfig) => {
-    console.log('调试连接配置:', connect);
-    // 这里可以实现调试功能，比如测试连接、查看配置详情等
-    addToast({
-      type: 'info',
-      title: '调试连接配置',
-      message: `正在调试连接配置: ${connect.name}\n类型: ${connect.ctype}\nID: ${connect.id}`
-    });
+  const handleDebugConnect = async (connect: IConnectConfig): Promise<{success: boolean; message?: string}> => {
+    if (!onTest) {
+      addToast({
+        type: 'error',
+        title: '调试失败',
+        message: '测试功能未配置'
+      });
+      return { success: false, message: '测试功能未配置' };
+    }
+
+    try {
+      addToast({
+        type: 'info',
+        title: '开始测试',
+        message: `正在测试连接: ${connect.name}`
+      });
+
+      // 解析连接配置信息
+      let config = {};
+      try {
+        if (connect.configInfo) {
+          config = typeof connect.configInfo === 'string' 
+            ? JSON.parse(connect.configInfo)
+            : connect.configInfo;
+        }
+      } catch (e) {
+        console.warn('解析配置信息失败:', e);
+        addToast({
+          type: 'error',
+          title: '测试失败',
+          message: '配置信息格式错误'
+        });
+        return { success: false, message: '配置信息格式错误' };
+      }
+
+      // 添加连接ID到配置中
+      const configWithConnectId = {
+        ...config,
+        connectId: connect.cType
+      };
+
+      const result = await onTest(configWithConnectId);
+
+      if (result.success) {
+        let message = result.message || '连接测试成功！';
+
+        // 如果有详细信息，添加到消息中
+        if (result.details) {
+          const cost = result.details.cost || '';
+          if (cost) {
+            message += ` (${cost})`;
+          }
+        }
+
+        addToast({
+          type: 'success',
+          title: '测试成功',
+          message: message
+        });
+        
+        return { success: true, message };
+      } else {
+        const errorMessage = result.message || '连接测试失败';
+        addToast({
+          type: 'error',
+          title: '测试失败',
+          message: errorMessage
+        });
+        
+        return { success: false, message: errorMessage };
+      }
+    } catch (error) {
+      console.error('调试连接配置失败:', error);
+      const errorMessage = `测试失败: ${error instanceof Error ? error.message : '未知错误'}`;
+      addToast({
+        type: 'error',
+        title: '测试失败',
+        message: errorMessage
+      });
+      
+      return { success: false, message: errorMessage };
+    }
   };
 
   const handleConnectSave = async (data: any) => {

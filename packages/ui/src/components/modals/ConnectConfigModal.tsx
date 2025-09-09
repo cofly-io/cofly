@@ -30,14 +30,6 @@ import {
   LoadingState
 } from './ConnectConfigStyles';
 
-
-// interface Category {
-//   id: string;
-//   name: string;
-//   description: string;
-//   type: string;
-// }
-
 // 通用连接接口，适配从API返回的数据结构
 interface ConnectBasicInfo {
   id: string;
@@ -311,10 +303,11 @@ export const ConnectConfigModal: React.FC<ConnectConfigModalProps> = ({
           id: editData.id,
           connectId: editData.ctype,
           name: editData.name,
-          config: editData.config || {}
+          configInfo: editData.configInfo || {}
         }
       };
       
+      console.log('📝 [ConnectConfigModal] 转换后的数据:', transformedEditData);
       setSelectedConnect(transformedEditData);
     }
   }, [editMode, editData]);

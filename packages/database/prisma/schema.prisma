@@ -40,11 +40,11 @@ model WorkflowConfig {
 model ConnectConfig {
   id           String         @id @default(cuid())
   name         String
-  ctype        String
-  mtype        String?
-  configinfo   String
-  createdtime  DateTime       @default(now())
-  updatedtime  DateTime       @updatedAt
+  cType        String
+  mType        String?
+  configInfo   String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
   creator      String?
   agentRefs    AgentConnect[]
   agents       AiAgent[]

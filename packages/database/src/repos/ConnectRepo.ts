@@ -8,18 +8,18 @@ export const connectRepo = Prisma.defineExtension({
             // 创建连接配置
             async createConnectConfig(data: {
                 name: string;
-                ctype: string;
-                mtype?: string;
-                configinfo: string;
+                cType: string;
+                mType?: string;
+                configInfo: string;
                 creator?: string;
             }): Promise<ConnectConfig> {
                 try {
                     const connectConfig = await prisma.connectConfig.create({
                         data: {
                             name: data.name,
-                            ctype: data.ctype,
-                            mtype: data.mtype,
-                            configinfo: data.configinfo,
+                            cType: data.cType,
+                            mType: data.mType,
+                            configInfo: data.configInfo,
                             creator: data.creator,
                         },
                     });
@@ -52,7 +52,7 @@ export const connectRepo = Prisma.defineExtension({
                 try {
                     const connectConfigs = await prisma.connectConfig.findMany({
                         orderBy: {
-                            createdtime: 'desc',
+                            createdAt: 'desc',
                         },
                         include: {
                             agentRefs: true,
@@ -66,20 +66,20 @@ export const connectRepo = Prisma.defineExtension({
                 }
             },
             // 根据类型获取连接配置
-            async getConnectConfigsByType(ctype: string, mtype?: string): Promise<ConnectConfig[]> {
+            async getConnectConfigsByType(cType: string, mType?: string): Promise<ConnectConfig[]> {
                 try {
                     const where: any = {
-                        ctype: ctype,
+                        cType: cType,
                     };
 
-                    if (mtype) {
-                        where.mtype = mtype;
+                    if (mType) {
+                        where.mType = mType;
                     }
 
                     const connectConfigs = await prisma.connectConfig.findMany({
                         where: where,
                         orderBy: {
-                            createdtime: 'desc',
+                            createdAt: 'desc',
                         },
                     });
                     return connectConfigs;
@@ -96,7 +96,7 @@ export const connectRepo = Prisma.defineExtension({
                             creator: creator,
                         },
                         orderBy: {
-                            createdtime: 'desc',
+                            createdAt: 'desc',
                         },
                     });
                     return connectConfigs;
@@ -110,9 +110,9 @@ export const connectRepo = Prisma.defineExtension({
                 id: string,
                 data: {
                     name?: string;
-                    ctype?: string;
-                    mtype?: string;
-                    configinfo?: string;
+                    cType?: string;
+                    mType?: string;
+                    configInfo?: string;
                     creator?: string;
                 }
             ): Promise<ConnectConfig> {
@@ -121,10 +121,7 @@ export const connectRepo = Prisma.defineExtension({
                         where: {
                             id: id,
                         },
-                        data: {
-                            ...data,
-                            updatedtime: new Date(),
-                        },
+                        data: data,
                     });
                     return connectConfig;
                 } catch (error) {
@@ -177,9 +174,9 @@ export const connectRepo = Prisma.defineExtension({
             // 批量创建连接配置
             async createManyConnectConfigs(data: {
                 name: string;
-                ctype: string;
-                mtype?: string;
-                configinfo: string;
+                cType: string;
+                mType?: string;
+                configInfo: string;
                 creator?: string;
             }[]): Promise<{ count: number }> {
                 try {

@@ -53,7 +53,7 @@ export interface NodeSettingsProps {
   onFetchConnectDetail?: (datasourceId: string) => Promise<{
     loading: boolean;
     error: string | null;
-    tableOptions: Array<{ label: string; value: string; }>;
+    options: Array<{ label: string; value: string; }>;
   }>; // 动态获取表名的回调
   linkageCallbacks?: LinkageCallbacks; // 联动回调函数映射
   nodeId?: string; // 节点ID，用于状态隔离

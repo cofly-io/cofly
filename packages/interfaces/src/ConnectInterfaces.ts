@@ -161,15 +161,15 @@ export interface MetadataResult {
 }
 
 export interface IDatabaseMetadataOptions {
-    host:string;
+    host: string;
     port: number;
     database: string;
     user: string;
     password: string;
-    connectTimeout:number;
+    connectTimeout: number;
     ssl: boolean;
     search?: string;
-    charset?:string;
+    charset?: string;
 }
 
 export interface IDatabaseMetadataResult {
@@ -560,4 +560,17 @@ export abstract class AbstractConnectLoader {
     getConnectRegistry(): IConnectRegistry {
         return this.connectRegistry;
     }
+}
+
+
+export interface IConnectConfig {
+    id: string;
+    name: string;
+    cType: string;
+    mType?: string;
+    configInfo: string;
+    description?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    creator?: string;
 }

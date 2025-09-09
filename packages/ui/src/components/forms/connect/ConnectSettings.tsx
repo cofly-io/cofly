@@ -218,9 +218,9 @@ interface ConnectSettingsProps {
   editMode?: boolean;
   editData?: {
     id: string;
-    connectId: string;
+    // connectId: string;
     name: string;
-    config: Record<string, any>;
+    configInfo: Record<string, any>;
   };
   showBackButton?: boolean; // 是否显示返回按钮
   onBack?: () => void; // 返回按钮的回调
@@ -247,6 +247,10 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
   const [isTestLoading, setIsTestLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { showSuccess } = useToast();
+
+  // 添加组件状态监控
+  useEffect(() => {
+  }, [configName, formValues, testStatus, isTestLoading, isSaving]);
 
   // 判断是否为LLM连接，添加安全检查
   const isLLMConnect = connect?.overview?.type === 'llm';
@@ -275,14 +279,14 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
 
   // 在编辑模式下，从 editData.config 初始化表单值
   useEffect(() => {
-    if (editMode && editData?.config !== undefined && connect?.detail?.fields) {
-
+    // console.log("connectSetting", editData);
+    if (editMode && editData?.configInfo !== undefined && connect?.detail?.fields) {
       const editValues: Record<string, any> = {};
 
       // 遍历连接字段定义，从 editData.config 中提取对应的值
       connect.detail.fields.forEach((field: IConnectField) => {
-        if (editData.config[field.fieldName] !== undefined) {
-          editValues[field.fieldName] = editData.config[field.fieldName];
+        if (editData.configInfo[field.fieldName] !== undefined) {
+          editValues[field.fieldName] = editData.configInfo[field.fieldName];
         } else if (field.control.defaultValue !== undefined) {
           editValues[field.fieldName] = field.control.defaultValue;
         }
@@ -290,7 +294,7 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
 
       setFormValues(editValues);
     }
-  }, [editMode, editData?.config, connect?.detail?.fields]);
+  }, [editMode, editData?.configInfo, connect?.detail?.fields]);
 
   // 初始化配置名称 - 支持编辑模式
   useEffect(() => {
@@ -312,8 +316,9 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
       return newFormValues;
     });
 
-    // 清除测试状态，确保用户修改配置后可以重新测试
-    if (testStatus.type) {
+    // 只有在用户主动修改配置且不在测试过程中时，才清除测试状态
+    // 这避免了测试过程中的联动逻辑意外清空测试结果
+    if (testStatus.type && !isTestLoading) {
       setTestStatus({ type: null, message: '' });
     }
   };
@@ -356,6 +361,7 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
         });
       }
     } catch (error) {
+      console.error('❌ [ConnectSettings] 测试异常:', error);
       setTestStatus({
         type: 'error',
         message: `测试失败: ${error instanceof Error ? error.message : '未知错误'}`
@@ -426,13 +432,15 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
     const requiredFields = connect.detail.fields.filter((field: IConnectField) =>
       field.control.validation?.required && field.fieldName !== 'models'
     );
+    
     const missingFields = requiredFields.filter((field: IConnectField) => {
       const value = formValues[field.fieldName];
       const isEmpty = value === undefined || value === '' || value === null;
       return isEmpty;
     });
 
-    return missingFields.length === 0;
+    const result = missingFields.length === 0;
+    return result;
   };
 
   // 渲染关于信息链接
@@ -576,7 +584,7 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
                     title={isLLMConnect ? '经济模式：优先使用免费的模型列表测试' : '测试连接'}
                   >
                     <SiSpeedtest />
-                    {isTestLoading ? '测试中...' : isLLMConnect ? '连接测试' : '测试连接'}
+                    {isTestLoading ? '测试中...' : isLLMConnect ? '连接测试' : '连接测试'}
                   </TestButton>
                 )}
 
@@ -587,8 +595,14 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
                   <CoButton
                     variant='Glass'
                     backgroundColor='linear-gradient(135deg, #2c6feb, #1a4fb3)'
-                    onClick={handleSave}
-                    disabled={isSaving || !hasRequiredFields()}
+                    onClick={() => {
+                      handleSave();
+                    }}
+                    disabled={(() => {
+                      const isDisabled = isSaving || !hasRequiredFields();
+                      return isDisabled;
+                    })()
+                    }
                   >
                     <FaSave />{isSaving ? '保存中...' : '保存配置'}
                   </CoButton>

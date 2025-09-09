@@ -1,26 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@repo/database';
-
-// 重新组装安全的配置对象
-const createSafeConfig = (configData: any) => {
-  if (!configData || typeof configData !== 'object') {
-    return {};
-  }
-  
-  // 只返回非敏感的配置字段
-  const safeConfig: any = {};
-  
-  // 允许返回的安全字段
-  const safeFields = ['baseUrl', 'driver', 'model', 'endpoint', 'region', 'version', 'timeout', 'maxTokens'];
-  
-  safeFields.forEach(field => {
-    if (configData[field] !== undefined) {
-      safeConfig[field] = configData[field];
-    }
-  });
-  
-  return safeConfig;
-};
+import { IConnectConfig } from '@repo/common';
 
 /**
  * 获取单个连接配置
@@ -32,7 +12,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
+
     const config = await prisma.connectConfig.findUnique({
       where: { id }
     });
@@ -45,18 +25,20 @@ export async function GET(
     }
 
     // 开发阶段：直接解析未加密的JSON字符串
-    const configData = JSON.parse(config.configinfo);
+    // const configData = JSON.parse(config.configInfo);
 
     return NextResponse.json({
       success: true,
-      data: {
+      data : {
         id: config.id,
         name: config.name,
-        ctype: config.ctype,
-        mtype: config.mtype || undefined,
-        config: configData, // 在编辑模式下返回完整配置以便表单回显
+        cType: config.cType,
+        mType: config.mType || undefined,
+        configInfo: JSON.parse(config.configInfo), // 在编辑模式下返回完整配置以便表单回显
+        createdAt: config.createdAt,
+        updatedAt: config.updatedAt,
         creator: config.creator || undefined
-      }
+      } as IConnectConfig
     });
 
   } catch (error) {
@@ -79,7 +61,7 @@ export async function PUT(
   try {
     const { id } = await params;
     console.log('🔧 PUT /api/connect-configs/[id] 开始, ID:', id);
-    
+
     const body = await request.json();
     console.log('📥 接收到的更新数据:', body);
 
@@ -97,26 +79,26 @@ export async function PUT(
 
     // 准备更新数据
     const updateData: any = {};
-    
+
     if (body.name) {
       updateData.name = body.name;
     }
-    
+
     if (body.connectId) {
-      updateData.ctype = body.connectId;
+      updateData.cType = body.connectId;
     }
-    
-    if (body.mtype !== undefined) {
-      updateData.mtype = body.mtype;
+
+    if (body.mType !== undefined) {
+      updateData.mType = body.mType;
     }
-    
+
     if (body.config) {
       // 开发阶段：直接存储未加密的JSON字符串
       const configJson = JSON.stringify(body.config);
-      updateData.configinfo = configJson;
+      updateData.configInfo = configJson;
       console.log('⚠️ 开发模式：配置未加密，直接存储JSON字符串');
     }
-    
+
     if (body.creator) {
       updateData.creator = body.creator;
     }
@@ -128,17 +110,19 @@ export async function PUT(
     });
 
     // 开发阶段：直接解析未加密的JSON字符串
-    const configData = JSON.parse(updatedConfig.configinfo);
+    const configData = JSON.parse(updatedConfig.configInfo);
     return NextResponse.json({
       success: true,
       data: {
         id: updatedConfig.id,
         name: updatedConfig.name,
-        ctype: updatedConfig.ctype,
-        mtype: updatedConfig.mtype || undefined,
-        config: configData, // 返回更新后的配置数据
+        cType: updatedConfig.cType,
+        mType: updatedConfig.mType || undefined,
+        configInfo: configData, // 返回更新后的配置数据
+        createdAt: updatedConfig.createdAt,
+        updatedAt: updatedConfig.updatedAt,
         creator: updatedConfig.creator || undefined
-      },
+      } as IConnectConfig,
       message: '连接配置更新成功'
     });
 
@@ -163,7 +147,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     console.log('🔧 DELETE /api/connect-configs/[id] 开始, ID:', id);
-    
+
     // 检查配置是否存在
     const existingConfig = await prisma.connectConfig.findUnique({
       where: { id }
