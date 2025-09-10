@@ -9,7 +9,6 @@ export async function GET(
 ) {
   try {
     const { nodeID: kind } = await params;
-    console.log('params', kind);
     
     // 确保服务器已初始化
     await initializeServer();

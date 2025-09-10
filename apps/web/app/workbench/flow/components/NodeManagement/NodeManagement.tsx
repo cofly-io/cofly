@@ -20,7 +20,8 @@ import { getAllPreviousNodeIds } from '../../utils/nodeProcessing';
 import { logger } from '../../utils/errorHandling';
 
 // 类型导入
-import { NodeDetails, ConnectConfig, FetchTablesResponse } from '../../types/node';
+import { NodeDetails } from '../../types/node';
+import { IConnectConfig, IMetadataResult } from '@repo/common';
 
 const NodeManagementContainer = styled.div`
   position: relative;
@@ -42,10 +43,9 @@ interface NodeManagementProps {
   showError: (title: string, message: string) => void;
   showSuccess: (title: string, message: string) => void;
   showWarning: (title: string, message: string) => void;
-  //这个要改，不对的
-  connectConfigs?: ConnectConfig[];
-  onFetchConnectConfigs?: (ctype?: string) => Promise<ConnectConfig[]>;
-  onFetchTables?: (datasourceId: string, search?: string) => Promise<FetchTablesResponse>;
+  connectConfigs?: IConnectConfig;
+  onFetchConnectConfigs?: (ctype?: string) => Promise<IConnectConfig[]>;
+  onFetchConnectDetail?: (connectID: string, search?: string) => Promise<IMetadataResult>;
 }
 
 /**
@@ -66,9 +66,9 @@ export const NodeManagement: React.FC<NodeManagementProps> = ({
   showError,
   showSuccess,
   showWarning,
-  connectConfigs = [],
+  connectConfigs,
   onFetchConnectConfigs,
-  onFetchTables
+  onFetchConnectDetail
 }) => {
 
   // 节点测试状态
@@ -202,7 +202,30 @@ export const NodeManagement: React.FC<NodeManagementProps> = ({
 
   // 使用connect config hook的函数，如果父组件没有提供的话
   const finalFetchConnectConfigs = onFetchConnectConfigs || connectConfigHook.handleFetchConnectConfigs;
-  const finalFetchTables = onFetchTables || connectConfigHook.handleFetchTables;
+  
+  // 创建适配器函数来转换onFetchConnectDetail的返回格式
+  const adaptedFetchConnectDetail = useCallback(async (datasourceId: string) => {
+    const fetchFunction = onFetchConnectDetail || connectConfigHook.handleFetchConnectDetail;
+    
+    try {
+      const result = await fetchFunction(datasourceId);
+      
+      return {
+        loading: false,
+        error: result.success ? null : (result.error || '获取数据失败'),
+        options: (result.data || []).map((item: any) => ({
+          label: item.label,
+          value: item.value
+        }))
+      };
+    } catch (error) {
+      return {
+        loading: false,
+        error: error instanceof Error ? error.message : '获取数据失败',
+        options: []
+      };
+    }
+  }, [onFetchConnectDetail, connectConfigHook.handleFetchConnectDetail]);
 
   // 如果没有选中的节点，不渲染任何内容
   if (!selectedNode) {
@@ -233,7 +256,7 @@ export const NodeManagement: React.FC<NodeManagementProps> = ({
         showToast={showToast}
         connectConfigs={connectConfigs}
         onFetchConnectInstances={finalFetchConnectConfigs}
-        onFetchConnectDetail={finalFetchTables}
+        onFetchConnectDetail={adaptedFetchConnectDetail}
       />
     </NodeManagementContainer>
   );

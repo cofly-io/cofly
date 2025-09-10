@@ -193,27 +193,22 @@ export class MySQL implements INode {
 					defaultValue: '',
 					validation: { required: true },
 					placeholder: '例如: SELECT * FROM users WHERE created_at > "2024-01-01"',
+				},
+				AIhelp: {
+					enable: true,
+					rules: '[你一个MYSQL的DBA，擅长编写SQL语句，要求：\n1. SQL语句是完整可执行的\n2. 请确保SQL语句正确且逻辑清晰]'
 				}
 			},
-
 			// 连接选项
-			{
-				label: '连接超时(秒)',
-				fieldName: 'connectionTimeout',
-				control: {
-					name: 'input',
-					dataType: 'number',
-					defaultValue: 30,
-					placeholder: '连接超时时间',
-				}
-			},
 			// {
-			// 	displayName: '启用SSL',
-			// 	name: 'ssl',
-			// 	type: 'boolean',
-			// 	default: false,
-			// 	placeholder: '是否启用SSL连接',
-			// 	controlType: 'checkbox'
+			// 	label: '连接超时(秒)',
+			// 	fieldName: 'connectionTimeout',
+			// 	control: {
+			// 		name: 'input',
+			// 		dataType: 'number',
+			// 		defaultValue: 30,
+			// 		placeholder: '连接超时时间',
+			// 	}
 			// }
 		],
 	};
@@ -261,18 +256,12 @@ export class MySQL implements INode {
 			if (connection) {
 				try {
 					await connection.end();
-					console.log('✅ [MySQL Node] 数据库连接已关闭');
 				} catch (closeError: any) {
 					console.error('⚠️ [MySQL Node] 关闭连接时出错:', closeError.message);
 				}
 			}
 		}
 	}
-
-	// async DataList(opts: IExecuteOptions): Promise<any> {
-	// 	console.log("listttttttttttt",await credentialManager.mediator?.list());
-	// }
-
 
 	private async createConnection(inputs: any): Promise<mysql.Connection> {
 		let connectionConfig: any;
@@ -331,14 +320,6 @@ export class MySQL implements INode {
 		const orderBy = opts.inputs?.orderBy;
 		const limit = opts.inputs?.limit;
 
-		console.log('📍 [MySQL Node] executeSelect 输入参数:', {
-			table,
-			columns,
-			whereCondition,
-			orderBy,
-			limit
-		});
-
 		if (!table) {
 			throw new Error('表名不能为空');
 		}
@@ -357,34 +338,16 @@ export class MySQL implements INode {
 			query += ` LIMIT ${limit}`;
 		}
 
-		console.log('📍 [MySQL Node] 执行查询语句:', query);
-
 		try {
 			const [rows] = await connection.execute(query);
-			console.log('📍 [MySQL Node] 查询结果:', {
-				rowsType: typeof rows,
-				isArray: Array.isArray(rows),
-				rowCount: Array.isArray(rows) ? rows.length : 0,
-				firstRow: Array.isArray(rows) && rows.length > 0 ? rows[0] : null
-			});
-
 			const result = {
 				data: rows,
 				rowCount: Array.isArray(rows) ? rows.length : 0,
 				success: true,
 				query: query // 🔧 改进：返回执行的查询语句
 			};
-
-			console.log('📍 [MySQL Node] 返回结果:', result);
 			return result;
 		} catch (error: any) {
-			console.error('❌ [MySQL Node] executeSelect 查询错误:', {
-				message: error.message,
-				code: error.code,
-				errno: error.errno,
-				sqlState: error.sqlState,
-				query: query
-			});
 			throw new Error(`执行SQL失败: ${error.message}`);
 		}
 	}
@@ -469,7 +432,6 @@ export class MySQL implements INode {
 		const values = Object.values(updateData);
 		const query = `UPDATE ${table} SET ${setClause} WHERE ${whereCondition}`;
 
-		console.log('执行更新:', query);
 		const [result] = await connection.execute(query, values) as any;
 
 		return {
@@ -495,7 +457,6 @@ export class MySQL implements INode {
 
 		const query = `DELETE FROM ${table} WHERE ${whereCondition}`;
 
-		console.log('执行删除:', query);
 		const [result] = await connection.execute(query) as any;
 
 		return {
@@ -513,7 +474,6 @@ export class MySQL implements INode {
 			throw new Error('SQL语句不能为空');
 		}
 
-		console.log('执行自定义SQL:', query);
 		const [result] = await connection.execute(query);
 
 		// 判断是否为查询操作

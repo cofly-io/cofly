@@ -61,3 +61,15 @@ export interface UploadProgress {
     status: DocumentStatus;
     error?: string;
 }
+
+export interface IDataOptions {
+    id: string;
+    name: string;
+    description: string;
+}
+
+export interface IFetchMetaResponse {
+  loading: boolean;
+  error: string | null;
+  options: Array<{ label: string; value: string }>;
+}

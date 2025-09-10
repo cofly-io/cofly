@@ -423,9 +423,9 @@ export const WorkflowHeader: React.FC<WorkflowHeaderProps> = ({
       </WorkflowTitleContainer>
 
       <ActionsContainer>
-        <StatusToggle>
+        {/* <StatusToggle>
           状态：{isActive ? '活跃' : '暂停'}
-        </StatusToggle>
+        </StatusToggle> */}
 
         <ShareButtonContainer ref={shareDropdownRef}>
           <ShareButton ref={shareButtonRef} onClick={toggleShareDropdown}>

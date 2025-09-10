@@ -1,4 +1,4 @@
-import { MetadataResult } from '@repo/common'
+import { IMetadataResult } from '@repo/common'
 
 export class MetadataService {
     /**
@@ -7,7 +7,7 @@ export class MetadataService {
     static async MetaData(
         datasourceId: string,
         search?: string
-    ): Promise<MetadataResult> {
+    ): Promise<IMetadataResult> {
         const searchParams = new URLSearchParams({
             ...(search && { search })
         });

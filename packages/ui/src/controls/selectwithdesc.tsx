@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 interface DataSourceItem {
@@ -22,27 +22,34 @@ const SelectContainer = styled.div`
   width: 100%;
   min-width: 120px;
   cursor: pointer;
-  border: 1px solid ${({ theme }) => theme.colors.border};
+  border: 1px solid ${({ theme }) => theme.panel.ctlBorder};
   border-radius: 4px;
-  padding: 8px 12px;
+  padding: 4px 12px;
   background: ${({ theme }) => theme.colors.inputBg};
   box-sizing: border-box;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: ${({ theme }) => theme.colors.borderHover};
+    border-color: ${({ theme }) => theme.panel.ctlBorder};
   }
 
+  
   &:focus {
-    border-color: ${({ theme }) => theme.colors.accent};
-    box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.accent}20;
     outline: none;
+    border-color: ${({ theme }) => theme.mode === 'dark'
+      ? 'rgba(59, 130, 246, 0.6)'
+      : 'rgba(59, 130, 246, 0.5)'
+    };
+    box-shadow: ${({ theme }) => theme.mode === 'dark'
+      ? '0 0 20px rgba(59, 130, 246, 0.3)'
+      : '0 0 20px rgba(59, 130, 246, 0.2)'
+    };
   }
 `;
 
 const SelectedValue = styled.div`
   color: ${({ theme }) => theme.colors.textPrimary};
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
   display: flex;
   justify-content: space-between;
@@ -50,9 +57,10 @@ const SelectedValue = styled.div`
 `;
 
 const DropdownIcon = styled.span`
-  margin-left: 8px;
+  // margin-right: 1px;
   transition: transform 0.2s ease;
-  color: ${({ theme }) => theme.colors.textSecondary};
+  color: ${({ theme }) => theme.mode === 'dark' ? '#64748b' : '#94a3b8'};
+  font-size: 12px;
   
   &.open {
     transform: rotate(180deg);
@@ -98,19 +106,19 @@ const OptionContainer = styled.div`
 `;
 
 const OptionText = styled.span`
-  font-size: 14px;
+  font-size: 12px;
   color: ${({ theme }) => theme.colors.textPrimary};
 `;
 
 const OptionDescription = styled.span`
-  font-size: 12px;
+  font-size: 11px;
   color: ${({ theme }) => theme.colors.textSecondary};
   line-height: 1.4;
 `;
 
 const PlaceholderText = styled.span`
   color: ${({ theme }) => theme.colors.textTertiary};
-  font-size: 14px;
+  font-size: 12px;
 `;
 
 export const SelectWithDesc: React.FC<SelectWithDescProps> = ({
@@ -121,6 +129,7 @@ export const SelectWithDesc: React.FC<SelectWithDescProps> = ({
   style,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedItem = datasource.find(item => item.value === value);
 
@@ -129,8 +138,21 @@ export const SelectWithDesc: React.FC<SelectWithDescProps> = ({
     setIsOpen(false);
   };
 
+  // 点击外部关闭下拉框
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <SelectContainer 
+      ref={containerRef}
       style={style} 
       onClick={() => setIsOpen(!isOpen)}
       tabIndex={0}

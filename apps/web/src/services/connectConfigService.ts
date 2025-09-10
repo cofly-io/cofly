@@ -40,9 +40,6 @@ export class ConnectConfigService {
    * 保存连接配置
    */
   static async saveConnectConfig(request: SaveConnectConfigRequest): Promise<ConnectConfigResponse> {
-    console.log('🔧 ConnectConfigService.saveConnectConfig 开始执行');
-    console.log('📥 接收到的请求数据:', request);
-    
     try {
       const response = await fetch('/api/connect-configs', {
         method: 'POST',

@@ -616,14 +616,6 @@ export class S3 implements INode {
         ],
 	};
 
-	// async metadata(opts: IMetadataOptions): Promise<IMetadataResult> {
-	// 	// S3节点通常不需要元数据查询
-	// 	return {
-	// 		success: false,
-	// 		error: 'S3存储节点不支持元数据查询'
-	// 	};
-	// }
-
 	async execute(opts: IExecuteOptions): Promise<any> {
 		console.log('🪣 [S3 Node] 开始执行S3操作:', opts.inputs);
 

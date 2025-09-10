@@ -56,9 +56,6 @@ const useTestResultPolling = (
 
       if (currentMap?.[nodeId]) {
         const testResult = currentMap[nodeId];
-        console.log(`�?[LeftPanel-Polling] 找到节点 ${nodeId} 的测试结�?`, testResult);
-        console.log(`🗺�?[LeftPanel-Polling] 当前完整的nodesTestResultsMap:`, currentMap);
-        console.log(`🔑 [LeftPanel-Polling] nodesTestResultsMap中的所有keys:`, Object.keys(currentMap || {}));
         setLocalTestResult(testResult);
         onDisplayTestResult?.(testResult);
         stopPolling();
@@ -72,22 +69,7 @@ const useTestResultPolling = (
   }, [nodesTestResultsMap, getLatestNodesTestResultsMap, onDisplayTestResult, stopPolling, maxAttempts, pollInterval]);
 
   const executeNode = useCallback(async (nodeId: string) => {
-    console.log('🚀 [LeftPanel] executeNode called with:', {
-      nodeId,
-      hasNodesDetailsMap: !!nodesDetailsMap,
-      nodesDetailsMapKeys: Object.keys(nodesDetailsMap || {}),
-      nodeDetailsExists: !!nodesDetailsMap?.[nodeId],
-      nodeDetail: nodesDetailsMap?.[nodeId],
-      hasSavedValues: !!nodesDetailsMap?.[nodeId]?.savedValues,
-      savedValues: nodesDetailsMap?.[nodeId]?.savedValues
-    });
-
     if (!nodesDetailsMap?.[nodeId]?.savedValues) {
-      console.error('❌ [LeftPanel] Node configuration missing:', {
-        nodeId,
-        nodeDetail: nodesDetailsMap?.[nodeId],
-        reason: !nodesDetailsMap?.[nodeId] ? 'node not in nodesDetailsMap' : 'no savedValues'
-      });
       showToast?.('warning', '配置缺失', `"${nodeId}" 的节点没有做任何配置，执行失败`);
       return;
     }
@@ -148,8 +130,6 @@ const useTestResultPolling = (
         onDisplayTestResult?.(testResult);
         setIsExecuting(false);
         stopPolling();
-      } else {
-        console.log(`�?[LeftPanel-Effect2] 节点 ${selectedNodeId} 还没有测试结果，继续等待...`);
       }
     }
   }, [nodesTestResultsMap, selectedNodeId, isExecuting, getLatestNodesTestResultsMap, onDisplayTestResult, stopPolling]);
@@ -196,31 +176,13 @@ export const LeftPanel: React.FC<LeftPanelProps> = React.memo(({
   // 如果有传入的selectedPreviousNodeId，说明用户之前已经选择过了
   const [userHasSelected, setUserHasSelected] = useState(!!selectedPreviousNodeId);
 
-  // 初始化日志
-  console.log('🚀 [LeftPanel] Component initialized:', {
-    selectedPreviousNodeId,
-    initialSelectedNodeId: selectedPreviousNodeId || '',
-    previousNodeIds,
-    initialUserHasSelected: !!selectedPreviousNodeId
-  });
-  
   // 组件初始化时，如果有传入的selectedPreviousNodeId，设置为选中状态
   useEffect(() => {
-    console.log('🔄 [LeftPanel] useEffect1 (initialization) triggered:', {
-      selectedPreviousNodeId,
-      selectedNodeId,
-      previousNodeIds,
-      userHasSelected,
-      includes: previousNodeIds.includes(selectedPreviousNodeId || ''),
-      shouldSetFromProp: selectedPreviousNodeId && previousNodeIds.includes(selectedPreviousNodeId) && selectedPreviousNodeId !== selectedNodeId
-    });
-
     // 只在组件初始化时，如果有传入的selectedPreviousNodeId且在可选列表中，设置为选中状态
     if (selectedPreviousNodeId && 
         previousNodeIds.includes(selectedPreviousNodeId) && 
         selectedPreviousNodeId !== selectedNodeId) {
       
-      console.log('✅ [LeftPanel] Setting selectedNodeId from prop (initialization):', selectedPreviousNodeId);
       setSelectedNodeId(selectedPreviousNodeId);
       
       // 检查是否有对应的测试结果
@@ -235,20 +197,8 @@ export const LeftPanel: React.FC<LeftPanelProps> = React.memo(({
   // 当有前置节点但没有选中任何节点时，自动选中第一个
   // 但只有在没有传入selectedPreviousNodeId的情况下才自动选择
   useEffect(() => {
-    console.log('🔄 [LeftPanel] useEffect2 triggered:', {
-      previousNodeIdsLength: previousNodeIds.length,
-      selectedNodeId,
-      selectedPreviousNodeId,
-      firstNodeId: previousNodeIds[0],
-      condition1: previousNodeIds.length > 0,
-      condition2: !selectedNodeId,
-      condition3: !selectedPreviousNodeId,
-      condition4: !!previousNodeIds[0]
-    });
-
     if (previousNodeIds.length > 0 && !selectedNodeId && !selectedPreviousNodeId && previousNodeIds[0]) {
       const firstNodeId = previousNodeIds[0];
-      console.log('✅ [LeftPanel] Auto-selecting first node:', firstNodeId);
       setSelectedNodeId(firstNodeId);
       onPreviousNodeChange?.(firstNodeId);
 
@@ -264,13 +214,6 @@ export const LeftPanel: React.FC<LeftPanelProps> = React.memo(({
   const handleNodeChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
     const newNodeId = event.target.value;
     
-    console.log('👆 [LeftPanel] User selected node:', {
-      newNodeId,
-      previousSelectedNodeId: selectedNodeId,
-      userHasSelected: userHasSelected,
-      hasOnPreviousNodeChange: !!onPreviousNodeChange
-    });
-    
     // 标记用户已经主动选择过
     setUserHasSelected(true);
     
@@ -278,7 +221,6 @@ export const LeftPanel: React.FC<LeftPanelProps> = React.memo(({
     
     // 通知父组件状态变化
     if (onPreviousNodeChange) {
-      console.log('📤 [LeftPanel] Calling onPreviousNodeChange with:', newNodeId);
       onPreviousNodeChange(newNodeId);
     } else {
       console.warn('⚠️ [LeftPanel] onPreviousNodeChange is not provided!');

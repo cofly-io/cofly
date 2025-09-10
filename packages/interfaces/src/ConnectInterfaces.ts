@@ -150,7 +150,7 @@ export interface IDatabaseConnectConfig {
     instance?: string; // SQL Server
 }
 
-export interface MetadataResult {
+export interface IMetadataResult {
     success: boolean;
     data?: Array<{
         value: string;

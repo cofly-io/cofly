@@ -157,7 +157,6 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
       }
 
       const result = await response.json();
-      console.log('工作流配置获取成功:', result);
 
       if (result.success && result.data) {
         const workflowData = result.data;
@@ -340,9 +339,6 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
             loadedNodes.push(result.node);
             Object.assign(loadedNodesDetailsMap, result.detailsMap);
           });
-
-          console.log('解析后的 nodesInfoArray:', nodesInfoArray);
-          console.log('🔗 节点link信息加载完成，节点数量:', loadedNodes.length);
         }
 
         // 处理边数据 - 先解析 JSON 字符串
@@ -369,13 +365,9 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
         // 3. 当前实现会忽略多余字段，保证兼容性。
         // =============================
         if (relationArray && Array.isArray(relationArray)) {
-          console.log('🔗 开始解析边数据，总共', relationArray.length, '条关系');
           for (const relation of relationArray) {
-            console.log('🔗 处理关系:', relation);
-
             // 跳过$source到第一个节点的边，这是内部逻辑边
             if (relation.from === '$source') {
-              console.log('🔗 跳过$source边:', relation);
               continue;
             }
 
@@ -422,18 +414,9 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
               // =============================
             };
 
-            console.log('🔗 生成ReactFlow边:', reactFlowEdge);
             loadedEdges.push(reactFlowEdge);
           }
-          console.log('🔗 边解析完成，生成', loadedEdges.length, '条边:', loadedEdges);
         }
-
-        // 更新状态 (保留现有的测试结果)
-        console.log('🔄 [DB Load] 开始更新React状态...');
-        console.log('🔄 [DB Load] loadedNodes:', loadedNodes);
-        console.log('🔄 [DB Load] loadedEdges:', loadedEdges);
-        console.log('🔄 [DB Load] loadedNodesDetailsMap keys:', Object.keys(loadedNodesDetailsMap));
-
         setNodes(loadedNodes);
         setEdges(loadedEdges);
 
@@ -446,19 +429,9 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
           }
         });
 
-        console.log('🔄 [DB Load] 设置cleanedNodesDetailsMap:', cleanedNodesDetailsMap);
         setNodesDetailsMap(cleanedNodesDetailsMap);
         // 🧪 注意：不重置测试结果状态，保留用户的测试数据
-
-        console.log('✅ [DB Load] 工作流数据加载成功:', {
-          nodes: loadedNodes.length,
-          edges: loadedEdges.length,
-          name: workflowData.name,
-          nodesDetailsMapKeys: Object.keys(cleanedNodesDetailsMap)
-        });
-
       } else {
-        console.log('工作流数据为空或格式不正确，初始化为空工作流');
         // 如果数据库中没有数据，初始化为空的工作流
         setWorkflowId(workflowId);
         setWorkflowName('我的业务流');
@@ -483,31 +456,18 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
   // 初始化时检查URL参数 - 修复循环依赖问题
   useEffect(() => {
     const urlWorkflowId = searchParams?.get('workflowID');
-    console.log('🔍 [URL Check] 检查URL参数:', { 
-      urlWorkflowId, 
-      currentWorkflowId: workflowId,
-      isInitialized: initializationRef.current.isInitialized
-    });
-    
     if (urlWorkflowId) {
       // 每次都重新加载工作流数据，不使用缓存
-      console.log('🔍 [URL Check] 强制重新加载工作流:', { urlWorkflowId });
-
-      // 总是加载工作流数据
-      console.log('🔄 [URL Check] 开始加载工作流:', urlWorkflowId);
-      
-      // 设置工作流ID并加载数据
       setWorkflowId(urlWorkflowId);
-      loadWorkflowFromDatabase(urlWorkflowId)
-        .then(() => {
-          console.log('✅ [URL Check] 工作流加载成功');
-        })
-        .catch(error => {
-          console.error('❌ [URL Check] 加载工作流失败:', error);
-        });
+      // loadWorkflowFromDatabase(urlWorkflowId)
+      //   .then(() => {
+      //     console.log('✅ [URL Check] 工作流加载成功');
+      //   })
+      //   .catch(error => {
+      //     console.error('❌ [URL Check] 加载工作流失败:', error);
+      //   });
     } else if (!initializationRef.current.isInitialized) {
       // 如果没有ID且未初始化过，创建一个新的
-      console.log('🆕 [URL Check] 创建新工作流');
       const newId = generateWorkflowId();
       
       // 更新初始化状态
@@ -524,19 +484,9 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
       if (details === null) {
         // 如果 details 为 null，完全删除这个键
         delete newMap[nodeId];
-        console.log('🗂️ [CONTEXT] Node completely removed from NodesDetailsMap:', {
-          nodeId,
-          remainingKeys: Object.keys(newMap),
-          action: 'delete'
-        });
       } else {
         // 否则设置或更新节点详情
         newMap[nodeId] = details;
-        console.log('🗂️ [CONTEXT] NodesDetailsMap updated:', {
-          newKeys: Object.keys(newMap),
-          nodeId,
-          action: 'add/update'
-        });
       }
 
       return newMap;
@@ -545,23 +495,11 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
 
   const updateNodeTestResult = (nodeId: string, rundata: any) => {
     // 🎯 直接存储 rundata 到 nodesTestResultsMap 中
-    // 格式：{nodeId: rundata}
-    console.log('📦 [CONTEXT] Storing rundata to nodesTestResultsMap:', {
-      nodeId,
-      rundata: rundata ? 'has data' : 'null data'
-    });
-
     setNodesTestResultsMap(prev => {
       const newMap = {
         ...prev,
         [nodeId]: rundata
       };
-
-      console.log('📦 [CONTEXT] Updated nodesTestResultsMap:', {
-        nodeId,
-        allKeys: Object.keys(newMap)
-      });
-
       return newMap;
     });
   };
@@ -589,8 +527,6 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
 
   // 完整删除节点的统一方法
   const deleteNodeCompletely = (nodeId: string) => {
-    console.log('🗑️ [CONTEXT] Starting complete node deletion:', { nodeId });
-
     const deletionTimestamp = Date.now();
 
     // 1. 立即删除节点详情（不延迟）
@@ -599,15 +535,8 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
 
       if (newMap[nodeId]) {
         delete newMap[nodeId];
-        console.log('🗂️ [CONTEXT] Node immediately removed from NodesDetailsMap:', {
-          nodeId,
-          remainingKeys: Object.keys(newMap),
-          action: 'delete_immediate',
-          timestamp: deletionTimestamp
-        });
         return newMap;
       } else {
-        console.log('⚠️ [CONTEXT] Node not found in NodesDetailsMap, skipping deletion:', { nodeId });
         return prev; // 如果节点不存在，返回原状态，避免不必要的重新渲染
       }
     });
@@ -617,10 +546,8 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
       const newMap = { ...prev };
       if (newMap[nodeId]) {
         delete newMap[nodeId];
-        console.log('🧪 [CONTEXT] Test results immediately removed for node:', { nodeId });
         return newMap;
       } else {
-        console.log('⚠️ [CONTEXT] Test results not found for node, skipping:', { nodeId });
         return prev;
       }
     });
@@ -632,30 +559,14 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
       );
 
       if (edgesToRemove.length > 0) {
-        console.log('🔗 [CONTEXT] Removing edges connected to deleted node:', {
-          nodeId,
-          edgesToRemove: edgesToRemove.map(e => ({ id: e.id, source: e.source, target: e.target })),
-          totalEdgesBefore: prevEdges.length
-        });
-
         const cleanedEdges = prevEdges.filter(edge =>
           edge.source !== nodeId && edge.target !== nodeId
         );
-
-        console.log('🔗 [CONTEXT] Edges cleanup completed:', {
-          nodeId,
-          edgesRemoved: edgesToRemove.length,
-          totalEdgesAfter: cleanedEdges.length
-        });
-
         return cleanedEdges;
       } else {
-        console.log('🔗 [CONTEXT] No edges to remove for node:', { nodeId });
         return prevEdges;
       }
     });
-
-    console.log('✅ [CONTEXT] Complete node deletion finished immediately:', { nodeId, timestamp: deletionTimestamp });
   };
 
   return (

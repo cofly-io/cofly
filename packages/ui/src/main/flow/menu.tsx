@@ -135,7 +135,6 @@ export const WorkflowMenu: React.FC<IWorkflowMenuProps> = React.memo(({
       `;
 
       const iconSrc = getThemeIcon(nodeData.icon, themeMode, nodeData.kind, nodeData.catalog) || '/nodes/default/default.svg';
-      console.log('拖拽图标地址:', iconSrc, '节点数据:', { kind: nodeData.kind, catalog: nodeData.catalog });
 
       dragPreview.innerHTML = `
         <img src="${iconSrc}" style="width: 20px; height: 20px;" alt="${nodeData.name}" />

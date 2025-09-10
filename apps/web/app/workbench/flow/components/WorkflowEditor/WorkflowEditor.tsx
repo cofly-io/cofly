@@ -13,7 +13,7 @@ import { WorkflowCanvas } from './WorkflowCanvas';
 import { NodeMenu } from '../NodeManagement/NodeMenu';
 import { McpDrawer } from '../McpDrawer';
 import { AgentSelectorModal } from '@repo/ui/components';
-import { AgentData } from '@repo/common';
+import { AgentData, IDataOptions } from '@repo/common';
 
 // 应用层hooks导入
 import { useNodeTesting } from '@/workbench/flow';
@@ -29,7 +29,8 @@ import { handleNodeIdChange as handleNodeIdChangeUtil } from '../../utils/nodeId
 import { ErrorBoundary } from "../ErrorBoundary";
 
 // 类型导入
-import { NodeDetails, FetchTablesResponse, ConnectConfig } from '../../types/node';
+import { NodeDetails } from '../../types/node';
+import { IMetadataResult, IConnectConfig } from '@repo/common';
 
 // 服务导入
 import { AgentService } from '@/services/agentService';
@@ -54,8 +55,8 @@ interface WorkflowEditorProps {
   showError: (title: string, message: string) => void;
   showWarning: (title: string, message: string) => void;
   onCanvasStateChange?: (nodes: Node[], edges: Edge[]) => void;
-  onFetchConnectInstances?: (ctype?: string) => Promise<ConnectConfig[]>;
-  onFetchConnectDetail?: (datasourceId: string, search?: string) => Promise<FetchTablesResponse>;
+  onFetchConnectInstances?: (connectType?: string) => Promise<IDataOptions[]>;
+  onFetchConnectDetail?: (connectID: string, search?: string) => Promise<IMetadataResult>;
   onFetchAgents?: () => Promise<AgentData[]>;
   onAIhelpClick?: (prompt: string, content: string, fieldName: string) => Promise<string>;
   // 测试按钮相关props
@@ -840,14 +841,6 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
       nodeTestEventId: nodeTestingHook.nodeTestEventIds?.[nodeInstanceId]
     };
 
-    // 添加调试日志
-    console.log('🔧 [WorkflowEditor] Setting nodeDetailsData:', {
-      nodeInstanceId,
-      testingNodesSize: nodeTestingHook.testingNodes?.size || 0,
-      testingNodesArray: Array.from(nodeTestingHook.testingNodes || []),
-      isNodeTesting: nodeTestingHook.testingNodes?.has(nodeInstanceId) || false,
-      nodeTestEventId: nodeTestingHook.nodeTestEventIds?.[nodeInstanceId]
-    });
 
     setSelectedNodeDetails(nodeDetailsData);
   }, [
@@ -917,13 +910,6 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
       setNodesState(nds => nds.map(node =>
         node.id === nodeData.id ? { ...node, data: { ...node.data, ...nodeData.data } } : node
       ));
-
-      console.log('✅ [WorkflowEditor] 节点配置已保存:', {
-        nodeInstanceId,
-        isRealSave,
-        savedValuesKeys: Object.keys(finalSavedValues),
-        finalSavedValues
-      });
     }
 
     // 关闭配置面板
@@ -1038,7 +1024,7 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
 
   // 使用connect config hook的函数，如果父组件没有提供的话
   const finalFetchConnectConfigs = onFetchConnectInstances || connectConfigHook.handleFetchConnectConfigs;
-  const finalFetchTables = onFetchConnectDetail || connectConfigHook.handleFetchTables;
+  const finalFetchConnectDetail = onFetchConnectDetail || connectConfigHook.handleFetchConnectDetail;
 
   return (
     <ErrorBoundary>
@@ -1108,7 +1094,7 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
             getLatestNodesTestResultsMap={nodeTestingHook.getLatestNodesTestResultsMap}
             connectConfigs={[]} // 这里传入空数组，依赖动态获取
             onFetchConnectInstances={finalFetchConnectConfigs}
-            onFetchConnectDetail={finalFetchTables}
+            onFetchConnectDetail={finalFetchConnectDetail}
             onMcpLabelClick={(nodeId: string) => {
               setSelectedAgentNodeId(nodeId);
               openMcpDrawer();

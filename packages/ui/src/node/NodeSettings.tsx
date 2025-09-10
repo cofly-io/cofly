@@ -383,7 +383,7 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
   getLatestNodesTestResultsMap,
   nodesDetailsMap,
   showToast,
-  connectConfigs = [],
+  connectConfigs,
   onFetchConnectInstances,
   onFetchConnectDetail,
   linkageCallbacks,
@@ -985,7 +985,7 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
                       onChange={handleValueChange}
                       formValues={nodeValues}
                       onExpandModeChange={handleExpandModeChange}
-                      connectConfigs={connectConfigs}
+                      connectConfigs={connectConfigs ? [connectConfigs] : []}
                       onFetchConnectDetail={onFetchConnectDetail}
                       onFetchConnectInstances={onFetchConnectInstances}
                       linkageCallbacks={linkageCallbacks}

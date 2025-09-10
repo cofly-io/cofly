@@ -122,14 +122,17 @@ export interface WorkflowCanvasProps {
   nodesTestResultsMap?: Record<string, any>;
   getLatestNodesTestResultsMap?: () => Record<string, any>;
   // 连接配置数据，由web层传入
-  connectConfigs?: Array<{
+  connectConfigs?: {
     id: string;
     name: string;
-    ctype: string;
-    mtype: string;
-    nodeinfo: Record<string, any>;
+    cType: string;
+    mType?: string;
+    configInfo: string;
     description?: string;
-  }>;
+    createdAt: Date;
+    updatedAt: Date;
+    creator?: string;
+  };
   // 连接配置查询回调，当NodeSettings需要特定类型的连接配置时调用
   onFetchConnectInstances?: (ctype?: string) => Promise<Array<{
     id: string;
@@ -184,7 +187,7 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = React.memo(({
   nodesTestResultsMap,
   getLatestNodesTestResultsMap,
   // 连接配置相关props
-  connectConfigs = [],
+  connectConfigs,
   onFetchConnectInstances,
   // 表名获取相关props
   onFetchConnectDetail,

@@ -3,22 +3,13 @@
  */
 
 import { useCallback, useState, useRef } from 'react';
-import { IConnectConfig as ConnectConfig } from '@repo/common';
-import { handleAsyncOperation, handleAsyncOperationWithRetry, logger } from '../utils/errorHandling';
-import { ConnectConfigService } from '@/services/connectConfigService';
-import { fetchDatabaseTables } from '@/services/databaseService';
-import { API_ENDPOINTS, REQUEST_TIMEOUT } from '../utils/constants';
+import { handleAsyncOperationWithRetry, logger } from '../utils/errorHandling';
+import { IMetadataResult, IDataOptions } from '@repo/common';
 
 interface UseConnectConfigProps {
   showError: (title: string, message: string) => void;
-  showWarning: (title: string, message: string) => void;
-  showSuccess: (title: string, message: string) => void;
-}
-
-interface FetchTablesResponse {
-  loading: boolean;
-  error: string | null;
-  options: Array<{ label: string; value: string }>;
+  showWarning?: (title: string, message: string) => void;
+  showSuccess?: (title: string, message: string) => void;
 }
 
 export const useConnectConfig = ({
@@ -26,13 +17,13 @@ export const useConnectConfig = ({
   showWarning,
   showSuccess
 }: UseConnectConfigProps) => {
-  
+
   // 连接配置缓存
-  const [connectConfigsCache, setConnectConfigsCache] = useState<Map<string, ConnectConfig[]>>(new Map());
+  const [connectConfigsCache, setConnectConfigsCache] = useState<Map<string, IDataOptions[]>>(new Map());
   const [isLoadingConfigs, setIsLoadingConfigs] = useState<Set<string>>(new Set());
-  
+
   // 数据库表名缓存
-  const [tablesCache, setTablesCache] = useState<Map<string, FetchTablesResponse>>(new Map());
+  const [tablesCache, setTablesCache] = useState<Map<string, IMetadataResult>>(new Map());
   const [isLoadingTables, setIsLoadingTables] = useState<Set<string>>(new Set());
 
   // 缓存过期时间（5分钟）
@@ -58,9 +49,9 @@ export const useConnectConfig = ({
   /**
    * 动态获取连接配置
    */
-  const handleFetchConnectConfigs = useCallback(async (ctype?: string): Promise<ConnectConfig[]> => {
-    const cacheKey = ctype || 'all';
-    
+  const handleFetchConnectConfigs = useCallback(async (connectType?: string): Promise<IDataOptions[]> => {
+    const cacheKey = connectType || 'all';
+
     // 检查缓存
     if (!isCacheExpired(cacheKey) && connectConfigsCache.has(cacheKey)) {
       const cachedConfigs = connectConfigsCache.get(cacheKey)!;
@@ -85,24 +76,13 @@ export const useConnectConfig = ({
     setIsLoadingConfigs(prev => new Set(prev).add(cacheKey));
 
     const result = await handleAsyncOperationWithRetry(async () => {
-      logger.info('开始获取连接配置', { ctype });
+      logger.info('开始获取连接配置', { connectType });
 
-      const serviceResult = await ConnectConfigService.getConnectConfigs({ ctype });
+      // 使用新的fetchConnectInstances函数
+      const { fetchConnectInstances } = await import('../../utils/dataFetchers');
+      const instancesResult = await fetchConnectInstances(connectType);
 
-      if (!serviceResult.success) {
-        throw new Error(serviceResult.error || '获取连接配置失败');
-      }
-
-      // 转换数据格式以匹配UI层期望的格式
-      const transformedConfigs: ConnectConfig[] = serviceResult.data.map(config => ({
-        id: config.id || '',
-        name: config.name,
-        ctype: config.ctype,
-        mtype: config.mtype,
-        nodeinfo: config.nodeinfo, // 将config字段映射为nodeinfo
-        description: config.description
-      }));
-      return transformedConfigs;
+      return instancesResult;
     }, 3, 1000, '获取连接配置失败');
 
     setIsLoadingConfigs(prev => {
@@ -117,7 +97,7 @@ export const useConnectConfig = ({
       setCacheTimestamp(cacheKey);
       return result.data;
     } else {
-      logger.error('获取连接配置失败', { ctype, error: result.error });
+      logger.error('获取连接配置失败', { connectType, error: result.error });
       showError('连接配置错误', result.error);
       return [];
     }
@@ -132,22 +112,22 @@ export const useConnectConfig = ({
   /**
    * 动态获取数据库表名
    */
-  const handleFetchTables = useCallback(async (
-    datasourceId: string, 
+  const handleFetchConnectDetail = useCallback(async (
+    connectID: string,
     search?: string
-  ): Promise<FetchTablesResponse> => {
-    const cacheKey = `${datasourceId}_${search || ''}`;
-    
+  ): Promise<IMetadataResult> => {
+    const cacheKey = `${connectID}_${search || ''}`;
+
     // 检查缓存
     if (!isCacheExpired(cacheKey) && tablesCache.has(cacheKey)) {
       const cachedTables = tablesCache.get(cacheKey)!;
-      logger.debug('使用缓存的表名数据', { datasourceId, search, count: cachedTables.options.length });
+      logger.debug('使用缓存的表名数据', { connectID, search, count: cachedTables.data?.length || 0 });
       return cachedTables;
     }
 
     // 检查是否正在加载
     if (isLoadingTables.has(cacheKey)) {
-      logger.debug('表名数据正在加载中', { datasourceId, search });
+      logger.debug('表名数据正在加载中', { connectID, search });
       // 等待加载完成
       return new Promise((resolve) => {
         const checkLoading = () => {
@@ -163,19 +143,15 @@ export const useConnectConfig = ({
 
     setIsLoadingTables(prev => new Set(prev).add(cacheKey));
 
-    const result = await handleAsyncOperation(async () => {
-      logger.info('开始获取表名', { datasourceId, search });
+    const result = await handleAsyncOperationWithRetry(async () => {
+      logger.info('开始获取连接详情', { connectID, search });
 
-      const tablesResult = await fetchDatabaseTables(datasourceId, search);
+      // 使用新的fetchConnectDetail函数
+      const { fetchConnectDetail } = await import('../../utils/dataFetchers');
+      const detailResult = await fetchConnectDetail(connectID, search);
 
-      logger.info('成功获取表名', {
-        datasourceId,
-        search,
-        count: tablesResult.options.length
-      });
-
-      return tablesResult;
-    }, '获取表名失败');
+      return detailResult;
+    }, 3, 1000, '获取连接详情失败');
 
     setIsLoadingTables(prev => {
       const newSet = new Set(prev);
@@ -189,13 +165,13 @@ export const useConnectConfig = ({
       setCacheTimestamp(cacheKey);
       return result.data;
     } else {
-      logger.error('获取表名失败', { datasourceId, search, error: result.error });
-      showError('获取表名失败', result.error);
-      
+      logger.error('获取连接详情失败', { connectID, search, error: result.error });
+      showError('获取连接详情失败', result.error);
+
       return {
-        loading: false,
+        success: false,
         error: result.error,
-        options: []
+        data: []
       };
     }
   }, [
@@ -206,202 +182,7 @@ export const useConnectConfig = ({
     showError
   ]);
 
-  /**
-   * 创建新的连接配置
-   */
-  const createConnectConfig = useCallback(async (config: Omit<ConnectConfig, 'id'>): Promise<ConnectConfig | null> => {
-    const result = await handleAsyncOperation(async () => {
-      logger.info('创建连接配置', { name: config.name, ctype: config.ctype });
 
-      const response = await fetch(API_ENDPOINTS.CONNECT_CONFIGS, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: config.name,
-          ctype: config.ctype,
-          config: config.nodeinfo,
-          description: config.description
-        }),
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const responseData = await response.json();
-
-      if (!responseData.success) {
-        throw new Error(responseData.error || '创建连接配置失败');
-      }
-
-      const newConfig: ConnectConfig = {
-        id: responseData.data.id,
-        name: config.name,
-        ctype: config.ctype,
-        mtype: config.mtype,
-        nodeinfo: config.nodeinfo,
-        description: config.description
-      };
-
-      // 清除相关缓存
-      const cacheKey = config.ctype;
-      setConnectConfigsCache(prev => {
-        const newCache = new Map(prev);
-        newCache.delete(cacheKey);
-        newCache.delete('all');
-        return newCache;
-      });
-      cacheTimestamps.current.delete(cacheKey);
-      cacheTimestamps.current.delete('all');
-
-      logger.info('连接配置创建成功', { id: newConfig.id, name: newConfig.name });
-
-      return newConfig;
-    }, '创建连接配置失败');
-
-    if (result.success) {
-      showSuccess('成功', '连接配置创建成功');
-      return result.data;
-    } else {
-      showError('创建失败', result.error);
-      return null;
-    }
-  }, [showError, showSuccess]);
-
-  /**
-   * 更新连接配置
-   */
-  const updateConnectConfig = useCallback(async (id: string, updates: Partial<ConnectConfig>): Promise<boolean> => {
-    const result = await handleAsyncOperation(async () => {
-      logger.info('更新连接配置', { id, updates: Object.keys(updates) });
-
-      const response = await fetch(`${API_ENDPOINTS.CONNECT_CONFIGS}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: updates.name,
-          ctype: updates.ctype,
-          config: updates.nodeinfo,
-          description: updates.description
-        }),
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const responseData = await response.json();
-
-      if (!responseData.success) {
-        throw new Error(responseData.error || '更新连接配置失败');
-      }
-
-      // 清除所有缓存
-      setConnectConfigsCache(new Map());
-      cacheTimestamps.current.clear();
-
-      logger.info('连接配置更新成功', { id });
-
-      return true;
-    }, '更新连接配置失败');
-
-    if (result.success) {
-      showSuccess('成功', '连接配置更新成功');
-      return true;
-    } else {
-      showError('更新失败', result.error);
-      return false;
-    }
-  }, [showError, showSuccess]);
-
-  /**
-   * 删除连接配置
-   */
-  const deleteConnectConfig = useCallback(async (id: string): Promise<boolean> => {
-    const result = await handleAsyncOperation(async () => {
-      logger.info('删除连接配置', { id });
-
-      const response = await fetch(`${API_ENDPOINTS.CONNECT_CONFIGS}/${id}`, {
-        method: 'DELETE',
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const responseData = await response.json();
-
-      if (!responseData.success) {
-        throw new Error(responseData.error || '删除连接配置失败');
-      }
-
-      // 清除所有缓存
-      setConnectConfigsCache(new Map());
-      cacheTimestamps.current.clear();
-
-      logger.info('连接配置删除成功', { id });
-
-      return true;
-    }, '删除连接配置失败');
-
-    if (result.success) {
-      showSuccess('成功', '连接配置删除成功');
-      return true;
-    } else {
-      showError('删除失败', result.error);
-      return false;
-    }
-  }, [showError, showSuccess]);
-
-  /**
-   * 测试连接配置
-   */
-  const testConnectConfig = useCallback(async (config: ConnectConfig): Promise<boolean> => {
-    const result = await handleAsyncOperation(async () => {
-      logger.info('测试连接配置', { id: config.id, name: config.name });
-
-      const response = await fetch(`${API_ENDPOINTS.CONNECT_CONFIGS}/test`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ctype: config.ctype,
-          config: config.nodeinfo
-        }),
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT * 2) // 测试连接可能需要更长时间
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const responseData = await response.json();
-
-      if (!responseData.success) {
-        throw new Error(responseData.error || '连接测试失败');
-      }
-
-      logger.info('连接测试成功', { id: config.id });
-
-      return true;
-    }, '连接测试失败');
-
-    if (result.success) {
-      showSuccess('成功', '连接测试成功');
-      return true;
-    } else {
-      showError('测试失败', result.error);
-      return false;
-    }
-  }, [showError, showSuccess]);
 
   /**
    * 清除缓存
@@ -411,12 +192,12 @@ export const useConnectConfig = ({
       setConnectConfigsCache(new Map());
       logger.info('清除连接配置缓存');
     }
-    
+
     if (!type || type === 'tables') {
       setTablesCache(new Map());
       logger.info('清除表名缓存');
     }
-    
+
     if (!type) {
       cacheTimestamps.current.clear();
       logger.info('清除所有缓存');
@@ -447,17 +228,11 @@ export const useConnectConfig = ({
     // 状态
     isLoadingConfigs: Array.from(isLoadingConfigs),
     isLoadingTables: Array.from(isLoadingTables),
-    
+
     // 主要操作
     handleFetchConnectConfigs,
-    handleFetchTables,
-    
-    // CRUD操作
-    createConnectConfig,
-    updateConnectConfig,
-    deleteConnectConfig,
-    testConnectConfig,
-    
+    handleFetchConnectDetail,
+
     // 缓存管理
     clearCache,
     getCacheStats

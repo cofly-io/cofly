@@ -41,12 +41,12 @@ const SelectFilterContainer = styled.div`
 
 const SelectFilterInput = styled.div<{ $disabled?: boolean; $hasError?: boolean }>`
   width: 100%;
-  padding: 8px;
+  padding: 4px;
   border: 1px solid ${props =>
-    props.$hasError ? '#8B0000' : (props.theme?.colors?.border || '#e5e7eb')
+    props.$hasError ? '#8B0000' : (props.theme?.panel?.ctlBorder || '#e5e7eb')
   };
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: 3px;
+  font-size: 12px;
   color: ${props => props.$disabled ? (props.theme?.colors?.textTertiary || '#9ca3af') : (props.theme?.colors?.textPrimary || '#374151')};
   background: ${props => props.$disabled ? '#f9fafb' : (props.theme?.colors?.inputBg || '#ffffff')};
   cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
@@ -59,17 +59,35 @@ const SelectFilterInput = styled.div<{ $disabled?: boolean; $hasError?: boolean 
   opacity: ${props => props.$disabled ? 0.6 : 1};
   
   &:hover {
-    border-color: ${props => props.$disabled ? (props.theme?.colors?.border || '#e5e7eb') : (props.theme?.colors?.borderHover || '#d1d5db')};
+    border-color: ${props => props.$disabled ? (props.theme?.colors?.border || '#e5e7eb') : (props.theme.panel.ctlBorder || '#d1d5db')};
   }
 
   &:focus {
-    border-color: ${props => props.$disabled ? (props.theme?.colors?.border || '#e5e7eb') : (props.theme?.colors?.accent || '#3b82f6')};
-    outline: none;
+     outline: none;
+    border-color: ${({ theme }) => theme.mode === 'dark'
+    ? 'rgba(59, 130, 246, 0.6)'
+    : 'rgba(59, 130, 246, 0.5)'
+  };
+  box-shadow: ${({ theme }) => theme.mode === 'dark'
+    ? '0 0 20px rgba(59, 130, 246, 0.3)'
+    : '0 0 20px rgba(59, 130, 246, 0.2)'
+    };
   }
 
   .placeholder {
     color: ${props => props.theme?.colors?.textTertiary || '#9ca3af'};
-    font-size: 14px;
+    font-size: 12px;
+  }
+`;
+
+const DropdownIcon = styled.span`
+  margin-right: 8px;
+  transition: transform 0.2s ease;
+  color: ${({ theme }) => theme.mode === 'dark' ? '#64748b' : '#94a3b8'};
+  font-size: 12px;
+  
+  &.open {
+    transform: rotate(180deg);
   }
 `;
 
@@ -144,25 +162,30 @@ const DropdownContainer = styled.div<{ $isOpen: boolean }>`
 
 const FilterInput = styled.input`
   width: 100%;
-  padding: 8px;
+  padding: 6px;
   border: none;
   border-bottom: 1px solid ${props => props.theme?.colors?.border || '#e5e7eb'};
   outline: none;
-  font-size: 14px;
+  font-size: 12px;
   color: ${props => props.theme?.colors?.textPrimary || '#374151'};
   background: ${props => props.theme?.colors?.inputBg || '#ffffff'};
   box-sizing: border-box;
 
+  &:focus {
+    border-bottom: 1px solid ${props => props.theme?.colors?.accent || '#3b82f6'};
+    outline: none;
+  }
+
   &::placeholder {
     color: ${props => props.theme?.colors?.textTertiary || '#9ca3af'};
-    font-size: 14px;
+    font-size: 12px;
   }
 `;
 
 const Option = styled.div<{ $isSelected?: boolean }>`
   padding: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
   color: ${props => props.$isSelected ? '#ffffff' : (props.theme?.colors?.textPrimary || '#374151')};
   background: ${props => props.$isSelected ? (props.theme?.colors?.accent || '#3b82f6') : 'transparent'};
   transition: all 0.15s ease;
@@ -176,7 +199,7 @@ const Option = styled.div<{ $isSelected?: boolean }>`
 const NoResults = styled.div`
   padding: 8px;
   color: ${props => props.theme?.colors?.textSecondary || '#6b7280'};
-  font-size: 14px;
+  font-size: 12px;
   text-align: center;
   box-sizing: border-box;
 `;
@@ -184,7 +207,7 @@ const NoResults = styled.div`
 const LoadingMessage = styled.div`
   padding: 8px;
   color: ${props => props.theme?.colors?.textSecondary || '#6b7280'};
-  font-size: 14px;
+  font-size: 12px;
   text-align: center;
   box-sizing: border-box;
 `;
@@ -192,7 +215,7 @@ const LoadingMessage = styled.div`
 const ErrorMessage = styled.div`
   padding: 8px;
   color: ${props => props.theme?.colors?.error || '#ef4444'};
-  font-size: 14px;
+  font-size: 12px;
   text-align: center;
   box-sizing: border-box;
 `;
@@ -365,13 +388,13 @@ export const SelectFilter: React.FC<SelectFilterProps> = ({
   }, []);
 
   // 当下拉框打开时，自动聚焦到过滤输入框
-  useEffect(() => {
-    if (isOpen && filterInputRef.current) {
-      setTimeout(() => {
-        filterInputRef.current?.focus();
-      }, 100);
-    }
-  }, [isOpen]);
+  // useEffect(() => {
+  //   if (isOpen && filterInputRef.current) {
+  //     setTimeout(() => {
+  //       filterInputRef.current?.focus();
+  //     }, 100);
+  //   }
+  // }, [isOpen]);
 
   const handleToggle = () => {
     if (disabled) return;
@@ -453,7 +476,7 @@ export const SelectFilter: React.FC<SelectFilterProps> = ({
               {copySuccess ? '✓' : '📋'}
             </CopyButton>
           )}
-          <span>{isOpen ? '▲' : '▼'}</span>
+          <DropdownIcon>{isOpen ? '▲' : '▼'}</DropdownIcon>
         </ControlsWrapper>
       </SelectFilterInput>
 

@@ -37,14 +37,17 @@ export interface NodeSettingsProps {
   getLatestNodesTestResultsMap?: () => Record<string, any>;
   nodesDetailsMap?: Record<string, any>;
   showToast?: ShowToastFn;
-    connectConfigs?: Array<{
+  connectConfigs?: {
     id: string;
     name: string;
-    ctype: string;
-    mtype: string;
-    nodeinfo: Record<string, any>;
+    cType: string;
+    mType?: string;
+    configInfo: string;
     description?: string;
-  }>; 
+    createdAt: Date;
+    updatedAt: Date;
+    creator?: string;
+  }; 
   onFetchConnectInstances?: (connectType?: string) => Promise<Array<{
     id: string;
     name: string;

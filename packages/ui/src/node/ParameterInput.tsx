@@ -14,10 +14,13 @@ interface ParameterInputProps {
   connectConfigs?: Array<{
     id: string;
     name: string;
-    ctype: string;
-    mtype: string;
-    nodeinfo: Record<string, any>;
+    cType: string;
+    mType?: string;
+    configInfo: string;
     description?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    creator?: string;
   }>; // 添加连接配置数据源
   onFetchConnectInstances?: (connectType: string) => Promise<Array<{
     id: string;

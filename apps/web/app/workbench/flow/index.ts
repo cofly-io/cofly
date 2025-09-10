@@ -36,4 +36,4 @@ export {
 export { testWorkflow } from '@/services/workflowTestService';
 export { debugNode } from '@/services/nodeDebugService';
 export { ConnectConfigService } from '@/services/connectConfigService';
-export { fetchDatabaseTables } from '@/services/databaseService';
+export { fetchConnectDetail, fetchConnectInstances } from '../utils/dataFetchers';

@@ -72,7 +72,7 @@ const ModalOverlay = styled.div<{ $visible: boolean }>`
 const ModalContainer = styled.div<{ $visible: boolean }>`
   background: ${({ theme }) => theme.colors.cardBg};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 12px;
+  border-radius: 4px;
   width: 95vw;
   height: 90vh;
   max-width: 1400px;
@@ -98,7 +98,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h3`
   color: ${({ theme }) => theme.colors.textPrimary};
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
 `;
 
@@ -106,7 +106,7 @@ const CloseButton = styled.button`
   background: transparent;
   border: none;
   color: ${({ theme }) => theme.colors.textSecondary};
-  font-size: 24px;
+  font-size: 18px;
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -128,7 +128,7 @@ const ModalContent = styled.div`
 
 const EditorWrapper = styled.div<{ $isDragOver?: boolean }>`
   flex: 1;
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
   border: 1px solid ${({ theme, $isDragOver }) => 
     $isDragOver ? theme.colors.accent : theme.colors.border
@@ -149,8 +149,8 @@ const ModalButtons = styled.div`
 `;
 
 const Button = styled.button<{ $primary?: boolean }>`
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 6px 20px;
+  border-radius: 4px;
   border: 1px solid ${({ theme, $primary }) => $primary ? theme.colors.accent : theme.colors.border};
   background: ${({ theme, $primary }) => $primary ? theme.colors.accent : theme.colors.buttonBg};
   color: ${({ theme, $primary }) => $primary ? theme.colors.secondary : theme.colors.textPrimary};
@@ -428,7 +428,7 @@ export const SqlCode: React.FC<CodeEditorProps> = ({
             dropCursor: false // 禁用拖拽光标
           }}
           style={{
-            fontSize: '14px',
+            fontSize: '12px',
             borderRadius: '4px',
             height: '100%'
           }}
@@ -475,7 +475,7 @@ export const SqlCode: React.FC<CodeEditorProps> = ({
                   dropCursor: false // 禁用拖拽光标
                 }}
                 style={{
-                  fontSize: '16px',
+                  fontSize: '12px',
                   height: '100%'
                 }}
               />

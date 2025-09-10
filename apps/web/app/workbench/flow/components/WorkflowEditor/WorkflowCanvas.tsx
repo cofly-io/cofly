@@ -8,7 +8,7 @@
  * 3. 提供应用层的数据转换和适配
  */
 
-import React, { useCallback, useMemo, useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Node, Edge, Connection, NodeChange, EdgeChange } from 'reactflow';
 
 // 导入UI层的WorkflowCanvas组件
@@ -20,9 +20,9 @@ import { StickyNoteComponent } from '@repo/ui/';
 import { AgentNodeWrapper, McpLabelProvider } from '../AgentNodeWrapper';
 import { ActionNodeWrapper, ActionProvider } from '../ActionNodeWrapper';
 import { TriggerNodeWrapper, TriggerProvider } from '../TriggerNodeWrapper';
-import { IConnectConfig } from '@repo/common';
+import { IConnectConfig,IDataOptions } from '@repo/common';
 // 导入应用层类型
-import { FetchTablesResponse } from '@/services/databaseService';
+import { IMetadataResult } from '@repo/common';
 
 // 导入工具函数
 import { logger } from '@/workbench/flow';
@@ -56,8 +56,8 @@ interface AppWorkflowCanvasProps {
   nodesTestResultsMap?: Record<string, any>;
   getLatestNodesTestResultsMap?: () => Record<string, any>;
   connectConfigs?: IConnectConfig[];
-  onFetchConnectInstances?: (connectType?: string) => Promise<IConnectConfig[]>;
-  onFetchConnectDetail?: (datasourceId: string, search?: string) => Promise<FetchTablesResponse>;
+  onFetchConnectInstances?: (connectType?: string) => Promise<IDataOptions[]>;
+  onFetchConnectDetail?: (connectID: string, search?: string) => Promise<IMetadataResult>;
   onMcpLabelClick?: (nodeId: string) => void;
   onResourceDelete?: (nodeId: string, resourceType: string, resourceId: string) => void;
   // 测试按钮相关props
@@ -190,36 +190,21 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
     }
   }, [onSelectionChange]);
 
-  /**
-   * 转换连接配置格式以适配UI层
-   */
-  const uiConnectConfigs = useMemo(() => {
-    return connectConfigs.map(config => ({
-      id: config.id,
-      name: config.name,
-      // ctype: config.ctype,
-      // mtype: config.mtype,
-      // nodeinfo: config.nodeinfo,
-      description: config.description
-    }));
-  }, [connectConfigs]);
+
 
   /**
    * 包装获取连接配置函数以适配UI层
    */
   const handleFetchConnectConfigs = useCallback(async (connectType?: string) => {
     if (!onFetchConnectInstances) return [];
-
     try {
       const configs = await onFetchConnectInstances(connectType);
-      //logger.debug('应用层获取连接配置成功', { connectType, count: configs.length });
-
       // 转换格式以适配UI层
       return configs.map(config => ({
         id: config.id,
         name: config.name,
         description: config.description
-      }));
+      })) as IDataOptions[];
     } catch (error) {
       logger.error('应用层获取连接配置失败', error);
       return [];
@@ -229,7 +214,7 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
   /**
    * 包装获取表名函数以适配UI层
    */
-  const handleFetchConnectDetail = useCallback(async (datasourceId: string, search?: string) => {
+  const handleFetchConnectDetail = useCallback(async (connectID: string, search?: string) => {
     if (!onFetchConnectDetail) {
       return {
         loading: false,
@@ -239,20 +224,23 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
     }
 
     try {
-      const result = await onFetchConnectDetail(datasourceId, search);
+      const result = await onFetchConnectDetail(connectID, search);
       
       // 确保数据结构正确
       if (!result) {
         throw new Error('未返回数据');
       }
       
-      // 验证数据格式
-      const options = result.options || [];
+      // 验证数据格式 - MetadataResult结构使用data字段
+      const options = result.data || [];
 
       return {
         loading: false,
-        error: null,
-        options
+        error: result.success ? null : (result.error || null),
+        options: options.map((option: any) => ({
+          label: option.label,
+          value: option.value
+        }))
       };
     } catch (error) {
       return {
@@ -267,8 +255,8 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
 
   // 配置联动回调函数
   const linkageCallbacks = useMemo(() => ({
-    fetchConnectDetail: async (datasourceId: string) => {
-      const result = await handleFetchConnectDetail(datasourceId);
+    fetchConnectDetail: async (connectID: string) => {
+      const result = await handleFetchConnectDetail(connectID);
       // 转换为联动回调期望的格式
       return result.options?.map(option => ({
         label: option.label,

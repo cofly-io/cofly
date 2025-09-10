@@ -6,6 +6,7 @@ import { useCallback, useState, useRef } from 'react';
 import { Node, Edge, Connection, addEdge, NodeChange, EdgeChange, ReactFlowInstance } from 'reactflow';
 import { CanvasState, CopyPasteState, NodePosition } from '../types/canvas';
 import { NodeDetails } from '../types/node';
+import { nodeApiService } from '@/services/nodeApiService';
 import {
   createEdge,
   validateEdgeConnection,
@@ -103,7 +104,6 @@ export const useCanvasOperations = ({
     if (existingNumbers.length === 0) {
       const candidateId = baseName;
       if (!unavailableIds.has(candidateId)) {
-        console.log('🆔 [ID Generation] No same type nodes, using base name:', baseName);
         return candidateId;
       }
     }
@@ -295,72 +295,34 @@ export const useCanvasOperations = ({
         const maxRetries = 3;
 
         try {
-          console.log(`🔍 [handleDrop] 开始获取节点定义 (尝试 ${retryCount + 1}/${maxRetries + 1}):`, {
-            nodeKind: nodeData.kind,
-            apiUrl: `/api/nodes/${nodeData.kind}`
-          });
-
-          const nodeDefinition = await fetch(`/api/nodes/${nodeData.kind}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-
-          console.log(`🔍 [handleDrop] API 响应状态:`, {
-            ok: nodeDefinition.ok,
-            status: nodeDefinition.status,
-            statusText: nodeDefinition.statusText
-          });
-
-          if (nodeDefinition.ok) {
-            const nodeDefData = await nodeDefinition.json();
-            console.log(`🔍 [handleDrop] 获取到节点数据:`, nodeDefData);
-
+          const response = await nodeApiService.fetchNodeDetails(nodeData.kind);
+          if (response.success) {
             const updatedNodeDetails: NodeDetails = {
               ...basicNodeDetails,
               nodeInfo: {
                 ...newNode,
                 data: {
                   ...newNode.data,
-                  parameters: nodeDefData.node?.fields || nodeDefData.node?.parameters || []
+                  parameters: response.node?.fields || response.node?.parameters || []
                 }
               },
-              parameters: nodeDefData.node?.fields || nodeDefData.node?.parameters || []
+              parameters: response.node?.fields || response.node?.parameters || []
             };
             updateNodeDetails(nodeId, updatedNodeDetails);
-            console.log('✅ [handleDrop] Updated node details with parameters:', nodeId);
           } else {
-            const errorText = await nodeDefinition.text();
-            console.warn('⚠️ [handleDrop] Failed to fetch node definition:', {
-              status: nodeDefinition.status,
-              statusText: nodeDefinition.statusText,
-              errorText
-            });
-
-            // 如果是 404 错误，不重试
-            if (nodeDefinition.status === 404) {
-              console.warn('⚠️ [handleDrop] Node not found, skipping retries');
+            if (response.error) {
+              console.error('❌ [handleDrop] 获取节点定义失败:', response.error);
               return;
             }
 
             // 其他错误尝试重试
             if (retryCount < maxRetries) {
-              console.log(`🔄 [handleDrop] Retrying in 1 second...`);
               setTimeout(() => fetchAndUpdateNodeDetails(retryCount + 1), 1000);
             }
           }
         } catch (error) {
-          console.error('❌ [handleDrop] Error fetching node definition:', {
-            error: error instanceof Error ? error.message : error,
-            stack: error instanceof Error ? error.stack : undefined,
-            nodeKind: nodeData.kind,
-            retryCount
-          });
-
           // 网络错误尝试重试
           if (retryCount < maxRetries) {
-            console.log(`🔄 [handleDrop] Retrying in 1 second due to network error...`);
             setTimeout(() => fetchAndUpdateNodeDetails(retryCount + 1), 1000);
           } else {
             console.error('❌ [handleDrop] Max retries reached, giving up');
@@ -406,10 +368,7 @@ export const useCanvasOperations = ({
    * 复制选中的节点
    */
   const handleCopyNodes = useCallback((selectedNodes: Node[]) => {
-    console.log('🔄 [handleCopyNodes] 开始复制节点', { selectedNodesCount: selectedNodes.length, selectedNodes });
-
     if (selectedNodes.length === 0) {
-      console.warn('⚠️ [handleCopyNodes] 没有选中的节点');
       showWarning('提示', '请先选择要复制的节点');
       return;
     }
@@ -421,26 +380,10 @@ export const useCanvasOperations = ({
         selectedNodeIds.includes(edge.source) && selectedNodeIds.includes(edge.target)
       );
 
-      console.log('📋 [handleCopyNodes] 复制数据', {
-        selectedNodeIds,
-        relatedEdgesCount: relatedEdges.length,
-        relatedEdges
-      });
-
       setCopyPasteState({
         copiedNodes: selectedNodes,
         copiedEdges: relatedEdges,
         pasteOffset: PASTE_OFFSET
-      });
-
-      console.log('✅ [handleCopyNodes] 复制状态已更新', {
-        copiedNodesCount: selectedNodes.length,
-        copiedEdgesCount: relatedEdges.length
-      });
-
-      logger.info('复制节点', {
-        nodeCount: selectedNodes.length,
-        edgeCount: relatedEdges.length
       });
 
       return { nodes: selectedNodes, edges: relatedEdges };
@@ -459,16 +402,8 @@ export const useCanvasOperations = ({
    * 粘贴复制的节点
    */
   const handlePasteNodes = useCallback(() => {
-    console.log('🔄 [handlePasteNodes] 开始粘贴节点');
-    console.log('📋 [handlePasteNodes] 当前复制状态', {
-      copyPasteState,
-      copiedNodesCount: copyPasteState.copiedNodes.length,
-      copiedEdgesCount: copyPasteState.copiedEdges.length,
-      pasteOffset: copyPasteState.pasteOffset
-    });
-
     if (copyPasteState.copiedNodes.length === 0) {
-      console.warn('⚠️ [handlePasteNodes] 没有可粘贴的节点，copyPasteState:', copyPasteState);
+      // console.warn('⚠️ [handlePasteNodes] 没有可粘贴的节点，copyPasteState:', copyPasteState);
       showWarning('提示', '没有可粘贴的节点');
       return;
     }

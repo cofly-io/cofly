@@ -147,14 +147,6 @@ export class If implements INode {
 		],
 	};
 
-	// async metadata(opts: IMetadataOptions): Promise<IMetadataResult> {
-	// 	// If节点通常不需要元数据查询
-	// 	return {
-	// 		success: false,
-	// 		error: '条件判断节点不支持元数据查询'
-	// 	};
-	// }
-
 	async execute(opts: IExecuteOptions): Promise<any> {
 		console.log('🔀 [If Node] 开始执行条件判断:', opts.inputs);
 

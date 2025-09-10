@@ -1,16 +1,10 @@
 /**
  * 数据库服务 - 处理数据库相关的API调用
  */
-
+import { IFetchMetaResponse } from "@repo/common";
 export interface option {
   value: string;
   label: string;
-}
-
-export interface FetchTablesResponse {
-  loading: boolean;
-  error: string | null;
-  options: option[];
 }
 
 /**
@@ -22,7 +16,7 @@ export interface FetchTablesResponse {
 export async function fetchDatabaseTables(
   datasourceId: string,
   search?: string
-): Promise<FetchTablesResponse> {
+): Promise<IFetchMetaResponse> {
   try {
     // 构建API请求URL
     const url = new URL(`/api/database/tables/${datasourceId}`, window.location.origin);

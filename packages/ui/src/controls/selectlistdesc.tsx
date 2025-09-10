@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 interface DataSourceItem {
@@ -157,6 +157,7 @@ export const SelectListDesc: React.FC<SelectListDescProps> = ({
   style,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedItem = datasource.find(item => item.value === value);
 
@@ -165,8 +166,21 @@ export const SelectListDesc: React.FC<SelectListDescProps> = ({
     setIsOpen(false);
   };
 
+  // 点击外部关闭下拉框
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <SelectContainer 
+      ref={containerRef}
       style={style} 
       onClick={() => setIsOpen(!isOpen)}
       tabIndex={0}

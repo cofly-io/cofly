@@ -17,13 +17,13 @@ export async function POST(request: NextRequest) {
         config.chatModel.model = connectConfigResponse.model;
         config.chatModel.series = connectConfigResponse.series;
         isAppend = connectConfigResponse.isAppend as boolean;
+      } else {
+        return NextResponse.json({
+          content: '你还未配置内置模型：请前往[系统]-[内置模型]进行配置',
+        });
       }
-    } else {
-      return NextResponse.json({
-        content: '你还未配置内置模型：请前往[系统]-[内置模型]进行配置',
-      });
     }
-
+    
     const invokeOptions: AgentInvokeOptions = {
       extSystemMessage: `\n remember:Rules and requirements must be followed strictly. Do not deviate from the rules.'
                          \n Don't return any descriptions and explanations of the rules, only return the content the user wants.`,
@@ -38,18 +38,18 @@ export async function POST(request: NextRequest) {
     };
 
     invokeOptions.agentConfig = config;
-    const result = (await agentManager.invoke(invokeOptions));
+    // const result = (await agentManager.invoke(invokeOptions));
 
-    // // 根据用户提供的数据结构，正确的路径是 result.runData[0][0].output[0].content
-    if (result?.runData?.[0]?.[0]?.output?.[0]?.content) {
-      const content = result.runData[0][0].output[0].content;
-      return NextResponse.json({ content: content, isAppend: isAppend });
-    }
-    return NextResponse.json({
-      content: '模型异常：针对你设置的模型，可创建agent进行对话测试。',
-    });
+    // // // 根据用户提供的数据结构，正确的路径是 result.runData[0][0].output[0].content
+    // if (result?.runData?.[0]?.[0]?.output?.[0]?.content) {
+    //   const content = result.runData[0][0].output[0].content;
+    //   return NextResponse.json({ content: content, isAppend: isAppend });
+    // }
+    // return NextResponse.json({
+    //   content: '模型异常：针对你设置的模型，可创建agent进行对话测试。',
+    // });
 
-    // return NextResponse.json({ message: result });
+    return NextResponse.json({ message: invokeOptions });
   } catch (error) {
     console.error('Agent run error:', error);
     return NextResponse.json(
@@ -69,7 +69,7 @@ async function getConnectConfigData(tabkey: string): Promise<any> {
     }
 
     const systemModelSettingsData = prisma.systemModelSetting.parseTabDetails(systemModelSetting.tabDetails);
-        if (!systemModelSettingsData) {
+    if (!systemModelSettingsData) {
       console.error('Failed to parse system settings data');
       return null;
     }
@@ -84,7 +84,7 @@ async function getConnectConfigData(tabkey: string): Promise<any> {
       return null;
     }
 
-    const configData = JSON.parse(connectConfig.configinfo);
+    const configData = JSON.parse(connectConfig.configInfo);
     const { driver, apiKey, baseUrl } = configData;
 
     return { series: driver, apiKey, baseUrl, model: systemModelSettingsData.model, isAppend: systemModelSettingsData.isAppend };

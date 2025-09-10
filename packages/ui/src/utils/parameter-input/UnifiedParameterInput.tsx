@@ -64,7 +64,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
     onChange,
     formValues = {},
     onExpandModeChange,
-    connectConfigs = [],
+    connectConfigs,
     onFetchConnectInstances,
     onFetchConnectDetail,
     linkageCallbacks,
@@ -88,7 +88,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
     const { linkageData, linkageLoading, linkageError } = useLinkageData(field, formValues, allFields, linkageCallbacks);
 
     // 动态连接配置状态
-    const [dynamicConnectConfigs, setDynamicConnectConfigs] = useState(connectConfigs);
+    const [dynamicConnectConfigs, setDynamicConnectConfigs] = useState(connectConfigs || []);
 
     // AI助手loading状态
     const [aiLoading, setAiLoading] = useState(false);
@@ -106,15 +106,19 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
         }
     };
 
-    // 处理需要数据源类型的控件的动态配置获取和联动逻辑
+    // 处理数据源类型的动态配置获取（仅在组件初始化时执行）
     useEffect(() => {
         const controlsWithDataSource = ['select', 'selectfilter', 'selectwithdesc', 'selectlistdesc', 'inputselect'];
-        const controlsWithLinkage = ['select', 'selectfilter', 'selectwithdesc', 'selectlistdesc'];
 
         // 处理数据源类型的动态配置获取
         if (controlsWithDataSource.includes(field.control.name) && field.control.dataSourceType) {
             fetchDynamicConfigs(field.control.dataSourceType);
         }
+    }, [field.control.name, field.control.dataSourceType, onFetchConnectInstances]);
+
+    // 处理联动逻辑（仅在字段值变化时执行）
+    useEffect(() => {
+        const controlsWithLinkage = ['select', 'selectfilter', 'selectwithdesc', 'selectlistdesc'];
 
         // 处理联动逻辑：当控件有linkage配置且targets存在时，监听该字段的值变化
         if (controlsWithLinkage.includes(field.control.name) && field.control.linkage?.targets && field.control.linkage.targets.length > 0) {
@@ -122,33 +126,10 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
             // 当当前控件的值发生变化时，触发联动逻辑
             if (currentValue && onFetchConnectDetail) {
-                console.log('🔗 [UnifiedParameterInput] 触发联动逻辑:', {
-                    fieldName: field.fieldName,
-                    controlName: field.control.name,
-                    targets: field.control.linkage.targets,
-                    currentValue
-                });
-
                 // 为每个target字段执行数据获取
                 field.control.linkage.targets.forEach(async (targetFieldName: string) => {
                     try {
                         let datasourceId = currentValue;
-                        console.log('📞 [UnifiedParameterInput] 为目标字段获取数据:', {
-                            targetFieldName,
-                            datasourceId
-                        });
-
-                        // 执行联动数据获取
-                        // const result = await onFetchConnectDetail(datasourceId);
-
-                        // 如果有linkageCallbacks，也通过其更新目标字段数据
-                        if (linkageCallbacks?.fetchConnectDetail) {
-                            const linkageData = await linkageCallbacks.fetchConnectDetail(datasourceId);
-                            console.log('✅ [UnifiedParameterInput] 联动数据获取成功:', {
-                                targetFieldName,
-                                dataCount: linkageData.length
-                            });
-                        }
                     } catch (error) {
                         console.error('❌ [UnifiedParameterInput] 联动数据获取失败:', {
                             targetFieldName,
@@ -158,7 +139,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                 });
             }
         }
-    }, [field.control.name, field.control.dataSourceType, field.fieldName, field.control.linkage, formValues[field.fieldName], onFetchConnectInstances, onFetchConnectDetail, linkageCallbacks, connectConfigs]);
+    }, [field.fieldName, field.control.linkage, formValues[field.fieldName], onFetchConnectDetail, linkageCallbacks]);
 
     // 通用的验证错误检查函数
     const hasValidationError = (fieldName: string) => {

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { NodeSettings } from './NodeSettings';
 import { LinkageCallbacks } from '../utils/UnifiedParameterInput';
 import { ToastType } from '@repo/common';
-
+import { IConnectConfig } from '@repo/common';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -41,14 +41,7 @@ interface NodeDetailsViewProps {
   getLatestNodesTestResultsMap?: () => Record<string, any>;
   nodesDetailsMap?: Record<string, any>;
   showToast?: (type: ToastType, title: string, message: string) => void;
-  connectConfigs?: Array<{
-    id: string;
-    name: string;
-    ctype: string;
-    mtype: string;
-    nodeinfo: Record<string, any>;
-    description?: string;
-  }>; 
+  connectConfigs?:IConnectConfig;
   // 添加连接配置数据源
   onFetchConnectInstances?: (connectType?: string) => Promise<Array<{
     id: string;

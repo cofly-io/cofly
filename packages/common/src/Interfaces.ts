@@ -43,19 +43,6 @@ export type {
 
     //系统数据操作状态
     ToastType,
-
-    // ToastType,
-    // AI 相关类型
-    // AiEvent,
-    
-    // 赋值相关类型
-    // AssignmentCollectionValue,
-    // AssignmentTypeOptions,
-    
-    // 二进制数据类型
-    // BinaryFileType,
-    // IBinaryData,
-    // IBinaryKeyData,
     
     // 分类相关类型
     CatalogType,
@@ -108,7 +95,7 @@ export type {
     // IExecuteData,
     IExecuteResult,
     IExecuteOptions,
-    MetadataResult,
+    IMetadataResult,
     // IExecuteSingleFunctions,
     
     // 表达式相关类型
@@ -293,6 +280,8 @@ export type {
     IKnowledgeBaseInstance,
 
     //业务数据接口
-    IConnectConfig
+    IConnectConfig,
+    IDataOptions,
+    IFetchMetaResponse
     
 } from "@cofly-ai/interfaces";

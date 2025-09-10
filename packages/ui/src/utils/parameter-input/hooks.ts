@@ -32,7 +32,6 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
     // 检查缓存
     const cachedData = linkageCacheRef.current.get(cacheKey);
     if (cachedData) {
-      console.log('📦 [fetchLinkageData] 使用缓存数据:', cachedData.length, '项');
       setLinkageData(cachedData);
       return;
     }
@@ -40,18 +39,14 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
     try {
       setLinkageLoading(true);
       setLinkageError(null);
-      console.log('🌐 [fetchLinkageData] 调用联动方法: fetchConnectDetail');
 
       const data = await fetchMethod(sourceValue);
       const resultData = data || [];
-
-      console.log('✅ [fetchLinkageData] 获取数据成功:', resultData.length, '项');
 
       // 缓存结果
       linkageCacheRef.current.set(cacheKey, resultData);
       setLinkageData(resultData);
     } catch (error) {
-      console.error('❌ [fetchLinkageData] 联动数据获取失败:', error);
       setLinkageError(error instanceof Error ? error.message : '数据获取失败');
       setLinkageData([]);
     } finally {
