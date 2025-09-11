@@ -1,4 +1,4 @@
-import {IConnectConfig} from './ConnectInterfaces';
+import { IConnectConfig } from './ConnectInterfaces';
 
 
 export type CommonValue = string | object | number | boolean | undefined | null;

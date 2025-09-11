@@ -9,9 +9,10 @@ import {
   SettingsContainer,
   FormGroup,
   Label,
-  Select,
   Button
 } from './SharedStyles';
+import { BasicSelect } from '../../components/basic';
+import {IConnectConfig} from '@repo/common';
 
 const SwitchContainer = styled.div`
   display: flex;
@@ -74,12 +75,6 @@ const EmptyState = styled.div`
   }
 `;
 
-interface ConnectConfig {
-  id: string;
-  name: string;
-  ctype: string;
-}
-
 interface ModelOption {
   value: string;
   label: string;
@@ -88,8 +83,8 @@ interface ModelOption {
 interface BuiltinModelSettingsProps {
   onSave?: (settings: any) => void;
   onLoadModels?: (connectId: string) => Promise<ModelOption[]>;
-  onLoadConnections?: () => Promise<ConnectConfig[]>;
-  connections?: ConnectConfig[];
+  onLoadConnections?: () => Promise<IConnectConfig[]>;
+  connections?: IConnectConfig[];
   onSaveSettings?: (tabkey: string, tabDetails: string) => Promise<boolean>;
   onNavigateToConnections?: () => void;
   builtinModelSettings?: {
@@ -104,37 +99,37 @@ interface BuiltinModelSettingsProps {
   };
 }
 
-export const BuiltinModelSettings: React.FC<BuiltinModelSettingsProps> = ({ 
-  onSave, 
-  onLoadModels, 
-  onLoadConnections, 
+export const BuiltinModelSettings: React.FC<BuiltinModelSettingsProps> = ({
+  onSave,
+  onLoadModels,
+  onLoadConnections,
   connections: propConnections,
   onSaveSettings,
   onNavigateToConnections,
   builtinModelSettings,
   onShowToast
 }) => {
-  const [connections, setConnections] = useState<ConnectConfig[]>(propConnections || []);
+  const [connections, setConnections] = useState<IConnectConfig[]>(propConnections || []);
   const [selectedConnection, setSelectedConnection] = useState<string>(builtinModelSettings?.connectid || '');
   const [models, setModels] = useState<ModelOption[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>(builtinModelSettings?.model || '');
   const [isAppend, setIsAppend] = useState<boolean>(builtinModelSettings?.isAppend || false);
   const [loading, setLoading] = useState<boolean>(false);
   const [showHelp, setShowHelp] = useState<boolean>(false);
-  
+
   // 添加模型缓存
   const [modelsCache, setModelsCache] = useState<Record<string, ModelOption[]>>({});
-  
+
   // 使用传入的Toast方法或默认的空函数
-  const showSuccess = onShowToast?.showSuccess || (() => {});
-  const showError = onShowToast?.showError || (() => {});
-  const showWarning = onShowToast?.showWarning || (() => {});
+  const showSuccess = onShowToast?.showSuccess || (() => { });
+  const showError = onShowToast?.showError || (() => { });
+  const showWarning = onShowToast?.showWarning || (() => { });
 
   // 处理连接配置变更
   const handleConnectionChange = (connectionId: string) => {
     setSelectedConnection(connectionId);
     setSelectedModel(''); // 清空已选择的模型
-    
+
     // 如果没有选择连接，清空模型列表
     if (!connectionId) {
       setModels([]);
@@ -207,7 +202,7 @@ export const BuiltinModelSettings: React.FC<BuiltinModelSettingsProps> = ({
   }, [selectedConnection, connections, onLoadModels]);
 
   // 提交设置
-  const handleSubmit = async () => {  
+  const handleSubmit = async () => {
     if (!selectedConnection || !selectedModel) {
       showWarning('提示', '请选择连接配置和模型');
       return;
@@ -280,10 +275,10 @@ export const BuiltinModelSettings: React.FC<BuiltinModelSettingsProps> = ({
       >
         <FormGroup>
           <Label>连接配置</Label>
-          <Select
+          <BasicSelect
             value={selectedConnection}
             onChange={(e) => handleConnectionChange(e.target.value)}
-            style={{fontSize:'12px'}}
+            style={{ fontSize: '12px' }}
           >
             <option value="">请选择连接配置</option>
             {connections.map((conn) => (
@@ -291,7 +286,7 @@ export const BuiltinModelSettings: React.FC<BuiltinModelSettingsProps> = ({
                 {conn.name}
               </option>
             ))}
-          </Select>
+          </BasicSelect>
         </FormGroup>
 
         <FormGroup>
@@ -302,7 +297,7 @@ export const BuiltinModelSettings: React.FC<BuiltinModelSettingsProps> = ({
             onChange={setSelectedModel}
             placeholder="请先选择连接配置"
             disabled={!selectedConnection || loading}
-            style={{fontSize:'12px'}}
+            style={{ fontSize: '12px' }}
           />
         </FormGroup>
 
@@ -326,13 +321,12 @@ export const BuiltinModelSettings: React.FC<BuiltinModelSettingsProps> = ({
             </HelpText>
           )}
         </FormGroup>
-
-        <Button
-          onClick={handleSubmit}
-          disabled={loading || !selectedConnection || !selectedModel}
-        >
-          {loading ? '获取模型' : '提交'}
-        </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={loading || !selectedConnection || !selectedModel}
+          >
+            {loading ? '获取模型' : '提交'}
+          </Button>
       </SettingsCard>
     </SettingsContainer>
   );

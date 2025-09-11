@@ -64,7 +64,7 @@ interface ConnectListProps {
   onConnectClick?: (connectId: string) => void;
   onDeleteConnect?: (connectId: string) => Promise<DeleteResult | boolean>;
   onEditConnect?: (connect: IConnectConfig) => Promise<any> | any;
-  onDebugConnect?: (connect: IConnectConfig) => Promise<{success: boolean; message?: string}> | void;
+  onDebugConnect?: (connect: IConnectConfig) => Promise<{ success: boolean; message?: string }> | void;
 }
 
 export const ConnectList: React.FC<ConnectListProps> = ({
@@ -100,7 +100,7 @@ export const ConnectList: React.FC<ConnectListProps> = ({
     // 排序
     if (sortBy === 'last-updated') {
       filtered = [...filtered].sort((a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        new Date(b.updatedAt ?? 0).getTime() - new Date(a.updatedAt ?? 0).getTime()
       );
     } else if (sortBy === 'name') {
       filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
@@ -165,7 +165,7 @@ interface ConnectCardProps {
   //onConnectClick?: (connectId: string) => void;
   onDeleteConnect?: (connectId: string) => void;
   onEditConnect?: (connect: IConnectConfig) => Promise<any> | any;
-  onDebugConnect?: (connect: IConnectConfig) => Promise<{success: boolean; message?: string}> | void;
+  onDebugConnect?: (connect: IConnectConfig) => Promise<{ success: boolean; message?: string }> | void;
 }
 
 const ConnectCard: React.FC<ConnectCardProps> = ({
@@ -180,7 +180,7 @@ const ConnectCard: React.FC<ConnectCardProps> = ({
   const { showSuccess, showError, toasts, removeToast } = useToast();
   const { theme } = useTheme();
   const categoryName = categories.find(c => c.type === connect.mType)?.name || connect.mType;
-  
+
   // 添加测试状态管理
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [isTestLoading, setIsTestLoading] = useState(false);
@@ -194,14 +194,14 @@ const ConnectCard: React.FC<ConnectCardProps> = ({
   const handleTestConnection = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isTestLoading) return;
-    
+
     setIsTestLoading(true);
     setTestStatus('testing');
-    
+
     try {
       if (onDebugConnect) {
         const result = await onDebugConnect(connect);
-        
+
         // 如果返回了结果对象，根据 success 字段判断
         if (result && typeof result === 'object' && 'success' in result) {
           if (result.success) {
@@ -214,16 +214,16 @@ const ConnectCard: React.FC<ConnectCardProps> = ({
           setTestStatus('success');
         }
       }
-      
+
       // 3秒后重置状态
       setTimeout(() => {
         setTestStatus('idle');
       }, 5000);
-      
+
     } catch (error) {
       console.error('❌ [ConnectList] 连接测试异常:', error);
       setTestStatus('error');
-      
+
       // 3秒后重置状态
       setTimeout(() => {
         setTestStatus('idle');
@@ -290,23 +290,23 @@ const ConnectCard: React.FC<ConnectCardProps> = ({
                 fontSize: '12px',
                 color: theme.page.colors.textTertiary
               }}>
-                创建时间：{new Date(connect.createdAt).toLocaleDateString()}
+                创建时间：{new Date(connect.createdAt ?? new Date()).toLocaleDateString()}
                 {connect.creator && ` | 创建者：${connect.creator}`}
               </div>
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: '8px' }}>
-            <ListCardButtons 
+            <ListCardButtons
               onClick={handleTestConnection}
               disabled={isTestLoading}
               style={{
                 opacity: isTestLoading ? 0.7 : 1,
                 cursor: isTestLoading ? 'not-allowed' : 'pointer',
-                backgroundColor: testStatus === 'success' ? 'rgba(34, 197, 94, 0.2)' : 
-                                testStatus === 'error' ? 'rgba(239, 68, 68, 0.2)' : undefined,
-                borderColor: testStatus === 'success' ? 'rgba(34, 197, 94, 0.3)' : 
-                            testStatus === 'error' ? 'rgba(239, 68, 68, 0.3)' : undefined
+                backgroundColor: testStatus === 'success' ? 'rgba(34, 197, 94, 0.2)' :
+                  testStatus === 'error' ? 'rgba(239, 68, 68, 0.2)' : undefined,
+                borderColor: testStatus === 'success' ? 'rgba(34, 197, 94, 0.3)' :
+                  testStatus === 'error' ? 'rgba(239, 68, 68, 0.3)' : undefined
               }}
             >
               {getTestButtonContent()}

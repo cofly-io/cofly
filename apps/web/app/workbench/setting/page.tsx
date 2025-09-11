@@ -6,6 +6,7 @@ import { AppSettingsProvider } from '../../../src/providers/SettingsProvider';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useToast, ToastManager } from '@repo/ui';
+import { IConnectConfig } from '@repo/common';
 
 interface ModelOption {
   value: string;
@@ -308,26 +309,27 @@ export default function SettingPage() {
   // 加载模型列表的回调函数
   const handleLoadModels = async (connectId: string): Promise<ModelOption[]> => {
     try {
-      const { LLMMetadataService } = await import('@/services/llmMetadataService');
+      const { MetadataService } = await import('@/services/metadataService');
       // LLMMetadataService是静态类，直接调用静态方法
-      const result = await LLMMetadataService.getModels(connectId);
+      const result = await MetadataService.MetaData(connectId);
 
       if (!result.success || !result.data) {
         console.error('获取模型列表失败:', result.error);
         return [];
       }
 
-      const models: ModelOption[] = [];
-      if (result.data) {
-        result.data.forEach(item => {
-          models.push({
-            value: item.value,
-            label: item.label
-          });
-        });
-      }
+      return result.data?.map(option => ({
+        value: option.value,
+        label: option.label
+      })) ?? [];
 
-      return models;
+      // const models: ModelOption[] = result.data ?
+      //   result.data.map(option => ({
+      //     value: option.value,
+      //     label: option.label
+      //   })) : [];
+
+      // return models;
     } catch (error) {
       console.error('加载模型列表失败:', error);
       return [];
@@ -345,9 +347,9 @@ export default function SettingPage() {
       try {
         const { SystemModelSettingService } = await import('@/services/systemModelSettingService');
         const result = await SystemModelSettingService.getSystemModelSetting('builtin-model');
-        
+
         if (result.success && result.data?.tabDetails) {
-          const settings = typeof result.data.tabDetails === 'string' 
+          const settings = typeof result.data.tabDetails === 'string'
             ? JSON.parse(result.data.tabDetails)
             : result.data.tabDetails;
           setBuiltinModelSettings(settings);
@@ -356,16 +358,16 @@ export default function SettingPage() {
         console.error('加载内置模型设置失败:', error);
       }
     };
-    
+
     loadBuiltinModelSettings();
   }, []);
 
   // 加载连接配置的回调函数
-  const handleLoadConnections = async (): Promise<ConnectConfig[]> => {
+  const handleLoadConnections = async (): Promise<IConnectConfig[]> => {
     try {
       const { ConnectConfigService } = await import('@/services/connectConfigService');
       // 判断connectType如果是llm，则使用mtype参数，否则使用ctype参数
-      const queryParam = { mtype: 'llm' };
+      const queryParam = { mType: 'llm' };
       const result = await ConnectConfigService.getConnectConfigs(queryParam);
       if (!result.success) {
         throw new Error(result.error || '获取连接配置失败');
@@ -376,11 +378,11 @@ export default function SettingPage() {
         return {
           id: item.id || '',
           name: item.name,
-          ctype: item.ctype,
-          mtype: item.mtype || item.ctype, // 如果mtype为undefined，使用ctype作为默认值
-          nodeinfo: {}, // 空对象，不包含任何敏感信息
-          description: `${item.mtype || item.ctype} 连接 - ${item.name}`
-        };
+          cType: item.cType,
+          mType: item.mType || item.mType, // 如果mtype为undefined，使用ctype作为默认值
+          configInfo: {}, // 空对象，不包含任何敏感信息
+          description: `${item.mType || item.mType} 连接 - ${item.name}`
+        } as IConnectConfig;
       });
       return mappedData;
     } catch (error) {
@@ -393,7 +395,7 @@ export default function SettingPage() {
     try {
       const { SystemModelSettingService } = await import('@/services/systemModelSettingService');
       const result = await SystemModelSettingService.saveSystemModelSetting({ tabkey, tabDetails });
-      
+
       return result.success;
     } catch (error) {
       console.error('保存系统设置失败:', error);
@@ -457,18 +459,16 @@ export default function SettingPage() {
   }
 
   return (
-    <AppSettingsProvider userId={userId}>
-      <SessionChecker userId={userId}>
-        <SettingsPage
-          onLoadModels={handleLoadModels}
-          onLoadConnections={handleLoadConnections}
-          onSaveSettings={handleSaveSettings}
-          onNavigateToConnections={handleNavigateToConnections}
-          builtinModelSettings={builtinModelSettings}
-          onShowToast={{ showSuccess, showError, showWarning }}
-        />
-        <ToastManager toasts={toasts} onRemove={removeToast} />
-      </SessionChecker>
-    </AppSettingsProvider>
+    <SessionChecker userId={userId}>
+      <SettingsPage
+        onLoadModels={handleLoadModels}
+        onLoadConnections={handleLoadConnections}
+        onSaveSettings={handleSaveSettings}
+        onNavigateToConnections={handleNavigateToConnections}
+        builtinModelSettings={builtinModelSettings}
+        onShowToast={{ showSuccess, showError, showWarning }}
+      />
+      <ToastManager toasts={toasts} onRemove={removeToast} />
+    </SessionChecker>
   );
 }

@@ -50,101 +50,99 @@ function WorkbenchInner({ children, clearSessionAndRedirect }: { children: React
   }
 
   return (
-    <UnifiedThemeProvider>
-      <GlobalConfirmProvider>
-        <PageContainer>
-          <GlassSidebar $collapsed={sidebarCollapsed}>
-            <Link href="/workbench/home" style={{ textDecoration: 'none' }}>
-              <GlassSidebarItem $active={segment === 'home' || segment === null} $collapsed={sidebarCollapsed}>
-                <GlassSidebarIconContainer $active={segment === 'home' || segment === null} $collapsed={sidebarCollapsed}>
-                  <IoMdHome />
+    <GlobalConfirmProvider>
+      <PageContainer>
+        <GlassSidebar $collapsed={sidebarCollapsed}>
+          <Link href="/workbench/home" style={{ textDecoration: 'none' }}>
+            <GlassSidebarItem $active={segment === 'home' || segment === null} $collapsed={sidebarCollapsed}>
+              <GlassSidebarIconContainer $active={segment === 'home' || segment === null} $collapsed={sidebarCollapsed}>
+                <IoMdHome />
+              </GlassSidebarIconContainer>
+              <GlassSidebarLabel $active={segment === 'home' || segment === null} $collapsed={sidebarCollapsed}>
+                主页
+              </GlassSidebarLabel>
+            </GlassSidebarItem>
+          </Link>
+          <Link href="/workbench/connections" style={{ textDecoration: 'none' }}>
+            <GlassSidebarItem $active={segment === 'connections'} $collapsed={sidebarCollapsed}>
+              <GlassSidebarIconContainer $active={segment === 'connections'} $collapsed={sidebarCollapsed}>
+                <GrConnectivity />
+              </GlassSidebarIconContainer>
+              <GlassSidebarLabel $active={segment === 'connections'} $collapsed={sidebarCollapsed}>
+                连接
+              </GlassSidebarLabel>
+            </GlassSidebarItem>
+          </Link>
+          <Link href="/workbench/agent" style={{ textDecoration: 'none' }}>
+            <GlassSidebarItem $active={segment === 'agent'} $collapsed={sidebarCollapsed}>
+              <GlassSidebarIconContainer $active={segment === 'agent'} $collapsed={sidebarCollapsed}>
+                <SiAkasaair />
+              </GlassSidebarIconContainer>
+              <GlassSidebarLabel $active={segment === 'agent'} $collapsed={sidebarCollapsed}>
+                AI
+              </GlassSidebarLabel>
+            </GlassSidebarItem>
+          </Link>
+          <div style={{ marginTop: 'auto' }}>
+            <Link href="https://www.cofly-ai.com/" target="_blank" style={{ textDecoration: 'none' }}>
+              <GlassSidebarItem $active={segment === 'market'} $collapsed={sidebarCollapsed}>
+                <GlassSidebarIconContainer $active={segment === 'market'} $collapsed={sidebarCollapsed}>
+                  <MdDonutSmall />
                 </GlassSidebarIconContainer>
-                <GlassSidebarLabel $active={segment === 'home' || segment === null} $collapsed={sidebarCollapsed}>
-                  主页
+                <GlassSidebarLabel $active={segment === 'market'} $collapsed={sidebarCollapsed}>
+                  市场
                 </GlassSidebarLabel>
               </GlassSidebarItem>
             </Link>
-            <Link href="/workbench/connections" style={{ textDecoration: 'none' }}>
-              <GlassSidebarItem $active={segment === 'connections'} $collapsed={sidebarCollapsed}>
-                <GlassSidebarIconContainer $active={segment === 'connections'} $collapsed={sidebarCollapsed}>
-                  <GrConnectivity />
+            <Link href="/workbench/help" style={{ textDecoration: 'none' }}>
+              <GlassSidebarItem $active={segment === 'help'} $collapsed={sidebarCollapsed}>
+                <GlassSidebarIconContainer $active={segment === 'help'} $collapsed={sidebarCollapsed}>
+                  <TbHelpHexagonFilled />
                 </GlassSidebarIconContainer>
-                <GlassSidebarLabel $active={segment === 'connections'} $collapsed={sidebarCollapsed}>
-                  连接
+                <GlassSidebarLabel $active={segment === 'help'} $collapsed={sidebarCollapsed}>
+                  帮助
                 </GlassSidebarLabel>
               </GlassSidebarItem>
             </Link>
-            <Link href="/workbench/agent" style={{ textDecoration: 'none' }}>
-              <GlassSidebarItem $active={segment === 'agent'} $collapsed={sidebarCollapsed}>
-                <GlassSidebarIconContainer $active={segment === 'agent'} $collapsed={sidebarCollapsed}>
-                  <SiAkasaair />
+            <Link href="../workbench/setting" style={{ textDecoration: 'none' }}>
+              <GlassSidebarItem $active={segment === 'setting'} $collapsed={sidebarCollapsed}>
+                <GlassSidebarIconContainer $active={segment === 'setting'} $collapsed={sidebarCollapsed}>
+                  <IoMdSettings />
                 </GlassSidebarIconContainer>
-                <GlassSidebarLabel $active={segment === 'agent'} $collapsed={sidebarCollapsed}>
-                  AI
+                <GlassSidebarLabel $active={segment === 'setting'} $collapsed={sidebarCollapsed}>
+                  系统
                 </GlassSidebarLabel>
               </GlassSidebarItem>
             </Link>
-            <div style={{ marginTop: 'auto' }}>
-              <Link href="https://www.cofly-ai.com/" target="_blank" style={{ textDecoration: 'none' }}>
-                <GlassSidebarItem $active={segment === 'market'} $collapsed={sidebarCollapsed}>
-                  <GlassSidebarIconContainer $active={segment === 'market'} $collapsed={sidebarCollapsed}>
-                    <MdDonutSmall />
-                  </GlassSidebarIconContainer>
-                  <GlassSidebarLabel $active={segment === 'market'} $collapsed={sidebarCollapsed}>
-                    市场
-                  </GlassSidebarLabel>
-                </GlassSidebarItem>
-              </Link>
-              <Link href="/workbench/help" style={{ textDecoration: 'none' }}>
-                <GlassSidebarItem $active={segment === 'help'} $collapsed={sidebarCollapsed}>
-                  <GlassSidebarIconContainer $active={segment === 'help'} $collapsed={sidebarCollapsed}>
-                    <TbHelpHexagonFilled />
-                  </GlassSidebarIconContainer>
-                  <GlassSidebarLabel $active={segment === 'help'} $collapsed={sidebarCollapsed}>
-                    帮助
-                  </GlassSidebarLabel>
-                </GlassSidebarItem>
-              </Link>
-              <Link href="../workbench/setting" style={{ textDecoration: 'none' }}>
-                <GlassSidebarItem $active={segment === 'setting'} $collapsed={sidebarCollapsed}>
-                  <GlassSidebarIconContainer $active={segment === 'setting'} $collapsed={sidebarCollapsed}>
-                    <IoMdSettings />
-                  </GlassSidebarIconContainer>
-                  <GlassSidebarLabel $active={segment === 'setting'} $collapsed={sidebarCollapsed}>
-                    系统
-                  </GlassSidebarLabel>
-                </GlassSidebarItem>
-              </Link>
-              <Link href="/workbench/profile" style={{ textDecoration: 'none' }}>
-                <GlassSidebarItem $active={segment === 'profile'} $collapsed={sidebarCollapsed}>
-                  <GlassSidebarIconContainer $active={segment === 'profile'} $collapsed={sidebarCollapsed}>
-                    <BsPersonFillGear />
-                  </GlassSidebarIconContainer>
-                  <GlassSidebarLabel $active={segment === 'profile'} $collapsed={sidebarCollapsed}>
-                    个人
-                  </GlassSidebarLabel>
-                </GlassSidebarItem>
-              </Link>
-            </div>
-            <SidebarToggle onClick={toggleSidebar}>
-              <ToggleDots>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-              </ToggleDots>
-            </SidebarToggle>
-          </GlassSidebar>
-          <MainContent>
-            {children}
-          </MainContent>
-        </PageContainer>
-      </GlobalConfirmProvider>
-    </UnifiedThemeProvider>
+            <Link href="/workbench/profile" style={{ textDecoration: 'none' }}>
+              <GlassSidebarItem $active={segment === 'profile'} $collapsed={sidebarCollapsed}>
+                <GlassSidebarIconContainer $active={segment === 'profile'} $collapsed={sidebarCollapsed}>
+                  <BsPersonFillGear />
+                </GlassSidebarIconContainer>
+                <GlassSidebarLabel $active={segment === 'profile'} $collapsed={sidebarCollapsed}>
+                  个人
+                </GlassSidebarLabel>
+              </GlassSidebarItem>
+            </Link>
+          </div>
+          <SidebarToggle onClick={toggleSidebar}>
+            <ToggleDots>
+              <li></li>
+              <li></li>
+              <li></li>
+              <li></li>
+              <li></li>
+              <li></li>
+              <li></li>
+              <li></li>
+            </ToggleDots>
+          </SidebarToggle>
+        </GlassSidebar>
+        <MainContent>
+          {children}
+        </MainContent>
+      </PageContainer>
+    </GlobalConfirmProvider>
   );
 }
 
@@ -177,11 +175,13 @@ export default function WorkbenchLayout({
 
   return (
     <SettingsProvider userId={userId} settingsService={settingsApi}>
-      <WorkflowProvider>
-        <WorkbenchInner clearSessionAndRedirect={clearSessionAndRedirect}>
-          {children}
-        </WorkbenchInner>
-      </WorkflowProvider>
+      <UnifiedThemeProvider userId={userId} settingsService={settingsApi}>
+        <WorkflowProvider>
+          <WorkbenchInner clearSessionAndRedirect={clearSessionAndRedirect}>
+            {children}
+          </WorkbenchInner>
+        </WorkflowProvider>
+      </UnifiedThemeProvider>
     </SettingsProvider>
   );
 }

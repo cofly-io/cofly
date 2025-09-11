@@ -20,6 +20,7 @@ import {
 } from './sharedStyles';
 import { RiFileEditLine } from "react-icons/ri";
 import { JsonTree } from '../components/basic/JsonTree';
+import { IExecuteResult } from '@repo/common';
 
 
 // 修复JSON格式：添加双引号到键名
@@ -49,16 +50,20 @@ interface RightPanelProps {
   testOutput?: string;
   nodeWidth?: number;
   showSettings?: boolean;
-  onMockDataChange?: (mockData: any) => void;
+  onMockDataChange?: (mockData: IExecuteResult) => void;
   onSaveMockData?: (mockData: any) => void;
   lastTestResult?: any;
   nodeId?: string;
-  nodesTestResultsMap?: Record<string, any>;
-  onUpdateNodesTestResultsMap?: (nodeId: string, data: any) => void;
+  // 🎯 nodesTestResultsMap 存储的是 IExecuteResult 格式的数据
+  nodesTestResultsMap?: Record<string, IExecuteResult>;
+  onUpdateNodesTestResultsMap?: (nodeId: string, data: IExecuteResult) => void;
   isNodeTesting?: boolean; // 节点是否正在测试
   nodeTestEventId?: string; // 节点测试事件ID
 }
 
+/**
+ * RightPanel 组件 - 节点执行结果显示面板
+ */
 export const RightPanel: React.FC<RightPanelProps> = ({
   width,
   testOutput,
@@ -147,7 +152,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
 
                         if (parsed && typeof parsed === 'object' && !isFixJsonError) {
                           const formatted = JSON.stringify(parsed, null, 2);
-                          console.log('✅ 手动粘贴 - JSON格式化成功');
+                          // console.log('✅ 手动粘贴 - JSON格式化成功');
 
                           // 替换编辑器内容
                           const transaction = view.state.update({
@@ -158,15 +163,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                             }
                           });
                           view.dispatch(transaction);
-                          console.log('✅ 手动粘贴 - 编辑器内容已更新');
+                          // console.log('✅ 手动粘贴 - 编辑器内容已更新');
 
                           event.preventDefault();
                           return true;
                         }
                       }
-                    } else {
-                      console.log('⚠️ Clipboard API 不可用');
-                    }
+                    } 
                   } catch (error) {
                     console.error('❌ 手动粘贴失败:', error);
                   }
@@ -248,20 +251,20 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     if (currentData) {
       // 如果有现有数据，格式化显示
       setEditingJson(JSON.stringify(currentData, null, 2));
-      console.log('✅ 使用现有数据编辑:', currentData);
+      // console.log('✅ 使用现有数据编辑:', currentData);
     } else if (testOutput) {
       // 如果没有mock数据但有testOutput，使用testOutput
       setEditingJson(testOutput);
-      console.log('✅ 使用testOutput编辑:', testOutput);
+      // console.log('✅ 使用testOutput编辑:', testOutput);
     } else {
       // 否则使用空对象
       setEditingJson('{}');
-      console.log('✅ 使用空对象编辑');
+      // console.log('✅ 使用空对象编辑');
     }
   };
 
   const handleCodeMirrorChange = (value: string) => {
-    console.log('📝 CodeMirror 内容变化:', value?.substring(0, 50) + '...');
+    // console.log('📝 CodeMirror 内容变化:', value?.substring(0, 50) + '...');
     setEditingJson(value);
   };
 
@@ -279,32 +282,45 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         parsedData.error.includes('无效的JSON格式');
 
       if (parsedData && typeof parsedData === 'object' && !isFixJsonError) {
+        // 🎯 统一使用 IExecuteResult 格式
+        let executeResult;
+
+        // 检查输入的数据是否已经是 IExecuteResult 格式
+        if (parsedData.status && parsedData.data !== undefined) {
+          // 已经是 IExecuteResult 格式，直接使用
+          executeResult = parsedData;
+          // console.log('💾 [RightPanel] 输入数据已是 IExecuteResult 格式');
+        } else {
+          // 包装为 IExecuteResult 格式
+          executeResult = {
+            data: parsedData,
+            status: 'COMPLETED'
+          };
+          // console.log('💾 [RightPanel] 包装数据为 IExecuteResult 格式');
+        }
+
         const mockTestResult = {
           timestamp: new Date().toISOString(),
           success: true,
-          runData: parsedData,
+          runData: executeResult,
           inputs: {},
           source: 'mock',
           nodeKind: 'unknown'
         };
 
         // 保存到本地状态
-        setMockData(parsedData);
+        setMockData(executeResult);
         setIsEditMode(false);
-        console.log('💾 [RightPanel] 本地状态已更新:', parsedData);
+        // console.log('💾 [RightPanel] 本地状态已更新 (IExecuteResult 格式):', executeResult);
 
-        // 🎯 更新到nodesTestResultsMap，需要包装成正确的格式
-        const wrappedData = {
-          data: parsedData,
-          success: true
-        };
-        updateStoredData(wrappedData);
-        console.log('✅ Mock数据已保存到nodesTestResultsMap (wrapped format):', wrappedData);
+        // 🎯 直接存储 IExecuteResult 格式到 nodesTestResultsMap
+        updateStoredData(executeResult);
+        // console.log('✅ Mock数据已保存到nodesTestResultsMap (IExecuteResult 格式):', executeResult);
 
         // 🎯 强制刷新数据显示
         setTimeout(() => {
           forceUpdate({});
-          console.log('🔄 [RightPanel] 强制更新组件以显示新数据');
+          // console.log('🔄 [RightPanel] 强制更新组件以显示新数据');
         }, 10);
 
         // 调用回调函数
@@ -313,7 +329,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         }
 
         if (onMockDataChange) {
-          onMockDataChange(parsedData);
+          onMockDataChange(executeResult);
         }
 
       } else {
@@ -332,15 +348,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   };
 
   const getDisplayData = () => {
-    // 🎯 统一从 nodesTestResultsMap 中获取数据
+    // 🎯 简化逻辑：API 现在直接返回 IExecuteResult 格式
     const storedData = getStoredData();
     if (storedData) {
-      // 检查是否是新格式 {data: outputData, success: true}
-      if (storedData.success === true && storedData.data !== undefined) {
-        // 返回 data 部分作为显示内容
-        return JSON.stringify(storedData.data, null, 2);
-      }
-      // 兼容旧格式，直接返回数据
+      // 直接返回 API 提供的 IExecuteResult 格式数据
+      // console.log('🎯 [getDisplayData] 直接显示 API 返回的 IExecuteResult 格式');
       return JSON.stringify(storedData, null, 2);
     }
 
@@ -363,6 +375,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     try {
       // 使用修复函数处理JSON格式
       const result = fixJsonFormat(jsonString);
+
+      // 🎯 简化逻辑：直接解析 API 返回的 IExecuteResult 格式
       return result;
     } catch (error) {
       console.error('❌ parseJsonSafely 处理失败:', error);
@@ -383,12 +397,12 @@ export const RightPanel: React.FC<RightPanelProps> = ({
           <EditModeActions>
             <ButtonGroup>
               <DataViewButton $active={true}
-              onClick={handleSaveMockData}
+                onClick={handleSaveMockData}
               >
-              确 定
+                确 定
               </DataViewButton>
               <DataViewButton
-              onClick={handleCancelEdit}
+                onClick={handleCancelEdit}
               >
                 取 消
               </DataViewButton>
@@ -408,8 +422,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                     fontFamily: 'Consolas, Monaco, "Courier New", monospace',
                   }}
                   placeholder="请输入JSON数据... 支持不完整格式如 {a:1,b:2}，系统会自动修复"
-                  onFocus={() => console.log('🎯 CodeMirror 获得焦点')}
-                  onBlur={() => console.log('🎯 CodeMirror 失去焦点')}
+                  // onFocus={() => console.log('🎯 CodeMirror 获得焦点')}
+                  // onBlur={() => console.log('🎯 CodeMirror 失去焦点')}
                 />
               </CodeMirrorContainer>
             ) : (

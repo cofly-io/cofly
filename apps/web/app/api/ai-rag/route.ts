@@ -38,21 +38,21 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            ctype: true
+            cType: true
           }
         },
         embeddingConnectConfig: {
           select: {
             id: true,
             name: true,
-            ctype: true
+            cType: true
           }
         },
         rerankConnectConfig: {
           select: {
             id: true,
             name: true,
-            ctype: true
+            cType: true
           }
         }
       },
@@ -161,21 +161,21 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            ctype: true
+            cType: true
           }
         },
         embeddingConnectConfig: {
           select: {
             id: true,
             name: true,
-            ctype: true
+            cType: true
           }
         },
         rerankConnectConfig: {
           select: {
             id: true,
             name: true,
-            ctype: true
+            cType: true
           }
         }
       }

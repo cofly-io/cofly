@@ -41,7 +41,6 @@ interface NodeDetailsViewProps {
   getLatestNodesTestResultsMap?: () => Record<string, any>;
   nodesDetailsMap?: Record<string, any>;
   showToast?: (type: ToastType, title: string, message: string) => void;
-  connectConfigs?:IConnectConfig;
   // 添加连接配置数据源
   onFetchConnectInstances?: (connectType?: string) => Promise<Array<{
     id: string;
@@ -81,7 +80,6 @@ export const NodeDetailsView: React.FC<NodeDetailsViewProps> = ({
   getLatestNodesTestResultsMap,
   nodesDetailsMap,
   showToast,
-  connectConfigs,
   onFetchConnectInstances,
   onFetchConnectDetail,
   linkageCallbacks,
@@ -90,11 +88,6 @@ export const NodeDetailsView: React.FC<NodeDetailsViewProps> = ({
   onStopTest,
   onAIhelpClick,
 }) => {
-  console.log('🟠 [NodeDetailsView] 组件渲染:', {
-    nodeId: node?.id,
-    onAIhelpClick: typeof onAIhelpClick,
-    onAIhelpClickExists: !!onAIhelpClick
-  });
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -123,7 +116,6 @@ export const NodeDetailsView: React.FC<NodeDetailsViewProps> = ({
         getLatestNodesTestResultsMap={getLatestNodesTestResultsMap}
         nodesDetailsMap={nodesDetailsMap}
         showToast={showToast}
-        connectConfigs={connectConfigs}
         onFetchConnectInstances={onFetchConnectInstances}
         onFetchConnectDetail={onFetchConnectDetail}
         linkageCallbacks={linkageCallbacks}

@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { SettingsCard } from './SettingsCard';
-import { Toggle, Select, Button, Input } from './SharedStyles';
+import { Toggle, Button, Input } from './SharedStyles';
+import { BasicSelect } from '../../components/basic';
 
 const SettingRow = styled.div`
   display: flex;
@@ -235,14 +236,14 @@ export const NotificationSettings: React.FC = () => {
               <h4>邮件频率</h4>
               <p>设置邮件通知的发送频率</p>
             </SettingInfo>
-            <Select
+            <BasicSelect
               value={notifications.emailFrequency}
               onChange={(e) => handleSelectChange('emailFrequency', e.target.value)}
             >
               <option value="immediate">立即发送</option>
               <option value="daily">每日汇总</option>
               <option value="weekly">每周汇总</option>
-            </Select>
+            </BasicSelect>
           </SettingRow>
         )}
         

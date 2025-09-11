@@ -1,7 +1,7 @@
 // Type definitions for Node components
 
 import { Node } from 'reactflow';
-import { TestResult, NodeTestResults, INodeFields } from '@repo/common';
+import { TestResult, NodeTestResults, INodeFields, IConnectConfig } from '@repo/common';
 import { LinkageCallbacks } from '../utils/UnifiedParameterInput';
 import { ToastType as NodeToastType } from '@repo/common';
 
@@ -37,17 +37,7 @@ export interface NodeSettingsProps {
   getLatestNodesTestResultsMap?: () => Record<string, any>;
   nodesDetailsMap?: Record<string, any>;
   showToast?: ShowToastFn;
-  connectConfigs?: {
-    id: string;
-    name: string;
-    cType: string;
-    mType?: string;
-    configInfo: string;
-    description?: string;
-    createdAt: Date;
-    updatedAt: Date;
-    creator?: string;
-  }; 
+  // connectConfigs?: IConnectConfig; // 已废弃，改为完全动态获取
   onFetchConnectInstances?: (connectType?: string) => Promise<Array<{
     id: string;
     name: string;

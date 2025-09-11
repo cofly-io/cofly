@@ -1,4 +1,4 @@
-import { IExecuteOptions, INode, INodeBasic, INodeDetail } from '@repo/common';
+import { IExecuteOptions, IExecuteResult, INode, INodeBasic, INodeDetail } from '@repo/common';
 import { credentialManager } from '@repo/common';
 import mysql from 'mysql2/promise';
 
@@ -126,22 +126,6 @@ export class MySQL implements INode {
 					placeholder: '例如: id DESC, name ASC',
 				}
 			},
-			{
-				label: '限制条数',
-				fieldName: 'limit',
-				conditionRules: {
-					showBy: {
-						operation: ['select']
-					}
-				},
-				control: {
-					name: 'input',
-					dataType: 'number',
-					defaultValue: 0,
-					placeholder: '0表示不限制'
-				}
-			},
-
 			// 插入操作相关字段
 			{
 				label: '插入数据',
@@ -157,6 +141,9 @@ export class MySQL implements INode {
 					defaultValue: '',
 					validation: { required: true },
 					placeholder: 'JSON格式: {"name": "张三", "email": "zhang@example.com"}',
+					attributes: [{
+						rows: 12
+					}]
 				}
 			},
 
@@ -199,29 +186,32 @@ export class MySQL implements INode {
 					rules: '[你一个MYSQL的DBA，擅长编写SQL语句，要求：\n1. SQL语句是完整可执行的\n2. 请确保SQL语句正确且逻辑清晰]'
 				}
 			},
-			// 连接选项
-			// {
-			// 	label: '连接超时(秒)',
-			// 	fieldName: 'connectionTimeout',
-			// 	control: {
-			// 		name: 'input',
-			// 		dataType: 'number',
-			// 		defaultValue: 30,
-			// 		placeholder: '连接超时时间',
-			// 	}
-			// }
+			{
+				label: '返回条数',
+				fieldName: 'limit',
+				conditionRules: {
+					showBy: {
+						operation: ['executeQuery', 'select']
+					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 0,
+					placeholder: '空或者0表示不限制'
+				}
+			}
 		],
 	};
 
-
 	async execute(opts: IExecuteOptions): Promise<any> {
 		const operation = opts.inputs?.operation;
+		console.log("inputs.operation", operation);
 		let connection: mysql.Connection | null = null;
 
 		try {
 			// 创建数据库连接
 			connection = await this.createConnection(opts.inputs);
-
 			let result;
 			switch (operation) {
 				case 'select':
@@ -246,10 +236,8 @@ export class MySQL implements INode {
 			return result; // 🔧 修复：添加返回语句
 
 		} catch (error: any) {
-			console.error('❌ [MySQL Node] 执行错误:', error.message);
 			return {
-				error: error.message,
-				success: false
+				error: error.message
 			};
 		} finally {
 			// 🔧 修复：将连接关闭逻辑移到 finally 块，确保连接总是被关闭
@@ -265,13 +253,11 @@ export class MySQL implements INode {
 
 	private async createConnection(inputs: any): Promise<mysql.Connection> {
 		let connectionConfig: any;
-
 		// 如果选择了连接源，直接从数据库查询连接配置
 		if (inputs.datasource) {
 			try {
 				// 使用数据源配置
 				const connectConfig = await credentialManager.mediator?.get(inputs.datasource);
-
 				if (!connectConfig) {
 					throw new Error(`连接配置不存在: ${inputs.datasource}`);
 				}
@@ -340,69 +326,72 @@ export class MySQL implements INode {
 
 		try {
 			const [rows] = await connection.execute(query);
-			const result = {
-				data: rows,
-				rowCount: Array.isArray(rows) ? rows.length : 0,
-				success: true,
-				query: query // 🔧 改进：返回执行的查询语句
-			};
-			return result;
+			return rows;
 		} catch (error: any) {
 			throw new Error(`执行SQL失败: ${error.message}`);
 		}
 	}
 
 	private async executeInsert(connection: mysql.Connection, opts: IExecuteOptions): Promise<any> {
-		const table = opts.inputs?.table;
-		const insertDataStr = opts.inputs?.insertData;
+    const table = opts.inputs?.table;
+    const insertDataStr = opts.inputs?.insertData;
+    
+    if (!table) {
+        throw new Error('表名不能为空');
+    }
 
-		if (!table) {
-			throw new Error('表名不能为空');
-		}
+    if (!insertDataStr) {
+        throw new Error('插入数据不能为空');
+    }
 
-		if (!insertDataStr) {
-			throw new Error('插入数据不能为空');
-		}
+    let insertData;
+    try {
+        insertData = JSON.parse(insertDataStr);
+    } catch (error) {
+        throw new Error('插入数据格式错误，请使用有效的JSON格式');
+    }
 
-		let insertData;
-		try {
-			insertData = JSON.parse(insertDataStr);
-		} catch (error) {
-			throw new Error('插入数据格式错误，请使用有效的JSON格式');
-		}
+    const records = Array.isArray(insertData) ? insertData : [insertData];
 
-		// 支持单条记录和多条记录插入
-		const records = Array.isArray(insertData) ? insertData : [insertData];
+    if (records.length === 0) {
+        throw new Error('没有要插入的数据');
+    }
 
-		if (records.length === 0) {
-			throw new Error('没有要插入的数据');
-		}
+    const columns = Object.keys(records[0]).map(col => `\`${col}\``);
+    const placeholders = columns.map(() => '?').join(', ');
+    const query = `INSERT INTO \`${table}\` (${columns.join(', ')}) VALUES (${placeholders})`;
 
-		// 获取字段名
-		const columns = Object.keys(records[0]);
-		const placeholders = columns.map(() => '?').join(', ');
-		const query = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`;
+    let insertedCount = 0;
+    const insertedIds = [];
 
-		let insertedCount = 0;
-		const insertedIds = [];
+    // ISO8601正则表达式，匹配格式如：2024-11-27T21:53:37.231Z 或 2024-11-27T21:53:37Z
+    const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
 
-		for (const record of records) {
-			const values = columns.map(col => record[col]);
-			const [result] = await connection.execute(query, values) as any;
-			insertedCount++;
-			if (result.insertId) {
-				insertedIds.push(result.insertId);
-			}
-		}
+    for (const record of records) {
+        const values = Object.keys(record).map(key => {
+            let value = record[key];
+            if (typeof value === 'string' && isoRegex.test(value)) {
+                const date = new Date(value);
+                if (!isNaN(date.getTime())) {
+                    // 转换为MySQL datetime格式：'YYYY-MM-DD HH:MM:SS'
+                    return date.toISOString().slice(0, 19).replace('T', ' ');
+                }
+            }
+            return value;
+        });
 
-		return {
-			query: query,
-			insertedCount: insertedCount,
-			insertedIds: insertedIds,
-			success: true,
-			operation: 'insert'
-		};
-	}
+        try {
+            const [result] = await connection.execute(query, values) as any;
+            insertedCount++;
+            if (result.insertId) {
+                insertedIds.push(result.insertId);
+            }
+        } catch (error) {
+            throw new Error(`插入数据失败: ${error}`);
+        }
+    }
+    return { insertedIds: insertedIds, insertedCount: insertedCount };
+}
 
 	private async executeUpdate(connection: mysql.Connection, opts: IExecuteOptions): Promise<any> {
 		const table = opts.inputs?.table;
@@ -433,13 +422,9 @@ export class MySQL implements INode {
 		const query = `UPDATE ${table} SET ${setClause} WHERE ${whereCondition}`;
 
 		const [result] = await connection.execute(query, values) as any;
-
 		return {
-			query: query,
 			affectedRows: result.affectedRows,
 			changedRows: result.changedRows,
-			success: true,
-			operation: 'update'
 		};
 	}
 
@@ -459,44 +444,42 @@ export class MySQL implements INode {
 
 		const [result] = await connection.execute(query) as any;
 
-		return {
-			query: query,
-			affectedRows: result.affectedRows,
-			success: true,
-			operation: 'delete'
-		};
+		return { affectedRows: result.affectedRows };
 	}
 
 	private async executeCustomQuery(connection: mysql.Connection, opts: IExecuteOptions): Promise<any> {
-		const query = opts.inputs?.query;
+		const queryStr = opts.inputs?.query;
+		const query = queryStr && queryStr.endsWith(';') ? queryStr.slice(0, -1) : queryStr;
+		const limit = opts.inputs?.limit;
 
 		if (!query) {
 			throw new Error('SQL语句不能为空');
 		}
 
-		const [result] = await connection.execute(query);
+		// 检查是否为 SELECT 查询且需要添加 LIMIT
+		let finalQuery = query;
+		const isSelectQuery = query.trim().toLowerCase().startsWith('select');
 
-		// 判断是否为查询操作
-		const isSelect = query.trim().toLowerCase().startsWith('select');
+		if (isSelectQuery && limit && limit > 0) {
+			// 检查是否已包含 LIMIT 子句
+			const hasLimit = query.toLowerCase().includes('limit');
 
-		if (isSelect) {
-			return {
-				data: result,
-				query: query,
-				rowCount: Array.isArray(result) ? result.length : 0,
-				success: true,
-				operation: 'executeQuery'
-			};
+			if (!hasLimit) {
+				finalQuery = `${query.trim()} LIMIT ${limit}`;
+			}
+			// 如果已有 LIMIT，可以选择不覆盖或给出警告
+			// 这里我们保持原样，不添加额外的 LIMIT
+		}
+		const [result] = await connection.execute(finalQuery);
+
+		if (isSelectQuery) {
+			return result;
 		} else {
-			// 非查询操作（INSERT, UPDATE, DELETE等）
 			const execResult = result as any;
 			return {
-				query: query,
 				affectedRows: execResult.affectedRows || 0,
 				insertId: execResult.insertId || null,
-				success: true,
-				operation: 'executeQuery'
-			};
+			}
 		}
 	}
 }

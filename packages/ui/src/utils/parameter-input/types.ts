@@ -1,5 +1,5 @@
 // 参数输入组件的类型定义
-import { INodeFields, IFieldLinkageConfig } from '@repo/common';
+import { INodeFields, IConnectConfig } from '@repo/common';
 
 export type ParameterInputVariant = 'node' | 'connect';
 
@@ -19,11 +19,7 @@ export interface UnifiedParameterInputProps {
   onChange: (name: string, value: any) => void;
   formValues?: Record<string, any>;
   onExpandModeChange?: (expanded: boolean) => void;
-  connectConfigs?: Array<{
-    id: string;
-    name: string;
-    description?: string;
-  }>; // 添加连接配置数据源
+  // connectConfigs?: IConnectConfig; // 已废弃，改为完全动态获取
   onFetchConnectInstances?: (ctype: string) => Promise<Array<{
     id: string;
     name: string;

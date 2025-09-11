@@ -55,7 +55,7 @@ interface AppWorkflowCanvasProps {
   onPasteNodes?: () => void;
   nodesTestResultsMap?: Record<string, any>;
   getLatestNodesTestResultsMap?: () => Record<string, any>;
-  connectConfigs?: IConnectConfig[];
+  // connectConfigs?: IConnectConfig[];
   onFetchConnectInstances?: (connectType?: string) => Promise<IDataOptions[]>;
   onFetchConnectDetail?: (connectID: string, search?: string) => Promise<IMetadataResult>;
   onMcpLabelClick?: (nodeId: string) => void;
@@ -104,7 +104,7 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
   onPasteNodes,
   nodesTestResultsMap,
   getLatestNodesTestResultsMap,
-  connectConfigs = [],
+  // connectConfigs = [],
   onFetchConnectInstances,
   onFetchConnectDetail,
   onMcpLabelClick,
@@ -135,7 +135,7 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
    * 处理连接事件 - 添加应用层逻辑
    */
   const handleConnect = useCallback((connection: Connection) => {
-    logger.debug('应用层处理连接', { connection });
+    // logger.debug('应用层处理连接', { connection });
 
     // 这里可以添加应用层特定的连接验证逻辑
     // 例如：业务规则验证、权限检查等
@@ -149,7 +149,7 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
    * 处理拖拽放置 - 添加应用层逻辑
    */
   const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    logger.debug('应用层处理拖拽放置');
+    // logger.debug('应用层处理拖拽放置');
 
     // 这里可以添加应用层特定的拖拽逻辑
     // 例如：节点创建规则、位置计算等
@@ -163,7 +163,7 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
    * 处理节点双击 - 添加应用层逻辑
    */
   const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node) => {
-    logger.debug('应用层处理节点双击', { nodeId: node.id });
+    // logger.debug('应用层处理节点双击', { nodeId: node.id });
 
     // 这里可以添加应用层特定的双击逻辑
     // 例如：权限检查、节点状态验证等
@@ -177,11 +177,6 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
    * 处理选择变化 - 添加应用层逻辑
    */
   const handleSelectionChange = useCallback((elements: { nodes: Node[], edges: Edge[] }) => {
-    logger.debug('应用层处理选择变化', {
-      nodeCount: elements.nodes.length,
-      edgeCount: elements.edges.length
-    });
-
     // 这里可以添加应用层特定的选择逻辑
     // 例如：选择状态同步、工具栏更新等
 
@@ -190,7 +185,18 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
     }
   }, [onSelectionChange]);
 
-
+ /**
+   * 连接配置处理说明：
+   * 
+   * 我们不再传递静态的 connectConfigs，而是完全依赖动态获取：
+   * 1. onFetchConnectInstances: 动态获取连接配置列表
+   * 2. onFetchConnectDetail: 动态获取连接详情（如表名）
+   * 
+   * 这样的好处：
+   * - 数据始终是最新的
+   * - 减少不必要的数据传递
+   * - 更好的性能和内存使用
+   */
 
   /**
    * 包装获取连接配置函数以适配UI层
@@ -292,7 +298,6 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
         onPasteNodes={onPasteNodes}
         nodesTestResultsMap={nodesTestResultsMap}
         getLatestNodesTestResultsMap={getLatestNodesTestResultsMap}
-        //connectConfigs={uiConnectConfigs}
         onFetchConnectInstances={handleFetchConnectConfigs}
         onFetchConnectDetail={handleFetchConnectDetail}
         linkageCallbacks={linkageCallbacks}

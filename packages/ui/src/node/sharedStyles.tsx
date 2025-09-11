@@ -56,11 +56,16 @@ export const OutputContainerContent = styled.div`
   //border: 1px solid #1d4f91;
   //border-top: none;
   background: ${({ theme }) => theme.panel.nodeBg};
-  // 隐藏滚动条
-  scrollbar-width: none;      
-  -ms-overflow-style: none; 
+  // 自定义滚动条样式（可选）
   ::-webkit-scrollbar {
-    display: none;
+    width: 4px;
+  }  
+  ::-webkit-scrollbar-track {
+    background: ${({ theme }) => theme.panel.panelBg};
+  }  
+  ::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.accent};
+    border-radius: 4px;
   }
 `;
 

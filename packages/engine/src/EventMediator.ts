@@ -200,23 +200,19 @@ export class EventMediator {
                 for(const span of childrenSpans) {
                     const realName = span.name.split(":")[0];
                     if(actionMap.has(span.name)) {
-                        const newStep = {
-                            ...span,
+                        const newStep = {                            
                             output: JSON.parse(span.output?.data || '{}'),
-                            input: JSON.parse(stepMap.get(span.name + ":start")?.output?.data || '{}')
+                            input: JSON.parse(stepMap.get(span.name + ":start")?.output?.data || '{}'),
+                            ...span,
                         };
-
-                        if(newStep.output.status && newStep.output.data) {
-                            newStep.output = newStep.output.data;
-                        }
-
+                        
                         childs.push(newStep);
                     } else if(!stepMap.has(realName) && actionMap.has(realName)) {
                         childs.push({
                             ...span,
                             name: realName,
-                            status: trace.status,
                             output: undefined,
+                            status: trace.status,                            
                             input: JSON.parse(span.output?.data || '{}'),
                         });
                     }

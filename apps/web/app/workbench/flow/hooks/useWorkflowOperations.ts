@@ -363,7 +363,7 @@ export const useWorkflowOperations = ({
       try {
         // 调用AI助手服务
         const result = await AIAssistantService.runAgent(
-          content + ' 规则和要求： ' + rules,
+          content + '\n 规则和要求： ' + rules,
           'builtin-model',
           `thread-${Date.now()}`,
           'workflow-user'

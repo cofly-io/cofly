@@ -194,9 +194,9 @@ export class AiAgentCustom implements INode {
                                 dataType: 'number',
                                 defaultValue: 0.90,
                                 attributes: [{
-                                    minValue: 0,
-                                    maxValue: 1,
-                                    numberPrecision: 2
+                                    min: 0,
+                                    max: 1,
+                                    step: 2
                                 }],
 
                             }
@@ -208,9 +208,9 @@ export class AiAgentCustom implements INode {
                                 dataType: 'number',
                                 defaultValue: 40,
                                 attributes: [{
-                                    minValue: 0,
-                                    maxValue: 120,
-                                    numberPrecision: 0
+                                    min: 0,
+                                    max: 120,
+                                    step: 0
                                 }],
 
                             }

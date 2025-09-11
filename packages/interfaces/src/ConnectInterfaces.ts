@@ -562,15 +562,14 @@ export abstract class AbstractConnectLoader {
     }
 }
 
-
 export interface IConnectConfig {
     id: string;
     name: string;
     cType: string;
-    mType?: string;
+    mType: string;
     configInfo: string;
     description?: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
     creator?: string;
 }

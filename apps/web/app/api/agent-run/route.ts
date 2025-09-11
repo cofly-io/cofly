@@ -38,18 +38,18 @@ export async function POST(request: NextRequest) {
     };
 
     invokeOptions.agentConfig = config;
-    // const result = (await agentManager.invoke(invokeOptions));
+    const result = (await agentManager.invoke(invokeOptions));
 
-    // // // 根据用户提供的数据结构，正确的路径是 result.runData[0][0].output[0].content
-    // if (result?.runData?.[0]?.[0]?.output?.[0]?.content) {
-    //   const content = result.runData[0][0].output[0].content;
-    //   return NextResponse.json({ content: content, isAppend: isAppend });
-    // }
-    // return NextResponse.json({
-    //   content: '模型异常：针对你设置的模型，可创建agent进行对话测试。',
-    // });
+    // 根据用户提供的数据结构，正确的路径是 result.runData[0][0].output[0].content
+    if (result?.runData?.[0]?.[0]?.output?.[0]?.content) {
+      const content = result.runData[0][0].output[0].content;
+      return NextResponse.json({ content: content, isAppend: isAppend });
+    }
+    return NextResponse.json({
+      content: '模型异常：针对你设置的模型，可创建agent进行对话测试。',
+    });
 
-    return NextResponse.json({ message: invokeOptions });
+    // return NextResponse.json({ message: invokeOptions });
   } catch (error) {
     console.error('Agent run error:', error);
     return NextResponse.json(

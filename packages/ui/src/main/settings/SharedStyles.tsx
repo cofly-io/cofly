@@ -67,30 +67,30 @@ export const TextArea = styled.textarea`
   }
 `;
 
-export const Select = styled.select`
-  width: 100%;
-  padding: 6px 12px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 4px;
-  background: ${({ theme }) => theme.mode === 'dark'
-    ? 'rgba(15, 23, 42, 0.8)'
-    : 'rgba(255, 255, 255, 0.9)'
-  };
-  color: ${({ theme }) => theme.colors.textPrimary};
-  font-size: 12px;
-  transition: all 0.3s ease;
+// export const Select = styled.select`
+//   width: 100%;
+//   padding: 6px 12px;
+//   border: 1px solid rgba(59, 130, 246, 0.2);
+//   border-radius: 4px;
+//   background: ${({ theme }) => theme.mode === 'dark'
+//     ? 'rgba(15, 23, 42, 0.8)'
+//     : 'rgba(255, 255, 255, 0.9)'
+//   };
+//   color: ${({ theme }) => theme.colors.textPrimary};
+//   font-size: 12px;
+//   transition: all 0.3s ease;
   
-  &:focus {
-    outline: none;
-    border-color: rgba(59, 130, 246, 0.5);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+//   &:focus {
+//     outline: none;
+//     border-color: rgba(59, 130, 246, 0.5);
+//     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+//   }
   
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-`;
+//   &:disabled {
+//     opacity: 0.6;
+//     cursor: not-allowed;
+//   }
+// `;
 
 // 按钮组件
 export const Button = styled.button`

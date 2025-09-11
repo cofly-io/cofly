@@ -64,7 +64,6 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
     onChange,
     formValues = {},
     onExpandModeChange,
-    connectConfigs,
     onFetchConnectInstances,
     onFetchConnectDetail,
     linkageCallbacks,
@@ -87,8 +86,8 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
     // 联动数据管理
     const { linkageData, linkageLoading, linkageError } = useLinkageData(field, formValues, allFields, linkageCallbacks);
 
-    // 动态连接配置状态
-    const [dynamicConnectConfigs, setDynamicConnectConfigs] = useState(connectConfigs || []);
+    // 动态连接配置状态（完全依赖动态获取）
+    const [dynamicConnectConfigs, setDynamicConnectConfigs] = useState<Array<{ id: string; name: string; description?: string }>>([]);
 
     // AI助手loading状态
     const [aiLoading, setAiLoading] = useState(false);
@@ -98,7 +97,6 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
         if (dataSourceType && onFetchConnectInstances) {
             try {
                 const configs = await onFetchConnectInstances(dataSourceType);
-                console.log("configs", configs);
                 setDynamicConnectConfigs(configs);
             } catch (error) {
                 console.error('❌ [UnifiedParameterInput] 获取连接配置失败:', error);
@@ -379,6 +377,11 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
                 const inputType = getInputType();
 
+                // 🔧 修复：确保 value 是适当的类型，避免 [object Object] 问题
+                const inputValue = controlConfig.dataType === 'number' ?
+                    (typeof value === 'number' ? value : (value ? Number(value) || '' : '')) :
+                    (typeof value === 'string' ? value : (value ? String(value) : ''));
+
                 if (variant === 'node') {
                     // node 模式下使用 Input 组件
                     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -400,7 +403,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                     const control = (
                         <Input
                             type={inputType}
-                            value={value || ''}
+                            value={inputValue}
                             onChange={handleInputChange}
                             placeholder={field.description || controlConfig.placeholder}
                             error={errorMessage}
@@ -413,7 +416,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                         <StyledTextInput
                             $variant={variant}
                             type={inputType}
-                            value={value || ''}
+                            value={inputValue}
                             onChange={(e) => onChange(field.fieldName, e.target.value)}
                             placeholder={field.description || controlConfig.placeholder}
                         />
@@ -519,14 +522,20 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             }
 
             case 'textarea': {
+                // 🔧 修复：确保 value 是字符串类型，避免 [object Object] 问题
+               const textareaAttributes = controlConfig.attributes?.[0] || {};
+                const textValue = typeof value === 'string' ? value :
+                    (value ? JSON.stringify(value) : '');
+                // 调试日志
                 if (variant === 'node') {
                     // node 模式下使用 TextArea 组件
                     const control = (
                         <TextArea
-                            value={value || ''}
-                            onChange={(val) => onChange(field.fieldName, val)}
+                            value={textValue}
+                            onChange={(e) => onChange(field.fieldName, e.target.value)}
                             placeholder={field.description || controlConfig.placeholder}
                             error={errorMessage}
+                            {...textareaAttributes}
                         />
                     );
                     return renderWithOptionalLabel(control);
@@ -535,7 +544,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                     const control = (
                         <StyledTextArea
                             $variant={variant}
-                            value={value || ''}
+                            value={textValue}
                             onChange={(e) => onChange(field.fieldName, e.target.value)}
                             placeholder={field.description || controlConfig.placeholder}
                         />
@@ -819,13 +828,14 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
             case 'slider': {
                 const sliderAttributes = controlConfig.attributes?.[0] || {};
+                const numberPrecision = sliderAttributes?.step;
+                const computedStep = numberPrecision ? Math.pow(10, -numberPrecision) : 1;
                 const control = (
                     <SliderControl
                         value={value || controlConfig.defaultValue || 0}
                         onChange={(val) => onChange(field.fieldName, val)}
-                        min={sliderAttributes.minValue || 0}
-                        max={sliderAttributes.maxValue || 100}
-                        step={sliderAttributes.numberPrecision ? Math.pow(10, -sliderAttributes.numberPrecision) : 1}
+                        {...sliderAttributes} // 传递 min、max 等属性
+                        step={computedStep} // 覆盖 step 为计算值
                     />
                 );
                 return renderWithOptionalLabel(control);
@@ -837,8 +847,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                     <Switch
                         value={value || controlConfig.defaultValue || false}
                         onChange={(checked) => onChange(field.fieldName, checked)}
-                        text={switchAttributes.text}
-                        {...field.control.attributes}
+                        {...switchAttributes}
                     // size={field.typeOptions?.size || 'small'}
                     />
                 );
@@ -884,7 +893,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                                             }}
                                             formValues={formValues}
                                             onExpandModeChange={onExpandModeChange}
-                                            connectConfigs={connectConfigs}
+                                            // connectConfigs 不再传递
                                             onFetchConnectInstances={onFetchConnectInstances}
                                             onFetchConnectDetail={onFetchConnectDetail}
                                             linkageCallbacks={linkageCallbacks}

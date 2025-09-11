@@ -5,6 +5,7 @@ import styled, { useTheme, createGlobalStyle } from 'styled-components';
 import { MdAutoFixHigh } from "react-icons/md";
 import { MdOutlineStickyNote2 } from "react-icons/md";
 import { BsStopCircleFill } from "react-icons/bs";
+import { IConnectConfig } from '@repo/common';
 
 
 // ReactFlow imports
@@ -121,18 +122,7 @@ export interface WorkflowCanvasProps {
   // 🔧 添加最新的 nodesTestResultsMap 作为直接props，避免快照问题
   nodesTestResultsMap?: Record<string, any>;
   getLatestNodesTestResultsMap?: () => Record<string, any>;
-  // 连接配置数据，由web层传入
-  connectConfigs?: {
-    id: string;
-    name: string;
-    cType: string;
-    mType?: string;
-    configInfo: string;
-    description?: string;
-    createdAt: Date;
-    updatedAt: Date;
-    creator?: string;
-  };
+  // 连接配置数据，由web层传入（已废弃，改为完全动态获取）
   // 连接配置查询回调，当NodeSettings需要特定类型的连接配置时调用
   onFetchConnectInstances?: (ctype?: string) => Promise<Array<{
     id: string;
@@ -186,8 +176,6 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = React.memo(({
   // 🔧 接收最新的 nodesTestResultsMap 作为直接props
   nodesTestResultsMap,
   getLatestNodesTestResultsMap,
-  // 连接配置相关props
-  connectConfigs,
   onFetchConnectInstances,
   // 表名获取相关props
   onFetchConnectDetail,
@@ -235,7 +223,6 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = React.memo(({
       return () => clearTimeout(timer);
     }
   }, [isTestingWorkflow]);
-  // connectConfigs 现在通过props传入，不需要内部状态
   // Ref for ReactFlow wrapper
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -835,7 +822,6 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = React.memo(({
               nodesDetailsMap={selectedNodeDetails.nodesDetailsMap}
               onAIhelpClick={selectedNodeDetails.onAIhelpClick}
               showToast={selectedNodeDetails.showToast}
-              connectConfigs={connectConfigs}
               onFetchConnectInstances={onFetchConnectInstances}
               onFetchConnectDetail={onFetchConnectDetail}
               linkageCallbacks={linkageCallbacks}

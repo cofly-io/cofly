@@ -5,13 +5,13 @@ import styled from 'styled-components';
 const SelectWrapper = styled.div`
     position: relative;
     width: 100%;
-    
+
     &::after {
         content: "▼"; /* 使用Unicode字符 */
         font-size: 12px; /* 调整图标大小 */
-        color: ${({ theme }) => theme.mode === 'dark' ? '#9ca3af' : '#555'}; /* 调整图标颜色 */
+        color: ${({ theme }) => theme.mode === 'dark' ? '#9ca3af' : '#94a3b8'}; /* 调整图标颜色 */
         position: absolute;
-        right: 10px; /* 调整图标在框内的水平位置 */
+        right: 12px; /* 调整图标在框内的水平位置 */
         top: 50%;
         transform: translateY(-50%);
         pointer-events: none; /* 确保点击下拉框本身而不是图标 */
@@ -25,7 +25,7 @@ const StyledSelect = styled.select`
     appearance: none;
     width: 100%;
     padding: 8px 30px 8px 12px; /* 右侧留出空间给自定义箭头 */
-    border: 1px solid ${({ theme }) => theme.mode === 'dark' ? '#ffffff20' : '#d1d5db'};
+    border: 1px solid ${({ theme }) => theme.panel.ctlBorder};
     border-radius: 4px;
     background: ${({ theme }) => theme.mode === 'dark' ? '#1f2937' : '#ffffff'};
     color: ${({ theme }) => theme.mode === 'dark' ? '#f9fafb' : '#111827'};
@@ -34,8 +34,14 @@ const StyledSelect = styled.select`
 
     &:focus {
         outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: ${({ theme }) => theme.mode === 'dark'
+            ? 'rgba(59, 130, 246, 0.6)'
+            : 'rgba(59, 130, 246, 0.5)'
+        };
+        box-shadow: ${({ theme }) => theme.mode === 'dark'
+            ? '0 0 20px rgba(59, 130, 246, 0.3)'
+            : '0 0 20px rgba(59, 130, 246, 0.2)'
+        };
     }
     
     &:disabled {

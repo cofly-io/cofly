@@ -3,7 +3,7 @@
 import React from 'react';
 import { UnifiedParameterInput } from '../utils/parameter-input/UnifiedParameterInput';
 import type { UnifiedParameterField, LinkageCallbacks } from '../utils/parameter-input/types';
-import type { INodeFields } from '@repo/common';
+import type { IConnectConfig, INodeFields } from '@repo/common';
 
 interface ParameterInputProps {
   parameter:INodeFields;
@@ -11,17 +11,6 @@ interface ParameterInputProps {
   onChange: (name: string, value: any) => void;
   formValues?: Record<string, any>;
   onExpandModeChange?: (expanded: boolean) => void;
-  connectConfigs?: Array<{
-    id: string;
-    name: string;
-    cType: string;
-    mType?: string;
-    configInfo: string;
-    description?: string;
-    createdAt: Date;
-    updatedAt: Date;
-    creator?: string;
-  }>; // 添加连接配置数据源
   onFetchConnectInstances?: (connectType: string) => Promise<Array<{
     id: string;
     name: string;
@@ -50,7 +39,6 @@ export const ParameterInput: React.FC<ParameterInputProps> = ({
   onChange,
   formValues,
   onExpandModeChange,
-  connectConfigs,
   onFetchConnectInstances,
   onFetchConnectDetail,
   linkageCallbacks,
@@ -89,7 +77,6 @@ export const ParameterInput: React.FC<ParameterInputProps> = ({
       onChange={onChange}
       formValues={formValues}
       onExpandModeChange={onExpandModeChange}
-      connectConfigs={connectConfigs}
       onFetchConnectInstances={onFetchConnectInstances}
       onFetchConnectDetail={onFetchConnectDetail}
       linkageCallbacks={linkageCallbacks}

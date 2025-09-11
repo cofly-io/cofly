@@ -15,6 +15,7 @@ import { NotificationSettings } from './NotificationSettings';
 import { DataManagementSettings } from './DataManagementSettings';
 // import { McpSettings } from './McpSettings';
 import { BuiltinModelSettings } from './BuiltinModelSettings';
+import {IConnectConfig} from '@repo/common';
 // import SessionSettings from './SessionSettings';
 
 const SettingsContainer = styled(GlassContainer)`
@@ -53,16 +54,10 @@ interface ModelOption {
   label: string;
 }
 
-interface ConnectConfig {
-  id: string;
-  name: string;
-  ctype: string;
-}
-
 interface SettingsPageProps {
   className?: string;
   onLoadModels?: (connectId: string) => Promise<ModelOption[]>;
-  onLoadConnections?: () => Promise<ConnectConfig[]>;
+  onLoadConnections?: () => Promise<IConnectConfig[]>;
   onSaveSettings?: (tabkey: string, tabDetails: string) => Promise<boolean>;
   onNavigateToConnections?: () => void;
   builtinModelSettings?: {
