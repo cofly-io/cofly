@@ -1,8 +1,7 @@
-import { IExecuteOptions, INode, INodeBasic, INodeDetail } from '@repo/common';
-import { NodeLink, credentialManager } from '@repo/common';
-import * as dmdb from 'dmdb';
+import { IExecuteOptions, IExecuteResult, INode, INodeBasic, INodeDetail } from '@repo/common';
+import { credentialManager } from '@repo/common';
 
-export class Dameng implements INode {
+export class DamengDB implements INode {
 	node: INodeBasic = {
 		kind: 'dameng',
 		name: '达梦数据库',
@@ -19,14 +18,31 @@ export class Dameng implements INode {
 			// 数据库连接配置
 			{
 				label: '连接源',
-				fieldName: 'datasource',				
+				fieldName: 'datasource',
 				control: {
 					name: 'selectlistdesc',
 					dataType: 'string',
-					defaultValue: '',
 					dataSourceType: "dameng",
-					validation: { required: true }
+					defaultValue: '',
+					validation: { required: true },
+					linkage: {
+						targets: ['table'],
+					}
 				},
+			},
+			// 联动配置：影响表名字段
+
+			// 表名（除了执行SQL操作外都需要）
+			{
+				label: '表名',
+				fieldName: 'table',
+				control: {
+					name: 'selectfilter',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true },
+					placeholder: '例如: users',
+				}
 			},
 			// 操作类型选择器
 			{
@@ -65,29 +81,11 @@ export class Dameng implements INode {
 					]
 				}
 			},
-
-			// 表名（除了执行SQL操作外都需要）
-			{
-				label: '表名',
-				fieldName: 'table',
-				conditionRules: {
-					hide: {
-						operation: ['executeQuery']
-					}
-				},
-				control: {
-					name: 'selectfilter',
-					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如: users',
-					validation: { required: true }
-				}
-			},
-
 			// 查询操作相关字段
 			{
 				label: '查询字段',
 				fieldName: 'columns',
+
 				conditionRules: {
 					showBy: {
 						operation: ['select']
@@ -96,8 +94,7 @@ export class Dameng implements INode {
 				control: {
 					name: 'input',
 					dataType: 'string',
-					defaultValue: '*',
-					placeholder: '例如: id,name,email 或 * (全部字段)'
+					placeholder: '例如: id,name,email 或 * (全部字段)',
 				}
 			},
 			{
@@ -111,8 +108,7 @@ export class Dameng implements INode {
 				control: {
 					name: 'textarea',
 					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如: id > 10 AND status = \'active\''
+					placeholder: '例如: id > 10 AND status = "active"',
 				}
 			},
 			{
@@ -126,26 +122,9 @@ export class Dameng implements INode {
 				control: {
 					name: 'input',
 					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如: id DESC, name ASC'
+					placeholder: '例如: id DESC, name ASC',
 				}
 			},
-			{
-				label: '限制条数',
-				fieldName: 'limit',
-				conditionRules: {
-					showBy: {
-						operation: ['select']
-					}
-				},
-				control: {
-					name: 'input',
-					dataType: 'number',
-					defaultValue: 0,
-					placeholder: '0表示不限制'
-				}
-			},
-
 			// 插入操作相关字段
 			{
 				label: '插入数据',
@@ -159,8 +138,11 @@ export class Dameng implements INode {
 					name: 'textarea',
 					dataType: 'string',
 					defaultValue: '',
+					validation: { required: true },
 					placeholder: 'JSON格式: {"name": "张三", "email": "zhang@example.com"}',
-					validation: { required: true }
+					attributes: [{
+						rows: 12
+					}]
 				}
 			},
 
@@ -177,8 +159,8 @@ export class Dameng implements INode {
 					name: 'textarea',
 					dataType: 'string',
 					defaultValue: '',
-					placeholder: 'JSON格式: {"name": "李四", "status": "inactive"}',
-					validation: { required: true }
+					validation: { required: true },
+					placeholder: 'JSON格式: [{"name": "李四", "status": "inactive"}]',
 				}
 			},
 
@@ -195,36 +177,40 @@ export class Dameng implements INode {
 					name: 'sqlcode',
 					dataType: 'string',
 					defaultValue: '',
-					placeholder: '例如: SELECT * FROM users WHERE created_at > \'2024-01-01\'',
-					validation: { required: true }
+					validation: { required: true },
+					placeholder: '例如: SELECT * FROM users WHERE created_at > "2024-01-01"',
+				},
+				AIhelp: {
+					enable: true,
+					rules: '[你一个DamengDB的DBA，擅长编写SQL语句，要求：\n1. SQL语句是完整可执行的\n2. 请确保SQL语句正确且逻辑清晰]'
 				}
 			},
-
-			// 连接选项
 			{
-				label: '连接超时(秒)',
-				fieldName: 'connectionTimeout',
+				label: '返回条数',
+				fieldName: 'limit',
+				conditionRules: {
+					showBy: {
+						operation: ['executeQuery', 'select']
+					}
+				},
 				control: {
 					name: 'input',
 					dataType: 'number',
-					defaultValue: 30,
-					placeholder: '连接超时时间'
+					defaultValue: 0,
+					placeholder: '空或者0表示不限制'
 				}
 			}
 		],
 	};
 
 	async execute(opts: IExecuteOptions): Promise<any> {
-		if (!opts.inputs) {
-			throw new Error('输入参数不能为空');
-		}
-
-		const operation = opts.inputs.operation;
+		const operation = opts.inputs?.operation;
+		console.log("inputs.operation", operation);
+		let connection: any = null;
 
 		try {
 			// 创建数据库连接
-			const connection = await this.createConnection(opts.inputs);
-
+			connection = await this.createConnection(opts.inputs);
 			let result;
 			switch (operation) {
 				case 'select':
@@ -246,94 +232,69 @@ export class Dameng implements INode {
 					throw new Error(`未知操作类型: ${operation}`);
 			}
 
-			// 关闭连接
-			await connection.close();
 			return result;
 
 		} catch (error: any) {
-			console.error('❌ [Dameng Node] 执行错误:', error.message);
 			return {
-				error: error.message,
-				success: false
+				error: error.message
 			};
+		} finally {
+			// 确保连接总是被关闭
+			if (connection) {
+				try {
+					await connection.close();
+				} catch (closeError: any) {
+					console.error('⚠️ [DamengDB Node] 关闭连接时出错:', closeError.message);
+				}
+			}
 		}
 	}
 
-	private async createConnection(inputs: any): Promise<dmdb.Connection> {
-		let connectionString: string;
-
+	private async createConnection(inputs: any): Promise<any> {
+		let connectionConfig: any;
 		// 如果选择了连接源，直接从数据库查询连接配置
 		if (inputs.datasource) {
 			try {
 				// 使用数据源配置
 				const connectConfig = await credentialManager.mediator?.get(inputs.datasource);
-
 				if (!connectConfig) {
 					throw new Error(`连接配置不存在: ${inputs.datasource}`);
 				}
 
 				const configData = connectConfig.config;
-				connectionString = this.buildConnectionString(configData);
+
+				connectionConfig = {
+					connectString: `dm://${configData.username || configData.user}:${configData.password || ''}@${configData.host || 'localhost'}:${configData.port || 5236}/${configData.database}`,
+					autoCommit: true
+				};
 			} catch (error: any) {
-				console.error('❌ [Dameng Node] 查询连接配置失败:', error.message);
+				console.error('❌ [DamengDB Node] 查询连接配置失败:', error.message);
 				throw new Error(`获取连接配置失败: ${error.message}`);
 			}
 		} else {
 			// 使用直接配置的连接信息
-			connectionString = this.buildConnectionString({
-				host: inputs.host || 'localhost',
-				port: inputs.port || 5236,
-				database: inputs.database,
-				username: inputs.username,
-				password: inputs.password || ''
-			});
+			connectionConfig = {
+				connectString: `dm://${inputs.username}:${inputs.password || ''}@${inputs.host}:${inputs.port || 5236}/${inputs.database}`,
+				autoCommit: true
+			};
 		}
 
 		try {
-			const connection = await dmdb.getConnection({
-				connectString: connectionString,
-				autoCommit: inputs.autoCommit !== false
-			});
+			const dmdb = await eval("import('dmdb')");
+			const connection = await dmdb.getConnection(connectionConfig);
 			return connection;
 		} catch (error: any) {
-			console.error('📍 [Dameng Node] 连接错误堆栈:', error.stack);
+			console.error('📍 [DamengDB Node] 连接错误堆栈:', error.stack);
 			throw error;
 		}
 	}
 
-	/**
-	 * 构建达梦数据库连接字符串
-	 */
-	private buildConnectionString(config: any): string {
-		const host = config.host || 'localhost';
-		const port = config.port || 5236;
-		const database = config.database || config.serviceName || config.instanceName;
-		const username = config.username || config.user;
-		const password = config.password || '';
-		const autoCommit = config.autoCommit !== false;
-
-		// 达梦数据库连接字符串格式: dm://username:password@host:port/database?autoCommit=true
-		return `dm://${username}:${password}@${host}:${port}/${database}?autoCommit=${autoCommit}`;
-	}
-
-	private async executeSelect(connection: dmdb.Connection, opts: IExecuteOptions): Promise<any> {
-		if (!opts.inputs) {
-			throw new Error('输入参数不能为空');
-		}
-
-		const table = opts.inputs.table;
-		const columns = opts.inputs.columns || '*';
-		const whereCondition = opts.inputs.whereCondition;
-		const orderBy = opts.inputs.orderBy;
-		const limit = opts.inputs.limit;
-
-		console.log('📍 [Dameng Node] executeSelect 输入参数:', {
-			table,
-			columns,
-			whereCondition,
-			orderBy,
-			limit
-		});
+	private async executeSelect(connection: any, opts: IExecuteOptions): Promise<any> {
+		const table = opts.inputs?.table;
+		const columns = opts.inputs?.columns || '*';
+		const whereCondition = opts.inputs?.whereCondition;
+		const orderBy = opts.inputs?.orderBy;
+		const limit = opts.inputs?.limit;
 
 		if (!table) {
 			throw new Error('表名不能为空');
@@ -350,46 +311,21 @@ export class Dameng implements INode {
 		}
 
 		if (limit && limit > 0) {
-			// 达梦数据库使用LIMIT语法（类似MySQL）
 			query += ` LIMIT ${limit}`;
 		}
 
-		console.log('📍 [Dameng Node] 执行查询语句:', query);
-
 		try {
-			const result = await connection.execute(query, {}, {
-				outFormat: dmdb.OUT_FORMAT_OBJECT
-			});
-
-			console.log('📍 [Dameng Node] 查询结果:', {
-				rowsType: typeof result.rows,
-				isArray: Array.isArray(result.rows),
-				rowCount: Array.isArray(result.rows) ? result.rows.length : 0,
-				firstRow: Array.isArray(result.rows) && result.rows.length > 0 ? result.rows[0] : null
-			});
-
-			const returnResult = {
-				data: result.rows || [],
-				rowCount: Array.isArray(result.rows) ? result.rows.length : 0,
-				success: true,
-			};
-
-			console.log('📍 [Dameng Node] 返回结果:', returnResult);
-			return returnResult;
+			const result = await connection.execute(query);
+			return result.rows;
 		} catch (error: any) {
-			console.error('📍 [Dameng Node] executeSelect 查询错误:', error);
-			throw error;
+			throw new Error(`执行SQL失败: ${error.message}`);
 		}
 	}
 
-	private async executeInsert(connection: dmdb.Connection, opts: IExecuteOptions): Promise<any> {
-		if (!opts.inputs) {
-			throw new Error('输入参数不能为空');
-		}
-
-		const table = opts.inputs.table;
-		const insertDataStr = opts.inputs.insertData;
-
+	private async executeInsert(connection: any, opts: IExecuteOptions): Promise<any> {
+		const table = opts.inputs?.table;
+		const insertDataStr = opts.inputs?.insertData;
+		
 		if (!table) {
 			throw new Error('表名不能为空');
 		}
@@ -405,51 +341,52 @@ export class Dameng implements INode {
 			throw new Error('插入数据格式错误，请使用有效的JSON格式');
 		}
 
-		// 支持单条记录和多条记录插入
 		const records = Array.isArray(insertData) ? insertData : [insertData];
 
 		if (records.length === 0) {
 			throw new Error('没有要插入的数据');
 		}
 
-		// 获取字段名
-		const columns = Object.keys(records[0]);
-		const placeholders = columns.map((_, index) => `:col${index}`).join(', ');
-		const query = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`;
+		const columns = Object.keys(records[0]).map(col => `"${col}"`);
+		const placeholders = columns.map(() => '?').join(', ');
+		const query = `INSERT INTO "${table}" (${columns.join(', ')}) VALUES (${placeholders})`;
 
 		let insertedCount = 0;
 		const insertedIds = [];
 
+		// ISO8601正则表达式，匹配格式如：2024-11-27T21:53:37.231Z 或 2024-11-27T21:53:37Z
+		const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
+
 		for (const record of records) {
-			const binds: any = {};
-			columns.forEach((col, index) => {
-				binds[`col${index}`] = { val: record[col], dir: dmdb.BIND_IN };
+			const values = Object.keys(record).map(key => {
+				let value = record[key];
+				if (typeof value === 'string' && isoRegex.test(value)) {
+					const date = new Date(value);
+					if (!isNaN(date.getTime())) {
+						// 转换为DamengDB datetime格式：'YYYY-MM-DD HH:MM:SS'
+						return date.toISOString().slice(0, 19).replace('T', ' ');
+					}
+				}
+				return value;
 			});
 
-			const result = await connection.execute(query, binds);
-			insertedCount++;
-			if (result.rowsAffected) {
-				insertedIds.push(result.insertId || insertedCount);
+			try {
+				const result = await connection.execute(query, values);
+				insertedCount++;
+				if (result.insertId) {
+					insertedIds.push(result.insertId);
+				}
+			} catch (error) {
+				throw new Error(`插入数据失败: ${error}`);
 			}
 		}
-
-		return {
-			query: query,
-			insertedCount: insertedCount,
-			insertedIds: insertedIds,
-			success: true,
-			operation: 'insert'
-		};
+		return { insertedIds: insertedIds, insertedCount: insertedCount };
 	}
 
-	private async executeUpdate(connection: dmdb.Connection, opts: IExecuteOptions): Promise<any> {
-		if (!opts.inputs) {
-			throw new Error('输入参数不能为空');
-		}
-
-		const table = opts.inputs.table;
-		const updateDataStr = opts.inputs.updateData;
-		const whereCondition = opts.inputs.whereCondition;
+	private async executeUpdate(connection: any, opts: IExecuteOptions): Promise<any> {
+		const table = opts.inputs?.table;
+		const updateDataStr = opts.inputs?.updateData;
+		const whereCondition = opts.inputs?.whereCondition;
 
 		if (!table) {
 			throw new Error('表名不能为空');
@@ -470,33 +407,20 @@ export class Dameng implements INode {
 			throw new Error('更新数据格式错误，请使用有效的JSON格式');
 		}
 
-		const setClause = Object.keys(updateData).map((key, index) => `${key} = :val${index}`).join(', ');
+		const setClause = Object.keys(updateData).map(key => `${key} = ?`).join(', ');
+		const values = Object.values(updateData);
 		const query = `UPDATE ${table} SET ${setClause} WHERE ${whereCondition}`;
 
-		// 构建绑定参数
-		const binds: any = {};
-		Object.values(updateData).forEach((value, index) => {
-			binds[`val${index}`] = { val: value, dir: dmdb.BIND_IN };
-		});
-
-		console.log('执行更新:', query);
-		const result = await connection.execute(query, binds);
-
+		const result = await connection.execute(query, values);
 		return {
-			query: query,
-			affectedRows: result.rowsAffected || 0,
-			success: true,
-			operation: 'update'
+			affectedRows: result.rowsAffected,
+			changedRows: result.rowsAffected,
 		};
 	}
 
-	private async executeDelete(connection: dmdb.Connection, opts: IExecuteOptions): Promise<any> {
-		if (!opts.inputs) {
-			throw new Error('输入参数不能为空');
-		}
-
-		const table = opts.inputs.table;
-		const whereCondition = opts.inputs.whereCondition;
+	private async executeDelete(connection: any, opts: IExecuteOptions): Promise<any> {
+		const table = opts.inputs?.table;
+		const whereCondition = opts.inputs?.whereCondition;
 
 		if (!table) {
 			throw new Error('表名不能为空');
@@ -508,53 +432,41 @@ export class Dameng implements INode {
 
 		const query = `DELETE FROM ${table} WHERE ${whereCondition}`;
 
-		console.log('执行删除:', query);
 		const result = await connection.execute(query);
 
-		return {
-			query: query,
-			affectedRows: result.rowsAffected || 0,
-			success: true,
-			operation: 'delete'
-		};
+		return { affectedRows: result.rowsAffected };
 	}
 
-	private async executeCustomQuery(connection: dmdb.Connection, opts: IExecuteOptions): Promise<any> {
-		if (!opts.inputs) {
-			throw new Error('输入参数不能为空');
-		}
-
-		const query = opts.inputs.query;
+	private async executeCustomQuery(connection: any, opts: IExecuteOptions): Promise<any> {
+		const queryStr = opts.inputs?.query;
+		const query = queryStr && queryStr.endsWith(';') ? queryStr.slice(0, -1) : queryStr;
+		const limit = opts.inputs?.limit;
 
 		if (!query) {
 			throw new Error('SQL语句不能为空');
 		}
 
-		console.log('执行自定义SQL:', query);
-		const result = await connection.execute(query, {}, {
-			outFormat: dmdb.OUT_FORMAT_OBJECT
-		});
+		// 检查是否为 SELECT 查询且需要添加 LIMIT
+		let finalQuery = query;
+		const isSelectQuery = query.trim().toLowerCase().startsWith('select');
 
-		// 判断是否为查询操作
-		const isSelect = query.trim().toLowerCase().startsWith('select');
+		if (isSelectQuery && limit && limit > 0) {
+			// 检查是否已包含 LIMIT 子句
+			const hasLimit = query.toLowerCase().includes('limit');
 
-		if (isSelect) {
-			return {
-				data: result.rows || [],
-				query: query,
-				rowCount: Array.isArray(result.rows) ? result.rows.length : 0,
-				success: true,
-				operation: 'executeQuery'
-			};
+			if (!hasLimit) {
+				finalQuery = `${query.trim()} LIMIT ${limit}`;
+			}
+		}
+		const result = await connection.execute(finalQuery);
+
+		if (isSelectQuery) {
+			return result.rows;
 		} else {
-			// 非查询操作（INSERT, UPDATE, DELETE等）
 			return {
-				query: query,
 				affectedRows: result.rowsAffected || 0,
 				insertId: result.insertId || null,
-				success: true,
-				operation: 'executeQuery'
-			};
+			}
 		}
 	}
 }

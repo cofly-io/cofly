@@ -69,7 +69,7 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
                 control: {
                     name: 'input' as const,
                     dataType: 'string' as const,
-                    defaultValue: '',
+                    defaultValue: 'postgres',
                     validation: {
                         required: true
                     }
@@ -123,30 +123,10 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
                     dataType: 'boolean' as const,
                     defaultValue: false
                 }
-            },
-            {
-                label: '连接超时(秒)',
-                fieldName: 'connectionTimeout',
-                description: '连接超时时间，单位：秒',
-                control: {
-                    name: 'input' as const,
-                    dataType: 'number' as const,
-                    defaultValue: 10
-                }
-            },
-            {
-                label: '连接池大小',
-                fieldName: 'connectionLimit',
-                description: '最大连接数',
-                control: {
-                    name: 'input' as const,
-                    dataType: 'number' as const,
-                    defaultValue: 10
-                }
             }
         ],
         validateConnection: true,
-        connectionTimeout: 10
+        connectionTimeout: 10000
     };
 
     /**
@@ -166,16 +146,53 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
                 }
             }
 
-            // TODO: 添加实际的连接测试逻辑
-            return {
-                success: true,
-                message: '连接测试成功',
-                latency: Date.now() - startTime
+            // 实际连接测试
+            const connectionConfig = {
+                host: config.host,
+                port: parseInt(config.port),
+                user: config.username,
+                password: config.password,
+                database: config.database,
+                ssl: config.ssl ? { rejectUnauthorized: false } : false,
+                connectionTimeoutMillis: (config.connectionTimeout || 10) * 1000,
             };
+
+            let client: Client | null = null;
+            try {
+                client = new Client(connectionConfig);
+                await client.connect();
+
+                // 执行简单查询测试连接并获取版本信息
+                const result = await client.query('SELECT version() as version');
+                const serverVersion = result.rows[0]?.version || '未知版本';
+
+                const latency = Date.now() - startTime;
+
+                return {
+                    success: true,
+                    message: 'PostgreSQL连接测试成功',
+                    latency,
+                    details: {
+                        host: config.host,
+                        port: config.port,
+                        database: config.database,
+                        schema: config.schema || 'public',
+                        ssl: config.ssl || false,
+                        connectionTimeout: config.connectionTimeout || 10,
+                        connectionLimit: config.connectionLimit || 10,
+                        serverVersion: serverVersion
+                    }
+                };
+            } finally {
+                if (client) {
+                    await client.end();
+                }
+            }
+
         } catch (error) {
             return {
                 success: false,
-                message: `连接失败: ${error instanceof Error ? error.message : String(error)}`,
+                message: `PostgreSQL连接失败: ${error instanceof Error ? error.message : String(error)}`,
                 latency: Date.now() - startTime
             };
         }
@@ -189,8 +206,11 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
                 user: opts.user,
                 password: opts.password,
                 database: opts.database,
+                schema: opts.schema || 'public',
                 ssl: opts.ssl ? { rejectUnauthorized: false } : false,
                 connectionTimeoutMillis: (opts.connectTimeout || 10) * 1000,
+                // 确保使用UTF-8编码
+                client_encoding: 'UTF8'
             };
             return await this.getTableNames(connectionConfig, opts.search);
         } catch (error: any) {
@@ -208,22 +228,44 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
     private async getTableNames(connectionConfig?: any, search?: string): Promise<IDatabaseMetadataResult> {
         try {
             const tables = await this.withConnection(connectionConfig, async (client) => {
-                // 查询表名
-                let query = 'SELECT tablename FROM pg_tables WHERE schemaname = $1';
-                const values = ['public'];
+                let query = `
+                    SELECT 
+                        schemaname as schema_name,
+                        tablename as object_name,
+                        'table' as object_type,
+                        schemaname || '.' || tablename as full_name
+                    FROM pg_tables 
+                    WHERE schemaname NOT IN ('information_schema', 'pg_catalog', 'pg_toast')
+                    
+                    UNION ALL
+                    
+                    SELECT 
+                        schemaname as schema_name,
+                        viewname as object_name,
+                        'view' as object_type,
+                        schemaname || '.' || viewname as full_name
+                    FROM pg_views 
+                    WHERE schemaname NOT IN ('information_schema', 'pg_catalog', 'pg_toast')
+                `;
+                const values: any[] = [];
 
                 // 如果有搜索关键词，添加过滤条件
                 if (search) {
-                    query += ' AND tablename ILIKE $2';
+                    query += ' AND object_name ILIKE $1';
                     values.push(`%${search}%`);
                 }
-                query += ' ORDER BY tablename';
+                query += ' ORDER BY schema_name, object_type, object_name';
 
                 const result = await client.query(query, values);
-                // 格式化结果
+
+                // 格式化结果 - 如果对象在 public schema 中，只显示对象名，否则显示 schema.object
                 return result.rows.map((row: any) => ({
-                    value: row.tablename,
-                    label: row.tablename
+                    value: row.schema_name === 'public' ? row.object_name : row.full_name,
+                    label: row.schema_name === 'public'
+                        // ? `${row.object_name} (${row.object_type})`
+                        // : `${row.schema_name}.${row.object_name} (${row.object_type})`
+                        ? `${row.object_name}`
+                        : `${row.schema_name}.${row.object_name}`
                 }));
             });
 
@@ -233,10 +275,20 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
             };
 
         } catch (error: any) {
-            console.error('❌ [PostgreSQL Connect] 获取表名失败:', error.message);
+            // 处理常见的PostgreSQL错误
+            let errorMessage = error.message;
+            if (error.code === '28P01') {
+                errorMessage = '用户名或密码认证失败，请检查数据库连接配置';
+            } else if (error.code === '3D000') {
+                errorMessage = '数据库不存在，请检查数据库名称';
+            } else if (error.code === 'ECONNREFUSED') {
+                errorMessage = '无法连接到数据库服务器，请检查主机地址和端口';
+            } else if (error.code === 'ENOTFOUND') {
+                errorMessage = '无法解析主机地址，请检查主机名';
+            }
             return {
                 success: false,
-                error: `获取表名失败: ${error.message}`
+                error: `获取表名失败: ${errorMessage}`
             };
         }
     }
@@ -254,22 +306,18 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
             // 创建连接
             client = new Client(connectionConfig);
             await client.connect();
-            console.log('✅ [PostgreSQL Connect] 数据库连接已建立');
-
             // 执行回调函数
             const result = await callback(client);
 
             return result;
 
         } catch (error: any) {
-            console.error('❌ [PostgreSQL Connect] 连接操作失败:', error.message);
             throw error;
         } finally {
             // 确保连接总是被正确关闭
             if (client) {
                 try {
                     await client.end();
-                    console.log('✅ [PostgreSQL Connect] 数据库连接已关闭');
                 } catch (closeError: any) {
                     console.error('⚠️ [PostgreSQL Connect] 关闭连接时出错:', closeError.message);
                 }
@@ -279,20 +327,9 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
 
     async execute(opts: IDatabaseExecutionOptions): Promise<IDatabaseExecutionResult> {
         try {
-            console.log('📍 [PostgreSQL Connect] 执行SQL:', {
-                sql: opts.sql,
-                params: opts.prams,
-                datasourceId: opts.datasourceId
-            });
-
             const rows = await this.withConnection(opts.datasourceId, async (client) => {
                 const result = await client.query(opts.sql, Object.values(opts.prams || {}));
                 return result.rows;
-            });
-
-            console.log('📍 [PostgreSQL Connect] SQL执行成功:', {
-                rowCount: Array.isArray(rows) ? rows.length : 0,
-                dataType: typeof rows
             });
 
             return {
@@ -301,12 +338,6 @@ export class PostgreSQLConnect extends BaseDatabaseConnect {
             } as IDatabaseExecutionResult;
 
         } catch (error: any) {
-            console.error('❌ [PostgreSQL Connect] 执行SQL失败:', {
-                message: error.message,
-                code: error.code,
-                sql: opts.sql,
-                params: opts.prams
-            });
             return {
                 success: false,
                 error: `执行SQL失败: ${error.message}`

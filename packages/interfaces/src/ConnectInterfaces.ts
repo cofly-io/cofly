@@ -170,6 +170,7 @@ export interface IDatabaseMetadataOptions {
     ssl: boolean;
     search?: string;
     charset?: string;
+    schema?:string;
 }
 
 export interface IDatabaseMetadataResult {

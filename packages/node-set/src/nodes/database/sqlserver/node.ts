@@ -19,13 +19,30 @@ export class SQLServer implements INode {
 			// 数据库连接配置
 			{
 				label: '连接源',
-				fieldName: 'datasource',				
+				fieldName: 'datasource',
 				control: {
 					name: 'selectlistdesc',
 					dataType: 'string',
-					defaultValue: '',
 					dataSourceType: "sqlserver",
-					validation: { required: true }
+					defaultValue: '',
+					validation: { required: true },
+					linkage: {
+						targets: ['table'],
+					}
+				},
+			},
+			// 联动配置：影响表名字段
+
+			// 表名（除了执行SQL操作外都需要）
+			{
+				label: '表名',
+				fieldName: 'table',
+				control: {
+					name: 'selectfilter',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true },
+					placeholder: '例如: users',
 				}
 			},
 			// 操作类型选择器
@@ -66,29 +83,11 @@ export class SQLServer implements INode {
 					]
 				}
 			},
-
-			// 表名（除了执行SQL操作外都需要）
-			{
-				label: '表名',
-				fieldName: 'table',
-				conditionRules: {
-					hide: {
-						operation: ['executeQuery']
-					}
-				},
-				control: {
-					name: 'selectfilter',
-					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如: users',
-					validation: { required: true }
-				}
-			},
-
 			// 查询操作相关字段
 			{
 				label: '查询字段',
 				fieldName: 'columns',
+
 				conditionRules: {
 					showBy: {
 						operation: ['select']
@@ -97,8 +96,7 @@ export class SQLServer implements INode {
 				control: {
 					name: 'input',
 					dataType: 'string',
-					defaultValue: '*',
-					placeholder: '例如: id,name,email 或 * (全部字段)'
+					placeholder: '例如: id,name,email 或 * (全部字段)',
 				}
 			},
 			{
@@ -112,8 +110,7 @@ export class SQLServer implements INode {
 				control: {
 					name: 'textarea',
 					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如: id > 10 AND status = \'active\''
+					placeholder: '例如: id > 10 AND status = "active"',
 				}
 			},
 			{
@@ -127,26 +124,9 @@ export class SQLServer implements INode {
 				control: {
 					name: 'input',
 					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如: id DESC, name ASC'
+					placeholder: '例如: id DESC, name ASC',
 				}
 			},
-			{
-				label: '限制条数',
-				fieldName: 'limit',
-				conditionRules: {
-					showBy: {
-						operation: ['select']
-					}
-				},
-				control: {
-					name: 'input',
-					dataType: 'number',
-					defaultValue: 0,
-					placeholder: '0表示不限制'
-				}
-			},
-
 			// 插入操作相关字段
 			{
 				label: '插入数据',
@@ -160,8 +140,11 @@ export class SQLServer implements INode {
 					name: 'textarea',
 					dataType: 'string',
 					defaultValue: '',
+					validation: { required: true },
 					placeholder: 'JSON格式: {"name": "张三", "email": "zhang@example.com"}',
-					validation: { required: true }
+					attributes: [{
+						rows: 12
+					}]
 				}
 			},
 
@@ -178,8 +161,8 @@ export class SQLServer implements INode {
 					name: 'textarea',
 					dataType: 'string',
 					defaultValue: '',
-					placeholder: 'JSON格式: {"name": "李四", "status": "inactive"}',
-					validation: { required: true }
+					validation: { required: true },
+					placeholder: 'JSON格式: [{"name": "李四", "status": "inactive"}]',
 				}
 			},
 
@@ -196,32 +179,40 @@ export class SQLServer implements INode {
 					name: 'sqlcode',
 					dataType: 'string',
 					defaultValue: '',
-					placeholder: '例如: SELECT * FROM users WHERE created_at > \'2024-01-01\'',
-					validation: { required: true }
+					validation: { required: true },
+					placeholder: '例如: SELECT * FROM users WHERE created_at > "2024-01-01"',
+				},
+				AIhelp: {
+					enable: true,
+					rules: '[你一个SQL Server的DBA，擅长编写SQL语句，要求：\n1. SQL语句是完整可执行的\n2. 请确保SQL语句正确且逻辑清晰]'
 				}
 			},
-
-			// 连接选项
 			{
-				label: '连接超时(秒)',
-				fieldName: 'connectionTimeout',
+				label: '返回条数',
+				fieldName: 'limit',
+				conditionRules: {
+					showBy: {
+						operation: ['executeQuery', 'select']
+					}
+				},
 				control: {
 					name: 'input',
 					dataType: 'number',
-					defaultValue: 15,
-					placeholder: '连接超时时间'
+					defaultValue: 0,
+					placeholder: '空或者0表示不限制'
 				}
-			},
+			}
 		],
 	};
 
 	async execute(opts: IExecuteOptions): Promise<any> {
 		const operation = opts.inputs?.operation;
+		console.log("inputs.operation", operation);
+		let pool: sql.ConnectionPool | null = null;
 
 		try {
 			// 创建数据库连接
-			const pool = await this.createConnection(opts.inputs);
-
+			pool = await this.createConnection(opts.inputs);
 			let result;
 			switch (operation) {
 				case 'select':
@@ -243,16 +234,21 @@ export class SQLServer implements INode {
 					throw new Error(`未知操作类型: ${operation}`);
 			}
 
-			// 关闭连接
-			await pool.close();
 			return result;
 
 		} catch (error: any) {
-			console.error('❌ [SQL Server Node] 执行错误:', error.message);
 			return {
-				error: error.message,
-				success: false
+				error: error.message
 			};
+		} finally {
+			// 确保连接总是被关闭
+			if (pool) {
+				try {
+					await pool.close();
+				} catch (closeError: any) {
+					console.error('⚠️ [SQL Server Node] 关闭连接时出错:', closeError.message);
+				}
+			}
 		}
 	}
 
@@ -355,19 +351,7 @@ export class SQLServer implements INode {
 
 		try {
 			const result = await pool.request().query(query);
-			console.log('📍 [SQL Server Node] 查询结果:', {
-				rowCount: result.recordset.length,
-				firstRow: result.recordset.length > 0 ? result.recordset[0] : null
-			});
-
-			const resultData = {
-				data: result.recordset,
-				rowCount: result.recordset.length,
-				success: true,
-			};
-
-			console.log('📍 [SQL Server Node] 返回结果:', resultData);
-			return resultData;
+			return result.recordset;
 		} catch (error: any) {
 			console.error('📍 [SQL Server Node] executeSelect 查询错误:', error);
 			throw error;
@@ -408,10 +392,21 @@ export class SQLServer implements INode {
 		let insertedCount = 0;
 		const insertedIds = [];
 
+		// ISO8601正则表达式，匹配格式如：2024-11-27T21:53:37.231Z 或 2024-11-27T21:53:37Z
+		const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
+
 		for (const record of records) {
 			const request = pool.request();
 			columns.forEach((col, index) => {
-				request.input(`param${index}`, record[col]);
+				let value = record[col];
+				if (typeof value === 'string' && isoRegex.test(value)) {
+					const date = new Date(value);
+					if (!isNaN(date.getTime())) {
+						// 转换为SQL Server datetime格式：'YYYY-MM-DD HH:MM:SS'
+						value = date.toISOString().slice(0, 19).replace('T', ' ');
+					}
+				}
+				request.input(`param${index}`, value);
 			});
 
 			const result = await request.query(query);
@@ -422,11 +417,8 @@ export class SQLServer implements INode {
 		}
 
 		return {
-			query: query,
-			insertedCount: insertedCount,
 			insertedIds: insertedIds,
-			success: true,
-			operation: 'insert'
+			insertedCount: insertedCount
 		};
 	}
 
@@ -466,10 +458,8 @@ export class SQLServer implements INode {
 		const result = await request.query(query);
 
 		return {
-			query: query,
 			affectedRows: result.rowsAffected[0] || 0,
-			success: true,
-			operation: 'update'
+			changedRows: result.rowsAffected[0] || 0,
 		};
 	}
 
@@ -490,42 +480,41 @@ export class SQLServer implements INode {
 		console.log('执行删除:', query);
 		const result = await pool.request().query(query);
 
-		return {
-			query: query,
-			affectedRows: result.rowsAffected[0] || 0,
-			success: true,
-			operation: 'delete'
-		};
+		return { affectedRows: result.rowsAffected[0] || 0 };
 	}
 
 	private async executeCustomQuery(pool: sql.ConnectionPool, opts: IExecuteOptions): Promise<any> {
-		const query = opts.inputs?.query;
+		const queryStr = opts.inputs?.query;
+		const query = queryStr && queryStr.endsWith(';') ? queryStr.slice(0, -1) : queryStr;
+		const limit = opts.inputs?.limit;
 
 		if (!query) {
 			throw new Error('SQL语句不能为空');
 		}
 
-		console.log('执行自定义SQL:', query);
-		const result = await pool.request().query(query);
+		// 检查是否为 SELECT 查询且需要添加 LIMIT
+		let finalQuery = query;
+		const isSelectQuery = query.trim().toLowerCase().startsWith('select');
 
-		// 判断是否为查询操作
-		const isSelect = query.trim().toLowerCase().startsWith('select');
+		if (isSelectQuery && limit && limit > 0) {
+			// 检查是否已包含 TOP 或 LIMIT 子句
+			const hasLimit = query.toLowerCase().includes('top ') || query.toLowerCase().includes('limit ');
 
-		if (isSelect) {
-			return {
-				data: result.recordset,
-				query: query,
-				rowCount: result.recordset ? result.recordset.length : 0,
-				success: true,
-				operation: 'executeQuery'
-			};
+			if (!hasLimit) {
+				// SQL Server 使用 TOP
+				finalQuery = query.replace(/^\s*select/i, `SELECT TOP ${limit}`);
+			}
+		}
+
+		console.log('执行自定义SQL:', finalQuery);
+		const result = await pool.request().query(finalQuery);
+
+		if (isSelectQuery) {
+			return result.recordset;
 		} else {
-			// 非查询操作（INSERT, UPDATE, DELETE等）
 			return {
-				query: query,
 				affectedRows: result.rowsAffected ? result.rowsAffected[0] : 0,
-				success: true,
-				operation: 'executeQuery'
+				insertId: result.recordset?.[0]?.insertId || null,
 			};
 		}
 	}

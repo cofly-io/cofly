@@ -16,15 +16,33 @@ export class Oracle implements INode {
 
 	detail: INodeDetail = {
 		fields: [
-            // 数据库连接配置
+			// 数据库连接配置
 			{
 				label: '连接源',
 				fieldName: 'datasource',
 				control: {
 					name: 'selectlistdesc',
 					dataType: 'string',
+					dataSourceType: "oracle",
 					defaultValue: '',
-					validation: { required: true }
+					validation: { required: true },
+					linkage: {
+						targets: ['table'],
+					}
+				},
+			},
+			// 联动配置：影响表名字段
+
+			// 表名（除了执行SQL操作外都需要）
+			{
+				label: '表名',
+				fieldName: 'table',
+				control: {
+					name: 'selectfilter',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true },
+					placeholder: '例如: users',
 				}
 			},
 			// 操作类型选择器
@@ -64,28 +82,11 @@ export class Oracle implements INode {
 					]
 				}
 			},
-
-            // 表名字段
-			{
-				label: '表名',
-				fieldName: 'table',
-				conditionRules: {
-					showBy: {
-						operation: ['select', 'insert', 'update', 'delete']
-					}
-				},
-				control: {
-					name: 'inputselect',
-					dataType: 'string',
-					defaultValue: '',
-					validation: { required: true }
-				}
-			},
-
-            // 查询字段配置
+			// 查询操作相关字段
 			{
 				label: '查询字段',
 				fieldName: 'columns',
+
 				conditionRules: {
 					showBy: {
 						operation: ['select']
@@ -94,29 +95,25 @@ export class Oracle implements INode {
 				control: {
 					name: 'input',
 					dataType: 'string',
-					defaultValue: '*',
-					placeholder: '例如：id, name, email 或 * 表示所有字段'
+					placeholder: '例如: id,name,email 或 * (全部字段)',
 				}
 			},
-			// WHERE条件
 			{
-				label: 'WHERE条件',
-				fieldName: 'where',
+				label: '查询条件',
+				fieldName: 'whereCondition',
 				conditionRules: {
 					showBy: {
 						operation: ['select', 'update', 'delete']
 					}
 				},
 				control: {
-					name: 'input',
+					name: 'textarea',
 					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如：id = 1 AND status = \'active\''
+					placeholder: '例如: id > 10 AND status = "active"',
 				}
 			},
-			// ORDER BY排序
 			{
-				label: 'ORDER BY',
+				label: '排序',
 				fieldName: 'orderBy',
 				conditionRules: {
 					showBy: {
@@ -126,27 +123,10 @@ export class Oracle implements INode {
 				control: {
 					name: 'input',
 					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如：id DESC, name ASC'
+					placeholder: '例如: id DESC, name ASC',
 				}
 			},
-			// 限制记录数
-			{
-				label: '限制记录数',
-				fieldName: 'limit',
-				conditionRules: {
-					showBy: {
-						operation: ['select']
-					}
-				},
-				control: {
-					name: 'input',
-					dataType: 'number',
-					defaultValue: 1000
-				}
-			},
-
-            // 插入数据配置
+			// 插入操作相关字段
 			{
 				label: '插入数据',
 				fieldName: 'insertData',
@@ -158,11 +138,16 @@ export class Oracle implements INode {
 				control: {
 					name: 'textarea',
 					dataType: 'string',
-					defaultValue: '{}',
-					placeholder: '{"column1": "value1", "column2": "value2"}'
+					defaultValue: '',
+					validation: { required: true },
+					placeholder: 'JSON格式: {"name": "张三", "email": "zhang@example.com"}',
+					attributes: [{
+						rows: 12
+					}]
 				}
 			},
-			// 更新数据配置
+
+			// 更新操作相关字段
 			{
 				label: '更新数据',
 				fieldName: 'updateData',
@@ -174,11 +159,13 @@ export class Oracle implements INode {
 				control: {
 					name: 'textarea',
 					dataType: 'string',
-					defaultValue: '{}',
-					placeholder: '{"column1": "new_value1", "column2": "new_value2"}'
+					defaultValue: '',
+					validation: { required: true },
+					placeholder: 'JSON格式: [{"name": "李四", "status": "inactive"}]',
 				}
 			},
-			// 自定义SQL查询
+
+			// 自定义SQL
 			{
 				label: 'SQL语句',
 				fieldName: 'query',
@@ -188,25 +175,43 @@ export class Oracle implements INode {
 					}
 				},
 				control: {
-					name: 'textarea',
+					name: 'sqlcode',
 					dataType: 'string',
 					defaultValue: '',
-					placeholder: 'SELECT * FROM table_name WHERE condition'
+					validation: { required: true },
+					placeholder: '例如: SELECT * FROM users WHERE created_at > "2024-01-01"',
+				},
+				AIhelp: {
+					enable: true,
+					rules: '[你一个Oracle的DBA，擅长编写SQL语句，要求：\n1. SQL语句是完整可执行的\n2. 请确保SQL语句正确且逻辑清晰]'
 				}
 			},
+			{
+				label: '返回条数',
+				fieldName: 'limit',
+				conditionRules: {
+					showBy: {
+						operation: ['executeQuery', 'select']
+					}
+				},
+				control: {
+					name: 'input',
+					dataType: 'number',
+					defaultValue: 0,
+					placeholder: '空或者0表示不限制'
+				}
+			}
         ]
 	};
 
-	/**
-	 * 执行节点操作
-	 */
 	async execute(opts: IExecuteOptions): Promise<any> {
 		const operation = opts.inputs?.operation;
-		
+		console.log("inputs.operation", operation);
+		let connection: any = null;
+
 		try {
 			// 创建数据库连接
-			const connection = await this.createConnection(opts.inputs);
-			
+			connection = await this.createConnection(opts.inputs);
 			let result;
 			switch (operation) {
 				case 'select':
@@ -227,16 +232,22 @@ export class Oracle implements INode {
 				default:
 					throw new Error(`未知操作类型: ${operation}`);
 			}
-			
-			// 关闭连接
-			await connection.close();
+
 			return result;
-			
+
 		} catch (error: any) {
 			return {
-				error: error.message,
-				success: false
+				error: error.message
 			};
+		} finally {
+			// 确保连接总是被关闭
+			if (connection) {
+				try {
+					await connection.close();
+				} catch (closeError: any) {
+					console.error('⚠️ [Oracle Node] 关闭连接时出错:', closeError.message);
+				}
+			}
 		}
 	}
 

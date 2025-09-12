@@ -59,6 +59,7 @@ function buildDatabaseMetadataOptions(
         password: connectInfo.password || '',
         connectTimeout: (connectInfo.connectTimeout || 30) * 1000,
         ssl: connectInfo.ssl || false,
+        schema:  connectInfo.schema || 'public',
         charset: connectInfo.charset || 'utf8mb4',
         search: search || undefined,
     };

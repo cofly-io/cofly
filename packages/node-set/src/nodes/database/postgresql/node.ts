@@ -1,5 +1,5 @@
-import { IExecuteOptions, INode, INodeBasic, INodeDetail } from '@repo/common';
-import { NodeLink, credentialManager } from '@repo/common';
+import { IExecuteOptions, IExecuteResult, INode, INodeBasic, INodeDetail } from '@repo/common';
+import { credentialManager } from '@repo/common';
 import { Client } from 'pg';
 
 export class PostgreSQL implements INode {
@@ -9,7 +9,6 @@ export class PostgreSQL implements INode {
 		event: "postgresql",
 		catalog: 'database',
 		version: 1,
-		// position: [0, 0],
 		description: "连接PostgreSQL数据库进行查询、插入、更新和删除操作",
 		icon: 'postgresql.svg',
 		nodeWidth: 600
@@ -20,13 +19,30 @@ export class PostgreSQL implements INode {
 			// 数据库连接配置
 			{
 				label: '连接源',
-				fieldName: 'datasource',				
+				fieldName: 'datasource',
 				control: {
 					name: 'selectlistdesc',
 					dataType: 'string',
-					defaultValue: '',
 					dataSourceType: "postgresql",
-					validation: { required: true }
+					defaultValue: '',
+					validation: { required: true },
+					linkage: {
+						targets: ['table'],
+					}
+				},
+			},
+			// 联动配置：影响表名字段
+
+			// 表名（除了执行SQL操作外都需要）
+			{
+				label: '表名',
+				fieldName: 'table',
+				control: {
+					name: 'selectfilter',
+					dataType: 'string',
+					defaultValue: '',
+					validation: { required: true },
+					placeholder: '例如: users',
 				}
 			},
 			// 操作类型选择器
@@ -66,29 +82,11 @@ export class PostgreSQL implements INode {
 					]
 				}
 			},
-
-			// 表名（除了执行SQL操作外都需要）
-			{
-				label: '表名',
-				fieldName: 'table',
-				conditionRules: {
-					hide: {
-						operation: ['executeQuery']
-					}
-				},
-				control: {
-					name: 'selectfilter',
-					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如: users',
-					validation: { required: true }
-				}
-			},
-
 			// 查询操作相关字段
 			{
 				label: '查询字段',
 				fieldName: 'columns',
+
 				conditionRules: {
 					showBy: {
 						operation: ['select']
@@ -97,8 +95,7 @@ export class PostgreSQL implements INode {
 				control: {
 					name: 'input',
 					dataType: 'string',
-					defaultValue: '*',
-					placeholder: '例如: id,name,email 或 * (全部字段)'
+					placeholder: '例如: id,name,email 或 * (全部字段)',
 				}
 			},
 			{
@@ -112,8 +109,7 @@ export class PostgreSQL implements INode {
 				control: {
 					name: 'textarea',
 					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如: id > 10 AND status = \'active\''
+					placeholder: '例如: id > 10 AND status = "active"',
 				}
 			},
 			{
@@ -127,26 +123,9 @@ export class PostgreSQL implements INode {
 				control: {
 					name: 'input',
 					dataType: 'string',
-					defaultValue: '',
-					placeholder: '例如: id DESC, name ASC'
+					placeholder: '例如: id DESC, name ASC',
 				}
 			},
-			{
-				label: '限制条数',
-				fieldName: 'limit',
-				conditionRules: {
-					showBy: {
-						operation: ['select']
-					}
-				},
-				control: {
-					name: 'input',
-					dataType: 'number',
-					defaultValue: 0,
-					placeholder: '0表示不限制'
-				}
-			},
-
 			// 插入操作相关字段
 			{
 				label: '插入数据',
@@ -160,8 +139,11 @@ export class PostgreSQL implements INode {
 					name: 'textarea',
 					dataType: 'string',
 					defaultValue: '',
+					validation: { required: true },
 					placeholder: 'JSON格式: {"name": "张三", "email": "zhang@example.com"}',
-					validation: { required: true }
+					attributes: [{
+						rows: 12
+					}]
 				}
 			},
 
@@ -178,8 +160,8 @@ export class PostgreSQL implements INode {
 					name: 'textarea',
 					dataType: 'string',
 					defaultValue: '',
+					validation: { required: true },
 					placeholder: 'JSON格式: {"name": "李四", "status": "inactive"}',
-					validation: { required: true }
 				}
 			},
 
@@ -196,30 +178,27 @@ export class PostgreSQL implements INode {
 					name: 'sqlcode',
 					dataType: 'string',
 					defaultValue: '',
-					placeholder: '例如: SELECT * FROM users WHERE created_at > \'2024-01-01\'',
-					validation: { required: true }
+					validation: { required: true },
+					placeholder: '例如: SELECT * FROM users WHERE created_at > "2024-01-01"',
+				},
+				AIhelp: {
+					enable: true,
+					rules: '[你一个PostgreSQL的DBA，擅长编写SQL语句，要求：\n1. SQL语句是完整可执行的\n2. 请确保SQL语句正确且逻辑清晰]'
 				}
 			},
-
-			// 连接选项
 			{
-				label: '连接超时(秒)',
-				fieldName: 'connectionTimeout',
+				label: '返回条数',
+				fieldName: 'limit',
+				conditionRules: {
+					showBy: {
+						operation: ['executeQuery', 'select']
+					}
+				},
 				control: {
 					name: 'input',
 					dataType: 'number',
-					defaultValue: 30,
-					placeholder: '连接超时时间'
-				}
-			},
-			{
-				label: '启用SSL',
-				fieldName: 'ssl',				
-				control: {
-					name: 'checkbox',
-					dataType: 'boolean',
-					defaultValue: false,
-					placeholder: '是否启用SSL连接',
+					defaultValue: 0,
+					placeholder: '空或者0表示不限制'
 				}
 			}
 		],
@@ -227,11 +206,12 @@ export class PostgreSQL implements INode {
 
 	async execute(opts: IExecuteOptions): Promise<any> {
 		const operation = opts.inputs?.operation;
+		console.log("inputs.operation", operation);
+		let client: Client | null = null;
 
 		try {
 			// 创建数据库连接
-			const client = await this.createConnection(opts.inputs);
-
+			client = await this.createConnection(opts.inputs);
 			let result;
 			switch (operation) {
 				case 'select':
@@ -252,16 +232,22 @@ export class PostgreSQL implements INode {
 				default:
 					throw new Error(`未知操作类型: ${operation}`);
 			}
-			// 关闭连接
-			await client.end();
+
 			return result;
 
 		} catch (error: any) {
-			console.error('❌ [PostgreSQL Node] 执行错误:', error.message);
 			return {
-				error: error.message,
-				success: false
+				error: error.message
 			};
+		} finally {
+			// 确保连接总是被关闭
+			if (client) {
+				try {
+					await client.end();
+				} catch (closeError: any) {
+					console.error('⚠️ [PostgreSQL Node] 关闭连接时出错:', closeError.message);
+				}
+			}
 		}
 	}
 
@@ -323,14 +309,6 @@ export class PostgreSQL implements INode {
 		const orderBy = opts.inputs?.orderBy;
 		const limit = opts.inputs?.limit;
 
-		console.log('📍 [PostgreSQL Node] executeSelect 输入参数:', {
-			table,
-			columns,
-			whereCondition,
-			orderBy,
-			limit
-		});
-
 		if (!table) {
 			throw new Error('表名不能为空');
 		}
@@ -349,28 +327,11 @@ export class PostgreSQL implements INode {
 			query += ` LIMIT ${limit}`;
 		}
 
-		console.log('📍 [PostgreSQL Node] 执行查询语句:', query);
-
 		try {
 			const result = await client.query(query);
-			console.log('📍 [PostgreSQL Node] 查询结果:', {
-				rowsType: typeof result.rows,
-				isArray: Array.isArray(result.rows),
-				rowCount: result.rows.length,
-				firstRow: result.rows.length > 0 ? result.rows[0] : null
-			});
-
-			const queryResult = {
-				data: result.rows,
-				rowCount: result.rows.length,
-				success: true,
-			};
-
-			console.log('📍 [PostgreSQL Node] 返回结果:', queryResult);
-			return queryResult;
+			return result.rows;
 		} catch (error: any) {
-			console.error('📍 [PostgreSQL Node] executeSelect 查询错误:', error);
-			throw error;
+			throw new Error(`执行SQL失败: ${error.message}`);
 		}
 	}
 
@@ -408,8 +369,21 @@ export class PostgreSQL implements INode {
 		let insertedCount = 0;
 		const insertedRows = [];
 
+		// ISO8601正则表达式，匹配格式如：2024-11-27T21:53:37.231Z 或 2024-11-27T21:53:37Z
+		const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
+
 		for (const record of records) {
-			const values = columns.map(col => record[col]);
+			const values = columns.map(col => {
+				let value = record[col];
+				if (typeof value === 'string' && isoRegex.test(value)) {
+					const date = new Date(value);
+					if (!isNaN(date.getTime())) {
+						// 转换为PostgreSQL datetime格式：'YYYY-MM-DD HH:MM:SS'
+						return date.toISOString().slice(0, 19).replace('T', ' ');
+					}
+				}
+				return value;
+			});
 			const result = await client.query(query, values);
 			insertedCount++;
 			if (result.rows.length > 0) {
@@ -418,11 +392,8 @@ export class PostgreSQL implements INode {
 		}
 
 		return {
-			query: query,
 			insertedCount: insertedCount,
 			insertedRows: insertedRows,
-			success: true,
-			operation: 'insert'
 		};
 	}
 
@@ -454,14 +425,10 @@ export class PostgreSQL implements INode {
 		const values = Object.values(updateData);
 		const query = `UPDATE ${table} SET ${setClause} WHERE ${whereCondition}`;
 
-		console.log('执行更新:', query);
 		const result = await client.query(query, values);
-
 		return {
-			query: query,
 			affectedRows: result.rowCount,
-			success: true,
-			operation: 'update'
+			changedRows: result.rowCount,
 		};
 	}
 
@@ -479,46 +446,41 @@ export class PostgreSQL implements INode {
 
 		const query = `DELETE FROM ${table} WHERE ${whereCondition}`;
 
-		console.log('执行删除:', query);
 		const result = await client.query(query);
 
-		return {
-			query: query,
-			affectedRows: result.rowCount,
-			success: true,
-			operation: 'delete'
-		};
+		return { affectedRows: result.rowCount };
 	}
 
 	private async executeCustomQuery(client: Client, opts: IExecuteOptions): Promise<any> {
-		const query = opts.inputs?.query;
+		const queryStr = opts.inputs?.query;
+		const query = queryStr && queryStr.endsWith(';') ? queryStr.slice(0, -1) : queryStr;
+		const limit = opts.inputs?.limit;
 
 		if (!query) {
 			throw new Error('SQL语句不能为空');
 		}
 
-		console.log('执行自定义SQL:', query);
-		const result = await client.query(query);
+		// 检查是否为 SELECT 查询且需要添加 LIMIT
+		let finalQuery = query;
+		const isSelectQuery = query.trim().toLowerCase().startsWith('select');
 
-		// 判断是否为查询操作
-		const isSelect = query.trim().toLowerCase().startsWith('select');
+		if (isSelectQuery && limit && limit > 0) {
+			// 检查是否已包含 LIMIT 子句
+			const hasLimit = query.toLowerCase().includes('limit');
 
-		if (isSelect) {
-			return {
-				data: result.rows,
-				query: query,
-				rowCount: result.rows.length,
-				success: true,
-				operation: 'executeQuery'
-			};
+			if (!hasLimit) {
+				finalQuery = `${query.trim()} LIMIT ${limit}`;
+			}
+		}
+		const result = await client.query(finalQuery);
+
+		if (isSelectQuery) {
+			return result.rows;
 		} else {
-			// 非查询操作（INSERT, UPDATE, DELETE等）
 			return {
-				query: query,
 				affectedRows: result.rowCount || 0,
-				success: true,
-				operation: 'executeQuery'
-			};
+				insertId: result.rows?.[0]?.id || null,
+			}
 		}
 	}
 }
