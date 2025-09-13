@@ -158,11 +158,9 @@ export const ConnectConfigModal: React.FC<ConnectConfigModalProps> = ({
       return;
     }
 
-    console.log('🔄 开始获取连接详情...');
     try {
       // 获取连接详情
       const connectData = await onFetchConnectDetails(connect.overview.id);
-      console.log('成功获取连接详情:', connectData);
 
       // 确保 connect 对象包含所有必需的属性
       const connectWithDefaults = {
@@ -171,7 +169,6 @@ export const ConnectConfigModal: React.FC<ConnectConfigModalProps> = ({
         validateConnection: connectData.validateConnection ?? true,
         connectType: connect.overview.type // 添加连接类型信息
       };
-      console.log('🔧 处理后的连接数据:', connectWithDefaults);
       setSelectedConnect(connectWithDefaults);
     } catch (err) {
       console.error('获取连接详情失败:', err);

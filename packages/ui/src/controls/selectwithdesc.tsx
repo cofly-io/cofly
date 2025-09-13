@@ -25,7 +25,7 @@ const SelectContainer = styled.div`
   border: 1px solid ${({ theme }) => theme.panel.ctlBorder};
   border-radius: 4px;
   padding: 4px 12px;
-  background: ${({ theme }) => theme.colors.inputBg};
+  background: ${({ theme }) => theme.panel.nodeBg};
   box-sizing: border-box;
   transition: all 0.2s ease;
 

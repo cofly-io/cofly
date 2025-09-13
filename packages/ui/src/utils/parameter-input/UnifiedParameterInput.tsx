@@ -149,27 +149,6 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
         return field.control?.validation?.required || false;
     };
 
-    // 通用的数据类型验证函数
-    const validateDataType = (value: any, dataType: string) => {
-        switch (dataType) {
-            case 'string':
-                return typeof value === 'string';
-            case 'number':
-                return typeof value === 'number' || !isNaN(Number(value));
-            case 'boolean':
-                return typeof value === 'boolean';
-            case 'json':
-                try {
-                    JSON.parse(value);
-                    return true;
-                } catch {
-                    return false;
-                }
-            default:
-                return true;
-        }
-    };
-
     if (!shouldShow) {
         return null;
     }
@@ -405,7 +384,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                             type={inputType}
                             value={inputValue}
                             onChange={handleInputChange}
-                            placeholder={field.description || controlConfig.placeholder}
+                            placeholder={controlConfig.placeholder || field.description}
                             error={errorMessage}
                         />
                     );
@@ -418,7 +397,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                             type={inputType}
                             value={inputValue}
                             onChange={(e) => onChange(field.fieldName, e.target.value)}
-                            placeholder={field.description || controlConfig.placeholder}
+                            placeholder={controlConfig.placeholder || field.description}
                         />
                     );
                     return renderWithOptionalLabel(control);
@@ -441,6 +420,16 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
                     // 处理联动onChange事件
                     const handleSelectChange = (val: any) => {
+                        // REST API authType 特殊调试日志
+                        if (field.fieldName === 'authType') {
+                            console.log('🔥 [REST-API-DEBUG] authType 值变化 (node模式):', {
+                                fieldName: field.fieldName,
+                                oldValue: value,
+                                newValue: val,
+                                formValues: formValues
+                            });
+                        }
+                        
                         onChange(field.fieldName, val);
 
                         // 处理联动逻辑
@@ -467,7 +456,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                             options={selectOptions}
                             value={value}
                             onChange={handleSelectChange}
-                            placeholder={field.description || controlConfig.placeholder}
+                            placeholder={controlConfig.placeholder || field.description}
                             error={errorMessage}
                         />
                     );
@@ -481,6 +470,17 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                     // 处理联动onChange事件
                     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
                         const val = e.target.value;
+                        
+                        // REST API authType 特殊调试日志
+                        if (field.fieldName === 'authType') {
+                            console.log('🔥 [REST-API-DEBUG] authType 值变化:', {
+                                fieldName: field.fieldName,
+                                oldValue: value,
+                                newValue: val,
+                                formValues: formValues
+                            });
+                        }
+                        
                         onChange(field.fieldName, val);
 
                         // 处理联动逻辑
@@ -524,16 +524,18 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
             case 'textarea': {
                 // 🔧 修复：确保 value 是字符串类型，避免 [object Object] 问题
                const textareaAttributes = controlConfig.attributes?.[0] || {};
+                // 修复：优先使用 controlConfig.placeholder，优化值处理逻辑
                 const textValue = typeof value === 'string' ? value :
-                    (value ? JSON.stringify(value) : '');
-                // 调试日志
+                    (value && typeof value === 'object' ? JSON.stringify(value) : 
+                     value ? String(value) : '');
+                
                 if (variant === 'node') {
                     // node 模式下使用 TextArea 组件
                     const control = (
                         <TextArea
                             value={textValue}
                             onChange={(e) => onChange(field.fieldName, e.target.value)}
-                            placeholder={field.description || controlConfig.placeholder}
+                            placeholder={controlConfig.placeholder || field.description}
                             error={errorMessage}
                             {...textareaAttributes}
                         />
@@ -546,7 +548,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                             $variant={variant}
                             value={textValue}
                             onChange={(e) => onChange(field.fieldName, e.target.value)}
-                            placeholder={field.description || controlConfig.placeholder}
+                            placeholder={controlConfig.placeholder || field.description}
                         />
                     );
                     return renderWithOptionalLabel(control);
@@ -602,7 +604,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                         options={selectFilterOptions}
                         value={value}
                         onChange={handleSelectFilterChange}
-                        placeholder={field.description || controlConfig.placeholder}
+                        placeholder={controlConfig.placeholder || field.description}
                         disabled={!shouldEnable || linkageLoading}
                         loading={linkageLoading}
                         error={linkageError}
@@ -659,7 +661,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                         datasource={datasource}
                         value={value}
                         onChange={handleSelectWithDescChange}
-                        placeholder={field.description || controlConfig.placeholder}
+                        placeholder={controlConfig.placeholder || field.description}
                     />
                 );
                 return renderWithOptionalLabel(control);
@@ -687,7 +689,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                         options={inputSelectOptions}
                         value={value || ''}
                         onChange={(val) => onChange(field.fieldName, val)}
-                        placeholder={field.description || controlConfig.placeholder}
+                        placeholder={controlConfig.placeholder || field.description}
                         disabled={!shouldEnable || linkageLoading}
                     />
                 );
@@ -747,7 +749,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                         datasource={connectDatasource}
                         value={value}
                         onChange={handleselectlistdescChange}
-                        placeholder={field.description || field.control?.placeholder || '请选择连接'}
+                        placeholder={controlConfig.placeholder || field.description || '请选择连接'}
                     />
                 );
                 return renderWithOptionalLabel(control);

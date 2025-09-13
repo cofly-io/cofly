@@ -299,6 +299,13 @@ export const useFieldVisibility = (field: UnifiedParameterField, formValues: Rec
     if (showBy) {
       for (const [key, values] of Object.entries(showBy)) {
         const formValue = formValues[key];
+        console.log('🔍 [useFieldVisibility] showBy检查:', {
+          fieldName: field.fieldName,
+          dependentField: key,
+          dependentValue: formValue,
+          expectedValues: values,
+          shouldShow: (values as string[]).includes(formValue)
+        });
         if (!(values as string[]).includes(formValue)) {
           return false;
         }

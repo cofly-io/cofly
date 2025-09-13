@@ -96,6 +96,24 @@ const ScrollableContent = styled.div`
   overflow-y: auto;
   padding-right: 10px;
   margin-right: -10px;
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.panel.nodeBg};
+    border-radius: 6px;
+    border: 2px solid #1a5199;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background:${({ theme }) => theme.panel.panelBg};
+  }
 `;
 
 const FixedFooter = styled.div`

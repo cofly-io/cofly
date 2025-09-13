@@ -170,7 +170,7 @@ export interface IDatabaseMetadataOptions {
     ssl: boolean;
     search?: string;
     charset?: string;
-    schema?:string;
+    schema?: string;
 }
 
 export interface IDatabaseMetadataResult {
@@ -181,6 +181,21 @@ export interface IDatabaseMetadataResult {
         description?: string;
     }>;
     error?: string;
+}
+
+export interface IHttpMetadataOptions {
+    baseUrl: string;
+    authType: 'basic' | 'bearer' | 'json' | 'header' | 'oauth2' | 'custom';
+    username?: string;
+    password?: string;
+    token?: string;
+    apiKey?: string;
+    apiKeyHeader?: string;
+    clientId?: string;
+    clientSecret?: string;
+    timeout?: number;
+    headers?: Record<string, string>;
+    // 其他可能字段
 }
 
 export interface IDatabaseExecutionOptions {
@@ -257,9 +272,10 @@ export type DatabaseFeature =
  * HTTP 认证类型
  */
 export type HttpAuthType =
-    | 'none'
     | 'basic'
     | 'bearer'
+    | 'json'
+    | 'header'
     | 'api_key'
     | 'oauth2'
     | 'oauth1'
@@ -271,6 +287,7 @@ export type HttpAuthType =
  */
 export interface IHttpConnectConfig {
     baseUrl: string;
+    testEndpoint?: string;
     authType: HttpAuthType;
     // 根据认证类型的不同配置
     username?: string;
@@ -278,12 +295,24 @@ export interface IHttpConnectConfig {
     token?: string;
     apiKey?: string;
     apiKeyHeader?: string;
+    // JSON认证配置
+    jsonAuth?: string;
+    // Header认证配置
+    headerName?: string;
+    headerValue?: string;
+    // 自定义认证配置
+    customAuth?: string;
     // OAuth 配置
     clientId?: string;
     clientSecret?: string;
     authUrl?: string;
     tokenUrl?: string;
     scope?: string;
+    grantType?: string;
+    // OAuth 1.0 专用配置
+    requestTokenUrl?: string;
+    accessTokenUrl?: string;
+    signatureMethod?: string;
     // 请求配置
     timeout?: number;
     retries?: number;
@@ -574,3 +603,4 @@ export interface IConnectConfig {
     updatedAt?: Date;
     creator?: string;
 }
+

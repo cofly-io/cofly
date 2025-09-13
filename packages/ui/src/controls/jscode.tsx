@@ -18,16 +18,17 @@ const CodeEditorContainer = styled.div<{ $isDragOver?: boolean; $height?: string
   /*background: ${({ theme, $isDragOver }) =>
     $isDragOver ? `${theme.colors.accent}10` : theme.panel.nodeBg
   };*/
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   transition: all 0.2s ease;
   
   .cm-editor {
     height: ${({ $height }) => $height || '180px'};
     overflow-y: auto;
+    background:${({ theme }) => theme.panel.nodeBg};
   }
   
   .cm-scroller {
     max-height: inherit;
+   
   }
 `;
 
@@ -35,7 +36,7 @@ const ExpandButton = styled.button`
   position: absolute;
   top: 8px;
   right: 8px;
-  background: ${({ theme }) => theme.colors.buttonBg};
+  background: ${({ theme }) => theme.panel.nodeBg};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 4px;
   color: ${({ theme }) => theme.colors.textSecondary};
@@ -322,7 +323,6 @@ export const JsCode: React.FC<CodeEditorProps> = ({
     e.stopPropagation();
     setIsDragOver(false);
 
-    console.log('🎯 JsCode drop event - Available data types:', e.dataTransfer.types);
 
     // 优先使用不带大括号的格式（针对JsonTree拖拽）
     const noBracesText = e.dataTransfer.getData('text/plain-no-braces') || '';
@@ -352,8 +352,6 @@ export const JsCode: React.FC<CodeEditorProps> = ({
           const originalCursorPos = view.state.selection.main.head;
           const docLength = newValue.length;
           const adjustedCursorPos = Math.min(originalCursorPos, docLength);
-
-          console.log('📍 JsCode: Cursor position - original:', originalCursorPos, ', adjusted:', adjustedCursorPos, ', doc length:', docLength);
 
           // 在调整后的光标位置插入文本
           const beforeInsert = newValue.slice(0, adjustedCursorPos);

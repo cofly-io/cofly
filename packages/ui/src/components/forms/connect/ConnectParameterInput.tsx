@@ -22,8 +22,10 @@ export const ConnectParameterInput: React.FC<ConnectParameterInputProps> = ({
   const unifiedField: UnifiedParameterField = {
     fieldName: field.fieldName,
     label: field.label,
-    // type: field.type,
     control: field.control,
+    conditionRules: field.conditionRules, // 修复：添加缺失的conditionRules属性
+    description: field.description, // 修复：添加description属性
+    // type: field.type,
     // default: field.default,
     // options: field.options?.map((opt: any) => {
     //   // 类型守卫：检查是否是 INodePropertyOptions

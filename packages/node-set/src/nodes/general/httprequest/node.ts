@@ -124,10 +124,9 @@ export class HttpRequest implements INode {
 			},
 			{
 				label: '请求头JSON',
-				fieldName: 'headersJson',
-			
+				fieldName: 'headersJson',			
 				control: {
-					name: 'jscode',
+					name: 'jsoncode',
 					dataType: 'string',
 					defaultValue: '{}',
 					placeholder: '{"Content-Type": "application/json", "Authorization": "Bearer token"}'
@@ -182,7 +181,7 @@ export class HttpRequest implements INode {
 				fieldName: 'queryParamsJson',
 		
 				control: {
-					name: 'jscode',
+					name: 'jsoncode',
 					dataType: 'string',
 					defaultValue: '{}',
 					placeholder: '{"page": 1, "limit": 10, "status": "active"}'

@@ -84,6 +84,9 @@ export type {
     IDatabaseConnect,
     IDatabaseConnectConfig,
     IOtherConnect,
+
+    // 接口相关类型
+    IHttpMetadataOptions,
     
     // 社交相关类型
     ISocialConnect,
