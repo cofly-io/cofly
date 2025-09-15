@@ -62,7 +62,7 @@ export class RestApiConnect extends BaseHttpConnect {
                     options: [
                         { name: 'Basic认证', value: 'basic' },
                         { name: 'Bearer Token', value: 'bearer' },
-                        { name: 'JSON认证', value: 'json' },
+                        { name: 'Digest认证', value: 'digest' },
                         { name: 'Header认证', value: 'header' },
                         { name: 'OAuth 2.0', value: 'oauth2' },
                         { name: '自定义认证', value: 'custom' }
@@ -73,10 +73,10 @@ export class RestApiConnect extends BaseHttpConnect {
             {
                 label: '用户名',
                 fieldName: 'username',
-                description: 'Basic认证用户名',
+                description: '认证用户名',
                 conditionRules: {
                     showBy: {
-                        authType: ['basic']
+                        authType: ['basic','digest']
                     }
                 },
                 control: {
@@ -89,10 +89,10 @@ export class RestApiConnect extends BaseHttpConnect {
             {
                 label: '密码',
                 fieldName: 'password',
-                description: 'Basic认证密码',
+                description: '认证密码',
                 conditionRules: {
                     showBy: {
-                        authType: ['basic']
+                         authType: ['basic','digest']
                     }
                 },
                 control: {
@@ -122,23 +122,23 @@ export class RestApiConnect extends BaseHttpConnect {
                 }
             },
             // JSON认证字段
-            {
-                label: 'JSON配置',
-                fieldName: 'jsonAuth',
-                description: 'JSON格式的认证信息',
-                conditionRules: {
-                    showBy: {
-                        authType: ['json']
-                    }
-                },
-                control: {
-                    name: 'textarea' as const,
-                    dataType: 'string' as const,
-                    defaultValue: '',
-                    placeholder: '{"username": "your_username", "password": "your_password"}',
-                    validation: { required: true }
-                }
-            },
+            // {
+            //     label: 'Digest认证',
+            //     fieldName: 'digestAuth',
+            //     description: '密码传输方式哈希值（如MD5）',
+            //     conditionRules: {
+            //         showBy: {
+            //             authType: ['json']
+            //         }
+            //     },
+            //     control: {
+            //         name: 'textarea' as const,
+            //         dataType: 'string' as const,
+            //         defaultValue: '',
+            //         placeholder: '{"username": "your_username", "password": "your_password"}',
+            //         validation: { required: true }
+            //     }
+            // },
             // Header认证字段
             {
                 label: '认证Header名称',
@@ -277,27 +277,6 @@ export class RestApiConnect extends BaseHttpConnect {
                     defaultValue: '',
                     placeholder: '请输入自定义认证的配置信息（JSON格式）',
                     validation: { required: true }
-                }
-            },
-            {
-                label: '请求超时(秒)',
-                fieldName: 'timeout',
-                description: '请求超时时间，单位：秒',
-                control: {
-                    name: 'input' as const,
-                    dataType: 'number' as const,
-                    defaultValue: 30
-                }
-            },
-            {
-                label: '自定义请求头',
-                fieldName: 'headers',
-                description: '自定义HTTP请求头',
-                control: {
-                    name: 'input' as const,
-                    dataType: 'string' as const,
-                    defaultValue: {},
-                    placeholder: 'Content-Type, Accept等'
                 }
             }
         ],

@@ -420,30 +420,13 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
                     // 处理联动onChange事件
                     const handleSelectChange = (val: any) => {
-                        // REST API authType 特殊调试日志
-                        if (field.fieldName === 'authType') {
-                            console.log('🔥 [REST-API-DEBUG] authType 值变化 (node模式):', {
-                                fieldName: field.fieldName,
-                                oldValue: value,
-                                newValue: val,
-                                formValues: formValues
-                            });
-                        }
-                        
                         onChange(field.fieldName, val);
 
                         // 处理联动逻辑
                         if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail && val) {
-                            console.log('🔗 [select] 触发联动逻辑:', {
-                                fieldName: field.fieldName,
-                                targets: field.control.linkage.targets,
-                                selectedValue: val
-                            });
-
                             field.control.linkage.targets.forEach(async (targetFieldName: string) => {
                                 try {
                                     await onFetchConnectDetail(val);
-                                    console.log('✅ [select] 联动数据获取成功:', { targetFieldName });
                                 } catch (error) {
                                     console.error('❌ [select] 联动数据获取失败:', { targetFieldName, error });
                                 }
@@ -472,29 +455,13 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
                         const val = e.target.value;
                         
                         // REST API authType 特殊调试日志
-                        if (field.fieldName === 'authType') {
-                            console.log('🔥 [REST-API-DEBUG] authType 值变化:', {
-                                fieldName: field.fieldName,
-                                oldValue: value,
-                                newValue: val,
-                                formValues: formValues
-                            });
-                        }
-                        
                         onChange(field.fieldName, val);
 
                         // 处理联动逻辑
                         if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail && val) {
-                            console.log('🔗 [select] 触发联动逻辑:', {
-                                fieldName: field.fieldName,
-                                targets: field.control.linkage.targets,
-                                selectedValue: val
-                            });
-
                             field.control.linkage.targets.forEach(async (targetFieldName: string) => {
                                 try {
                                     await onFetchConnectDetail(val);
-                                    console.log('✅ [select] 联动数据获取成功:', { targetFieldName });
                                 } catch (error) {
                                     console.error('❌ [select] 联动数据获取失败:', { targetFieldName, error });
                                 }
@@ -582,16 +549,9 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
                     // 处理联动逻辑
                     if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail && val) {
-                        console.log('🔗 [selectfilter] 触发联动逻辑:', {
-                            fieldName: field.fieldName,
-                            targets: field.control.linkage.targets,
-                            selectedValue: val
-                        });
-
                         field.control.linkage.targets.forEach(async (targetFieldName: string) => {
                             try {
                                 await onFetchConnectDetail(val);
-                                console.log('✅ [selectfilter] 联动数据获取成功:', { targetFieldName });
                             } catch (error) {
                                 console.error('❌ [selectfilter] 联动数据获取失败:', { targetFieldName, error });
                             }
@@ -639,16 +599,9 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
                     // 处理联动逻辑
                     if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail && value) {
-                        console.log('🔗 [selectwithdesc] 触发联动逻辑:', {
-                            fieldName: field.fieldName,
-                            targets: field.control.linkage.targets,
-                            selectedValue: value
-                        });
-
                         field.control.linkage.targets.forEach(async (targetFieldName: string) => {
                             try {
                                 await onFetchConnectDetail(value as string);
-                                console.log('✅ [selectwithdesc] 联动数据获取成功:', { targetFieldName });
                             } catch (error) {
                                 console.error('❌ [selectwithdesc] 联动数据获取失败:', { targetFieldName, error });
                             }
@@ -715,20 +668,10 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
 
                         // 处理联动逻辑：当字段配置了 linkage 且有 targets 时
                         if (field.control.linkage?.targets && field.control.linkage.targets.length > 0 && onFetchConnectDetail) {
-                            console.log('🔗 [selectlistdesc] 触发联动逻辑:', {
-                                fieldName: field.fieldName,
-                                targets: field.control.linkage.targets,
-                                connectId: selectedValue
-                            });
-
                             // 为每个目标字段获取数据
                             field.control.linkage.targets.forEach(async (targetFieldName: string) => {
                                 try {
                                     const result = await onFetchConnectDetail(selectedValue as string);
-                                    console.log('✅ [selectlistdesc] 联动数据获取成功:', {
-                                        targetFieldName,
-                                        tableCount: result.options?.length || 0
-                                    });
                                 } catch (error) {
                                     console.error('❌ [selectlistdesc] 联动数据获取失败:', {
                                         targetFieldName,

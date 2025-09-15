@@ -89,6 +89,7 @@ export type ConnectInstanceType =
     | 'milvus'
     | 'kb'
     | 'llm'
+    | 'http'
 
 // export interface ICredentialDataDecryptedObject {
 //     [key: string]: CredentialInformation;
@@ -526,13 +527,13 @@ export interface INodeWebhook extends INodeBasic {
 
 export interface IConditionRules {
     hide?: {
-        [key: string]: Array<string> | undefined;
+        [key: string]: Array<string | boolean> | undefined;
     };
     showBy?: {
-        [key: string]: Array<string> | undefined;
+        [key: string]: Array<string | boolean> | undefined;
     };
     addBy?: {
-        [key: string]: Array<string> | undefined;
+        [key: string]: Array<string | boolean> | undefined;
     };
 
     hideOnCloud?: boolean;

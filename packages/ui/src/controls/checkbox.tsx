@@ -22,8 +22,8 @@ const CheckboxInput = styled.input`
 `;
 
 const CheckboxLabel = styled.label`
-  font-size: 12px;
-  color: ${({ theme }) => theme.mode === 'dark' ? '#f8fafc' : '#ffffff'};
+  font-size: 13px;
+  color: ${({ theme }) => theme.mode === 'dark' ? '#f8fafc' : '#1f2937'};
   cursor: pointer;
   user-select: none;
   

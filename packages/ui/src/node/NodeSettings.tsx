@@ -108,7 +108,7 @@ const ScrollableContent = styled.div`
   &::-webkit-scrollbar-thumb {
     background: ${({ theme }) => theme.panel.nodeBg};
     border-radius: 6px;
-    border: 2px solid #1a5199;
+    border: 2px solid  ${({ theme }) => theme.mode == 'dark' ? '#1a5199' : '#bfbfbf80'};
   }
 
   &::-webkit-scrollbar-thumb:hover {
@@ -770,7 +770,7 @@ export const NodeSettings: React.FC<NodeSettingsProps> = ({
     parameters.forEach(param => {
       // 首先检查字段是否可见
       const shouldShow = checkFieldVisibility(param, nodeValues);
-      
+
       if (!shouldShow) {
         return; // 如果字段不可见，跳过验证
       }

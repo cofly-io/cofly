@@ -38,7 +38,7 @@ const StyledSwitch = styled.div<{ $active: boolean; $disabled?: boolean; $size?:
         : 'rgba(59, 130, 246, 0.2)';
     } else {
       return $active
-        ? 'rgba(59, 130, 246, 0.5)'
+        ? 'rgba(8, 207, 124, 0.5)'
         : 'white';
     }
   }};
@@ -61,7 +61,7 @@ const StyledSwitch = styled.div<{ $active: boolean; $disabled?: boolean; $size?:
         : 'rgba(59, 130, 246, 0.3)';
     } else {
       return $active
-        ? 'rgba(59, 130, 246, 0.6)'
+        ? 'rgba(2, 192, 59, 0.6)'
         : 'rgba(200, 200, 202, 0.8)'; // 灰色边框
     }
   }};

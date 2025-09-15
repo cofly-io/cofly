@@ -13,7 +13,6 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
   // 联动数据获取逻辑
   const fetchLinkageData = useCallback(async (sourceValue: any) => {
     if (!linkageCallbacks || !sourceValue) {
-      console.log('⚠️ [fetchLinkageData] 缺少必要参数，清空数据');
       setLinkageData([]);
       return;
     }
@@ -27,7 +26,6 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
 
     // 生成缓存键
     const cacheKey = `${field.fieldName}_fetchConnectDetail_${JSON.stringify(sourceValue)}`;
-    console.log('🔑 [fetchLinkageData] 缓存键:', cacheKey);
 
     // 检查缓存
     const cachedData = linkageCacheRef.current.get(cacheKey);
@@ -67,11 +65,6 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
       return;
     }
 
-    console.log('🔗 [useLinkageData] 找到target到当前字段的源字段:', {
-      targetField: field.fieldName,
-      sourceFields: sourceFields.map(f => f.fieldName)
-    });
-
     // 监听所有源字段的值变化
     const sourceValues = sourceFields.map(sourceField => {
       const value = formValues[sourceField.fieldName];
@@ -93,14 +86,8 @@ export const useLinkageData = (field: UnifiedParameterField, formValues: Record<
     const validSourceValue = sourceValues.find(value => value && value !== '');
 
     if (validSourceValue) {
-      console.log('📞 [useLinkageData] 检测到源字段值变化，获取联动数据:', {
-        targetField: field.fieldName,
-        sourceValue: validSourceValue
-      });
-
       fetchLinkageData(validSourceValue);
     } else {
-      console.log('🗑️ [useLinkageData] 所有源字段值为空，清空数据');
       setLinkageData([]);
     }
   }, [
@@ -193,69 +180,24 @@ export const useAddByField = (
 
   // 处理删除字段
   const handleDeleteField = useCallback((onChange: (name: string, value: any) => void) => {
-    console.log('🗑️ [DeleteField] 开始删除字段:', {
-      fieldName: field.fieldName,
-      fieldType: field.control.dataType,
-      isCollection: field.control.dataType === 'options',
-      hasOptions: !!field.control.options,
-      optionsLength: field.control.options?.length || 0,
-      currentAddedFields: Array.from(addedFields)
-    });
-
     // 检查是否是 collection 类型
     if (field.control.dataType === 'options' && field.control.options && Array.isArray(field.control.options)) {
       // 对于 collection，批量删除所有子字段
       const subFieldNames = (field.control.options as any[]).map(subField => `${field.fieldName}.${subField.fieldName}`);
-      console.log('📦 [DeleteField] Collection 删除子字段:', {
-        mainField: field.fieldName,
-        subFieldNames,
-        allFieldsToDelete: [field.fieldName, ...subFieldNames]
-      });
-
       const { addedFields: newAddedFields } = removeFieldsFromGlobal([field.fieldName, ...subFieldNames]);
       setAddedFields(new Set(newAddedFields));
-
-      console.log('✅ [DeleteField] Collection 删除完成:', {
-        newAddedFieldsSize: newAddedFields.size,
-        newAddedFieldsList: Array.from(newAddedFields)
-      });
     } else {
       // 对于普通字段，单独删除
-      console.log('📄 [DeleteField] 普通字段删除:', field.fieldName);
       const { addedFields: newAddedFields } = removeFieldFromGlobal(field.fieldName);
       setAddedFields(new Set(newAddedFields));
-
-      console.log('✅ [DeleteField] 普通字段删除完成:', {
-        newAddedFieldsSize: newAddedFields.size,
-        newAddedFieldsList: Array.from(newAddedFields)
-      });
     }
 
     // 清空字段值
     onChange(field.fieldName, field.control.defaultValue || '');
-    console.log('🔄 [DeleteField] 已清空字段值:', {
-      fieldName: field.fieldName,
-      defaultValue: field.control.defaultValue || ''
-    });
-
     // 特殊处理：如果删除的是通过 addBy 添加的字段，需要重置对应的 selectadd 控件
     if (field.conditionRules?.addBy) {
-      console.log('🔄 [DeleteField] 检查是否需要重置 selectadd 控件:', {
-        fieldName: field.fieldName,
-        addBy: field.conditionRules.addBy
-      });
-
-      // 获取当前全局状态
-      const currentGlobalFields = getGlobalAddedFields();
-      console.log('🔍 [DeleteField] 当前全局字段状态:', Array.from(currentGlobalFields));
-
       // 找到需要重置的 selectadd 控件
       Object.keys(field.conditionRules.addBy).forEach(dependentFieldName => {
-        console.log('🎯 [DeleteField] 需要重置的 selectadd 控件:', {
-          dependentFieldName,
-          currentValue: formValues[dependentFieldName]
-        });
-
         // 通过触发一个自定义事件来通知特定的 selectadd 控件重置
         const resetEvent = new CustomEvent('selectadd-reset', {
           detail: {
@@ -264,10 +206,6 @@ export const useAddByField = (
           }
         });
         window.dispatchEvent(resetEvent);
-        console.log('📡 [DeleteField] 已发送 selectadd 重置事件:', {
-          targetField: dependentFieldName,
-          deletedField: field.fieldName
-        });
       });
     }
   }, [field.fieldName, field.control.defaultValue, field.control.dataType, field.control.options, addedFields]);
@@ -279,37 +217,97 @@ export const useAddByField = (
 };
 
 // 字段显示逻辑 Hook
-export const useFieldVisibility = (field: UnifiedParameterField, formValues: Record<string, any>, addedFields: Set<string>) => {
-  const shouldShow = useMemo(() => {
-    if (!field.conditionRules) return true;
+export const useFieldVisibility = (field: UnifiedParameterField, formValues: Record<string, any>, addedFields: Set<string>, allFields: UnifiedParameterField[] = []) => {
+  
+  // 创建一个递归函数来检查字段的完整依赖链
+  const checkFieldVisibility = useCallback((targetField: UnifiedParameterField, checkedFields: Set<string> = new Set()): boolean => {
+    // 防止循环依赖
+    if (checkedFields.has(targetField.fieldName)) {
+      console.warn('🔄 [useFieldVisibility] 检测到循环依赖:', targetField.fieldName);
+      return false;
+    }
+    
+    checkedFields.add(targetField.fieldName);
+    
+    if (!targetField.conditionRules) return true;
 
-    const { showBy, hide, addBy } = field.conditionRules;
+    const { showBy, hide, addBy } = targetField.conditionRules;
 
     // 检查隐藏条件
     if (hide) {
       for (const [key, values] of Object.entries(hide)) {
         const formValue = formValues[key];
-        if ((values as string[]).includes(formValue)) {
+
+        // 支持多种数据类型的比较
+        const isValueMatched = (values as any[]).some(expectedValue => {
+          return formValue === expectedValue;
+        });
+
+        if (isValueMatched) {
+          console.log('🚫 [useFieldVisibility] hide条件匹配，隐藏字段:', {
+            fieldName: targetField.fieldName,
+            hideCondition: { [key]: values },
+            actualValue: formValue
+          });
           return false;
         }
       }
     }
 
-    // 检查显示条件
+    // 检查显示条件 - 这里是关键改进 
     if (showBy) {
       for (const [key, values] of Object.entries(showBy)) {
         const formValue = formValues[key];
+        
+        // 🔥 关键改进：首先检查依赖字段本身是否可见
+        const dependentField = allFields.find(f => f.fieldName === key);
+        if (dependentField) {
+          const isDependentFieldVisible = checkFieldVisibility(dependentField, new Set(checkedFields));
+          if (!isDependentFieldVisible) {
+            console.log('❌ [useFieldVisibility] 依赖字段不可见，隐藏当前字段:', {
+              fieldName: targetField.fieldName,
+              dependentField: key,
+              dependentFieldVisible: isDependentFieldVisible
+            });
+            return false;
+          }
+        }
+
+        // 支持多种数据类型的比较
+        const isValueMatched = (values as any[]).some(expectedValue => {
+          // 严格相等比较，支持 boolean, string, number 等类型
+          return formValue === expectedValue;
+        });
+
         console.log('🔍 [useFieldVisibility] showBy检查:', {
-          fieldName: field.fieldName,
+          fieldName: targetField.fieldName,
           dependentField: key,
           dependentValue: formValue,
+          dependentValueType: typeof formValue,
           expectedValues: values,
-          shouldShow: (values as string[]).includes(formValue)
+          expectedValueTypes: (values as any[]).map(v => typeof v),
+          shouldShow: isValueMatched,
+          strictComparison: (values as any[]).map(v => ({ expected: v, actual: formValue, match: formValue === v }))
         });
-        if (!(values as string[]).includes(formValue)) {
+
+        if (!isValueMatched) {
+          console.log('❌ [useFieldVisibility] showBy条件不匹配，隐藏字段:', {
+            fieldName: targetField.fieldName,
+            dependentField: key,
+            expectedValues: values,
+            actualValue: formValue
+          });
           return false;
         }
       }
+      
+      console.log('✅ [useFieldVisibility] showBy条件全部匹配，显示字段:', {
+        fieldName: targetField.fieldName,
+        showByConditions: showBy,
+        currentFormValues: Object.fromEntries(
+          Object.keys(showBy).map(key => [key, formValues[key]])
+        )
+      });
     }
 
     // 检查 addBy 条件 - 累积显示逻辑
@@ -319,26 +317,43 @@ export const useFieldVisibility = (field: UnifiedParameterField, formValues: Rec
       for (const [key, values] of Object.entries(addBy)) {
         const formValue = formValues[key];
 
+        // 支持多种数据类型的比较
+        const isValueMatched = (values as any[]).some(expectedValue => {
+          return formValue === expectedValue;
+        });
+
         // 只有当前值匹配时才显示（不考虑历史状态）
-        if ((values as string[]).includes(formValue)) {
+        if (isValueMatched) {
           shouldShowByAddBy = true;
           break;
         }
 
         // 如果该字段已经被添加过，也显示
-        if (addedFields.has(field.fieldName)) {
+        if (addedFields.has(targetField.fieldName)) {
           shouldShowByAddBy = true;
           break;
         }
       }
 
       if (!shouldShowByAddBy) {
+        console.log('🔒 [useFieldVisibility] addBy条件不匹配，隐藏字段:', {
+          fieldName: targetField.fieldName,
+          addByConditions: addBy,
+          currentFormValues: Object.fromEntries(
+            Object.keys(addBy).map(key => [key, formValues[key]])
+          ),
+          isInAddedFields: addedFields.has(targetField.fieldName)
+        });
         return false;
       }
     }
 
     return true;
-  }, [field.conditionRules, formValues, addedFields, field.fieldName]);
+  }, [formValues, addedFields, allFields]);
+
+  const shouldShow = useMemo(() => {
+    return checkFieldVisibility(field);
+  }, [field, checkFieldVisibility]);
 
   // 检查字段是否应该启用（基于联动配置）
   const shouldEnable = useMemo(() => {

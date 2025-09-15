@@ -4,18 +4,18 @@ import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import * as https from 'https';
 
 export class HttpRequest implements INode {
-    node: INodeBasic = {
-        kind: 'httprequest',
-        name: 'HTTP请求',
-        event: "httprequest",
-        catalog: 'general',
-        version: 1,
-        description: "发送HTTP请求并返回响应数据",
-        icon: 'httprequest.svg',
-        nodeWidth: 600
-    };
+	node: INodeBasic = {
+		kind: 'httprequest',
+		name: 'HTTP请求',
+		event: "httprequest",
+		catalog: 'general',
+		version: 1,
+		description: "发送HTTP请求并返回响应数据",
+		icon: 'httprequest.svg',
+		nodeWidth: 600
+	};
 
-    detail: INodeDetail = {
+	detail: INodeDetail = {
 		fields: [
 			// HTTP方法选择
 			{
@@ -78,7 +78,29 @@ export class HttpRequest implements INode {
 					validation: { required: true }
 				}
 			},
-
+			{
+				label: '是否鉴权',
+				fieldName: 'isAuth',
+				control: {
+					name: 'switch',
+					dataType: 'boolean',
+					defaultValue: false
+				}
+			},
+			{
+				label: '鉴权方式',
+				fieldName: 'auth',
+				conditionRules: {
+					showBy: {
+						isAuth: [true]
+					},
+				},
+				control: {
+					name: 'select',
+					dataType: 'string',
+					dataSourceType: 'http',
+				}
+			},
 			// 请求头设置
 			{
 				label: '发送请求头',
@@ -92,29 +114,52 @@ export class HttpRequest implements INode {
 			{
 				label: '请求头配置方式',
 				fieldName: 'headersType',
-		
+				conditionRules: {
+					showBy: {
+						sendHeaders: [true]
+					},
+				},
 				control: {
 					name: 'select',
 					dataType: 'string',
 					defaultValue: 'keyvalue',
 					options: [
 						{
-							name: '键值对',
-							value: 'keyvalue',
-							description: '使用键值对形式配置',
-						},
-						{
 							name: 'JSON',
 							value: 'json',
 							description: '使用JSON格式配置',
+						},
+						{
+							name: '键值对',
+							value: 'keyvalue',
+							description: '使用键值对形式配置',
 						},
 					]
 				}
 			},
 			{
+				label: '请求头JSON',
+				fieldName: 'headersJson',
+				conditionRules: {
+					showBy: {
+						headersType: ['json']
+					},
+				},
+				control: {
+					name: 'jsoncode',
+					dataType: 'json',
+					defaultValue: '{}',
+					placeholder: '{"Content-Type": "application/json", "Authorization": "Bearer token"}'
+				}
+			},
+			{
 				label: '请求头',
 				fieldName: 'headers',
-		
+				conditionRules: {
+					showBy: {
+						headersType: ['keyvalue']
+					},
+				},
 				control: {
 					name: 'textarea',
 					dataType: 'string',
@@ -122,17 +167,6 @@ export class HttpRequest implements INode {
 					placeholder: 'Content-Type: application/json\nAuthorization: Bearer token'
 				}
 			},
-			{
-				label: '请求头JSON',
-				fieldName: 'headersJson',			
-				control: {
-					name: 'jsoncode',
-					dataType: 'string',
-					defaultValue: '{}',
-					placeholder: '{"Content-Type": "application/json", "Authorization": "Bearer token"}'
-				}
-			},
-
 			// 查询参数设置
 			{
 				label: '发送查询参数',
@@ -146,7 +180,7 @@ export class HttpRequest implements INode {
 			{
 				label: '查询参数配置方式',
 				fieldName: 'queryType',
-			
+
 				control: {
 					name: 'select',
 					dataType: 'string',
@@ -168,7 +202,7 @@ export class HttpRequest implements INode {
 			{
 				label: '查询参数',
 				fieldName: 'queryParams',
-		
+
 				control: {
 					name: 'textarea',
 					dataType: 'string',
@@ -179,7 +213,7 @@ export class HttpRequest implements INode {
 			{
 				label: '查询参数JSON',
 				fieldName: 'queryParamsJson',
-		
+
 				control: {
 					name: 'jsoncode',
 					dataType: 'string',
@@ -206,7 +240,7 @@ export class HttpRequest implements INode {
 			{
 				label: '请求体类型',
 				fieldName: 'bodyType',
-			
+
 				control: {
 					name: 'selectwithdesc',
 					dataType: 'string',
@@ -233,7 +267,7 @@ export class HttpRequest implements INode {
 			{
 				label: '请求体数据',
 				fieldName: 'bodyData',
-		
+
 				control: {
 					name: 'jscode',
 					dataType: 'string',
@@ -244,7 +278,7 @@ export class HttpRequest implements INode {
 			{
 				label: '表单数据',
 				fieldName: 'formData',
-			
+
 				control: {
 					name: 'textarea',
 					dataType: 'string',
@@ -255,7 +289,7 @@ export class HttpRequest implements INode {
 			{
 				label: '原始数据',
 				fieldName: 'rawData',
-			
+
 				control: {
 					name: 'textarea',
 					dataType: 'string',
@@ -266,7 +300,7 @@ export class HttpRequest implements INode {
 			{
 				label: '内容类型',
 				fieldName: 'contentType',
-			
+
 				control: {
 					name: 'input',
 					dataType: 'string',
@@ -409,7 +443,7 @@ export class HttpRequest implements INode {
 			{
 				label: '最大重定向次数',
 				fieldName: 'maxRedirects',
-				
+
 				control: {
 					name: 'input',
 					dataType: 'number',
@@ -434,221 +468,221 @@ export class HttpRequest implements INode {
 					defaultValue: false
 				}
 			}
-        
-	]
-    }
 
-    /**
-     * 构建axios请求配置
-     */
-    private async buildRequestConfig(inputs: any): Promise<AxiosRequestConfig> {
-        const config: AxiosRequestConfig = {
-            method: (inputs.method || 'GET').toUpperCase() as Method,
-            url: inputs.url,
-            timeout: (inputs.timeout || 30) * 1000,
-            maxRedirects: inputs.followRedirects ? (inputs.maxRedirects || 5) : 0,
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: inputs.rejectUnauthorized !== false
-            })
-        };
+		]
+	}
 
-        // 设置请求头
-        if (inputs.sendHeaders) {
-            config.headers = this.parseHeaders(inputs);
-        }
+	/**
+	 * 构建axios请求配置
+	 */
+	private async buildRequestConfig(inputs: any): Promise<AxiosRequestConfig> {
+		const config: AxiosRequestConfig = {
+			method: (inputs.method || 'GET').toUpperCase() as Method,
+			url: inputs.url,
+			timeout: (inputs.timeout || 30) * 1000,
+			maxRedirects: inputs.followRedirects ? (inputs.maxRedirects || 5) : 0,
+			httpsAgent: new https.Agent({
+				rejectUnauthorized: inputs.rejectUnauthorized !== false
+			})
+		};
 
-        // 设置查询参数
-        if (inputs.sendQuery) {
-            config.params = this.parseQueryParams(inputs);
-        }
+		// 设置请求头
+		if (inputs.sendHeaders) {
+			config.headers = this.parseHeaders(inputs);
+		}
 
-        // 设置请求体
-        if (inputs.sendBody && ['POST', 'PUT', 'PATCH'].includes(config.method!)) {
-            const { data, contentType } = this.parseBody(inputs);
-            config.data = data;
+		// 设置查询参数
+		if (inputs.sendQuery) {
+			config.params = this.parseQueryParams(inputs);
+		}
 
-            if (contentType) {
-                config.headers = {
-                    ...config.headers,
-                    'Content-Type': contentType
-                };
-            }
-        }
+		// 设置请求体
+		if (inputs.sendBody && ['POST', 'PUT', 'PATCH'].includes(config.method!)) {
+			const { data, contentType } = this.parseBody(inputs);
+			config.data = data;
 
-        // 设置认证
-        this.setAuthentication(config, inputs);
+			if (contentType) {
+				config.headers = {
+					...config.headers,
+					'Content-Type': contentType
+				};
+			}
+		}
 
-        return config;
-    }
+		// 设置认证
+		this.setAuthentication(config, inputs);
 
-    /**
-     * 解析请求头
-     */
-    private parseHeaders(inputs: any): Record<string, string> {
-        const headers: Record<string, string> = {};
+		return config;
+	}
 
-        if (inputs.headersType === 'json') {
-            try {
-                const headersJson = JSON.parse(inputs.headersJson || '{}');
-                Object.assign(headers, headersJson);
-            } catch (error) {
-                throw new Error('请求头JSON格式错误');
-            }
-        } else {
-            // 键值对格式
-            const headerLines = (inputs.headers || '').split('\n');
-            for (const line of headerLines) {
-                const trimmedLine = line.trim();
-                if (trimmedLine) {
-                    const colonIndex = trimmedLine.indexOf(':');
-                    if (colonIndex > 0) {
-                        const key = trimmedLine.substring(0, colonIndex).trim();
-                        const value = trimmedLine.substring(colonIndex + 1).trim();
-                        headers[key] = value;
-                    }
-                }
-            }
-        }
+	/**
+	 * 解析请求头
+	 */
+	private parseHeaders(inputs: any): Record<string, string> {
+		const headers: Record<string, string> = {};
 
-        return headers;
-    }
+		if (inputs.headersType === 'json') {
+			try {
+				const headersJson = JSON.parse(inputs.headersJson || '{}');
+				Object.assign(headers, headersJson);
+			} catch (error) {
+				throw new Error('请求头JSON格式错误');
+			}
+		} else {
+			// 键值对格式
+			const headerLines = (inputs.headers || '').split('\n');
+			for (const line of headerLines) {
+				const trimmedLine = line.trim();
+				if (trimmedLine) {
+					const colonIndex = trimmedLine.indexOf(':');
+					if (colonIndex > 0) {
+						const key = trimmedLine.substring(0, colonIndex).trim();
+						const value = trimmedLine.substring(colonIndex + 1).trim();
+						headers[key] = value;
+					}
+				}
+			}
+		}
 
-    /**
-     * 解析查询参数
-     */
-    private parseQueryParams(inputs: any): Record<string, any> {
-        const params: Record<string, any> = {};
+		return headers;
+	}
 
-        if (inputs.queryType === 'json') {
-            try {
-                const paramsJson = JSON.parse(inputs.queryParamsJson || '{}');
-                Object.assign(params, paramsJson);
-            } catch (error) {
-                throw new Error('查询参数JSON格式错误');
-            }
-        } else {
-            // 键值对格式
-            const paramLines = (inputs.queryParams || '').split('\n');
-            for (const line of paramLines) {
-                const trimmedLine = line.trim();
-                if (trimmedLine) {
-                    const equalIndex = trimmedLine.indexOf('=');
-                    if (equalIndex > 0) {
-                        const key = trimmedLine.substring(0, equalIndex).trim();
-                        const value = trimmedLine.substring(equalIndex + 1).trim();
-                        params[key] = value;
-                    }
-                }
-            }
-        }
+	/**
+	 * 解析查询参数
+	 */
+	private parseQueryParams(inputs: any): Record<string, any> {
+		const params: Record<string, any> = {};
 
-        return params;
-    }
+		if (inputs.queryType === 'json') {
+			try {
+				const paramsJson = JSON.parse(inputs.queryParamsJson || '{}');
+				Object.assign(params, paramsJson);
+			} catch (error) {
+				throw new Error('查询参数JSON格式错误');
+			}
+		} else {
+			// 键值对格式
+			const paramLines = (inputs.queryParams || '').split('\n');
+			for (const line of paramLines) {
+				const trimmedLine = line.trim();
+				if (trimmedLine) {
+					const equalIndex = trimmedLine.indexOf('=');
+					if (equalIndex > 0) {
+						const key = trimmedLine.substring(0, equalIndex).trim();
+						const value = trimmedLine.substring(equalIndex + 1).trim();
+						params[key] = value;
+					}
+				}
+			}
+		}
 
-    /**
-     * 解析请求体
-     */
-    private parseBody(inputs: any): { data: any; contentType?: string } {
-        switch (inputs.bodyType) {
-            case 'json':
-                try {
-                    const jsonData = JSON.parse(inputs.bodyData || '{}');
-                    return {
-                        data: jsonData,
-                        contentType: 'application/json'
-                    };
-                } catch (error) {
-                    throw new Error('请求体JSON格式错误');
-                }
+		return params;
+	}
 
-            case 'form':
-                const formData: Record<string, string> = {};
-                const formLines = (inputs.formData || '').split('\n');
-                for (const line of formLines) {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine) {
-                        const equalIndex = trimmedLine.indexOf('=');
-                        if (equalIndex > 0) {
-                            const key = trimmedLine.substring(0, equalIndex).trim();
-                            const value = trimmedLine.substring(equalIndex + 1).trim();
-                            formData[key] = value;
-                        }
-                    }
-                }
-                return {
-                    data: new URLSearchParams(formData).toString(),
-                    contentType: 'application/x-www-form-urlencoded'
-                };
+	/**
+	 * 解析请求体
+	 */
+	private parseBody(inputs: any): { data: any; contentType?: string } {
+		switch (inputs.bodyType) {
+			case 'json':
+				try {
+					const jsonData = JSON.parse(inputs.bodyData || '{}');
+					return {
+						data: jsonData,
+						contentType: 'application/json'
+					};
+				} catch (error) {
+					throw new Error('请求体JSON格式错误');
+				}
 
-            case 'raw':
-                return {
-                    data: inputs.rawData || '',
-                    contentType: inputs.contentType || 'text/plain'
-                };
+			case 'form':
+				const formData: Record<string, string> = {};
+				const formLines = (inputs.formData || '').split('\n');
+				for (const line of formLines) {
+					const trimmedLine = line.trim();
+					if (trimmedLine) {
+						const equalIndex = trimmedLine.indexOf('=');
+						if (equalIndex > 0) {
+							const key = trimmedLine.substring(0, equalIndex).trim();
+							const value = trimmedLine.substring(equalIndex + 1).trim();
+							formData[key] = value;
+						}
+					}
+				}
+				return {
+					data: new URLSearchParams(formData).toString(),
+					contentType: 'application/x-www-form-urlencoded'
+				};
 
-            default:
-                return { data: null };
-        }
-    }
+			case 'raw':
+				return {
+					data: inputs.rawData || '',
+					contentType: inputs.contentType || 'text/plain'
+				};
 
-    /**
-     * 设置认证
-     */
-    private setAuthentication(config: AxiosRequestConfig, inputs: any): void {
-        switch (inputs.authentication) {
-            case 'basic':
-                config.auth = {
-                    username: inputs.username,
-                    password: inputs.password
-                };
-                break;
+			default:
+				return { data: null };
+		}
+	}
 
-            case 'bearer':
-                config.headers = {
-                    ...config.headers,
-                    'Authorization': `Bearer ${inputs.bearerToken}`
-                };
-                break;
+	/**
+	 * 设置认证
+	 */
+	private setAuthentication(config: AxiosRequestConfig, inputs: any): void {
+		switch (inputs.authentication) {
+			case 'basic':
+				config.auth = {
+					username: inputs.username,
+					password: inputs.password
+				};
+				break;
 
-            case 'apikey':
-                config.headers = {
-                    ...config.headers,
-                    [inputs.apiKeyName]: inputs.apiKeyValue
-                };
-                break;
+			case 'bearer':
+				config.headers = {
+					...config.headers,
+					'Authorization': `Bearer ${inputs.bearerToken}`
+				};
+				break;
 
-            case 'none':
-            default:
-                // 无认证
-                break;
-        }
-    }
+			case 'apikey':
+				config.headers = {
+					...config.headers,
+					[inputs.apiKeyName]: inputs.apiKeyValue
+				};
+				break;
 
-    /**
-     * 处理响应数据
-     */
-    private processResponse(response: AxiosResponse, inputs: any): any {
-        if (inputs.fullResponse) {
-            // 返回完整响应
-            return {
-                success: true,
-                statusCode: response.status,
-                statusText: response.statusText,
-                headers: response.headers,
-                data: response.data,
-                config: {
-                    method: response.config.method?.toUpperCase(),
-                    url: response.config.url
-                }
-            };
-        } else {
-            // 只返回响应数据
-            return {
-                success: true,
-                data: response.data,
-                statusCode: response.status,
-                statusText: response.statusText
-            };
-        }
-    }
+			case 'none':
+			default:
+				// 无认证
+				break;
+		}
+	}
+
+	/**
+	 * 处理响应数据
+	 */
+	private processResponse(response: AxiosResponse, inputs: any): any {
+		if (inputs.fullResponse) {
+			// 返回完整响应
+			return {
+				success: true,
+				statusCode: response.status,
+				statusText: response.statusText,
+				headers: response.headers,
+				data: response.data,
+				config: {
+					method: response.config.method?.toUpperCase(),
+					url: response.config.url
+				}
+			};
+		} else {
+			// 只返回响应数据
+			return {
+				success: true,
+				data: response.data,
+				statusCode: response.status,
+				statusText: response.statusText
+			};
+		}
+	}
 }

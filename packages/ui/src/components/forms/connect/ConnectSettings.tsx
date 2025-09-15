@@ -416,6 +416,64 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
     }
   };
 
+  // 检查字段是否应该显示（复制自 useFieldVisibility 的逻辑）
+  const shouldFieldShow = (field: IConnectField) => {
+    if (!field.conditionRules) return true;
+
+    const { showBy, hide, addBy } = field.conditionRules;
+
+    // 检查隐藏条件
+    if (hide) {
+      for (const [key, values] of Object.entries(hide)) {
+        const formValue = formValues[key];
+        
+        // 支持多种数据类型的比较
+        const isValueMatched = (values as any[]).some(expectedValue => {
+          return formValue === expectedValue;
+        });
+        
+        if (isValueMatched) {
+          return false;
+        }
+      }
+    }
+
+    // 检查显示条件
+    if (showBy) {
+      for (const [key, values] of Object.entries(showBy)) {
+        const formValue = formValues[key];
+        
+        // 支持多种数据类型的比较
+        const isValueMatched = (values as any[]).some(expectedValue => {
+          return formValue === expectedValue;
+        });
+        
+        if (!isValueMatched) {
+          return false;
+        }
+      }
+    }
+
+    // 检查 addBy 条件
+    if (addBy) {
+      let shouldShowByAddBy = false;
+
+      for (const [key, values] of Object.entries(addBy)) {
+        const formValue = formValues[key];
+        if ((values as string[]).includes(formValue)) {
+          shouldShowByAddBy = true;
+          break;
+        }
+      }
+
+      if (!shouldShowByAddBy) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   // 检查必填字段
   const hasRequiredFields = () => {
     // 添加安全检查
@@ -428,9 +486,11 @@ export const ConnectSettings: React.FC<ConnectSettingsProps> = ({
       return false;
     }
 
-    // 检查连接字段必填项（排除模型字段，因为经济模式下不需要）
+    // 检查连接字段必填项，但只验证当前显示的字段
     const requiredFields = connect.detail.fields.filter((field: IConnectField) =>
-      field.control.validation?.required && field.fieldName !== 'models'
+      field.control.validation?.required && 
+      field.fieldName !== 'models' && // 排除模型字段，因为经济模式下不需要
+      shouldFieldShow(field) // 只验证当前显示的字段
     );
     
     const missingFields = requiredFields.filter((field: IConnectField) => {

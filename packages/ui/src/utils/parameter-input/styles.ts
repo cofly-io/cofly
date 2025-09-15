@@ -59,7 +59,7 @@ export const variantConfigs: Record<ParameterInputVariant, VariantConfig> = {
     input: {
       padding: '6px',
       fontSize: '13px',
-      borderRadius: '4px',
+      borderRadius: '3px',
       border: (theme: any) => `1px solid ${theme.colors.border}`,
       background:(theme: any) => theme.colors.inputBg,
       color: (theme: any) => theme.colors.textPrimary,
@@ -91,7 +91,7 @@ export const variantConfigs: Record<ParameterInputVariant, VariantConfig> = {
       height: '32px',
       padding: '0 12px',
       fontSize: '12px',
-      borderRadius: '4px',
+      borderRadius: '3px',
       border: (theme: any) => theme.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e0e0e010',
       background: (theme: any) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff10',
       color: (theme: any) => theme.mode === 'dark' ? '#e2e8f0' : '#ffffff',
@@ -238,7 +238,7 @@ export const StyledTextInput = styled.input<{ $variant: ParameterInputVariant }>
 export const StyledTextArea = styled.textarea<{ $variant: ParameterInputVariant }>`
   width: 100%;
   ${props => props.$variant === 'connect' ? `min-height: 80px;` : ''}
-  padding: ${props => variantConfigs[props.$variant].input.padding};
+  padding: 6px 12px;
   border: ${props => variantConfigs[props.$variant].input.border(props.theme)};
   border-radius: ${props => variantConfigs[props.$variant].input.borderRadius};
   font-size: ${props => variantConfigs[props.$variant].input.fontSize};
@@ -280,7 +280,8 @@ export const StyledTextArea = styled.textarea<{ $variant: ParameterInputVariant 
 export const StyledSelect = styled.select<{ $variant: ParameterInputVariant }>`
   width: 100%;
   ${props => props.$variant === 'connect' ? `height: ${variantConfigs[props.$variant].input.height};` : ''}
-  padding: ${props => variantConfigs[props.$variant].input.padding};
+  /*padding: ${props => variantConfigs[props.$variant].input.padding};*/
+  padding:0px 8px;
   border: ${props => variantConfigs[props.$variant].input.border(props.theme)};
   border-radius: ${props => variantConfigs[props.$variant].input.borderRadius};
   font-size: ${props => variantConfigs[props.$variant].input.fontSize};
@@ -292,7 +293,7 @@ export const StyledSelect = styled.select<{ $variant: ParameterInputVariant }>`
   box-sizing: border-box;
 
   option {
-    background: ${props => props.theme.mode === 'dark' ? '#1a1a1a' : '#ffffff'};
+    background: ${props => props.theme.mode === 'dark' ? '#1a1a1a' : '#ededed'};
     color: ${props => {
       // For dropdown options, use proper contrasting colors
       if (props.$variant === 'connect') {
@@ -347,7 +348,7 @@ export const StyledCheckbox = styled.input<{ $variant: ParameterInputVariant }>`
 // Collection 样式组件
 export const CollectionContainer = styled.div<{ $variant: ParameterInputVariant }>`
   border: 1px solid ${({ theme }) => theme.panel?.ctlBorder || '#e5e7eb'};
-  border-radius: 6px;
+  border-radius: 3px;
   padding: 12px;
   margin-bottom: ${props => variantConfigs[props.$variant].container.marginBottom};
   background: ${({ theme }) => theme.panel?.nodeBg || '#ffffff'};
