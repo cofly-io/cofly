@@ -130,10 +130,7 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
   onUpdateStickyNote,
   onDeleteStickyNote
 }) => {
-
-  /**
-   * 处理连接事件 - 添加应用层逻辑
-   */
+  
   const handleConnect = useCallback((connection: Connection) => {
     // logger.debug('应用层处理连接', { connection });
 

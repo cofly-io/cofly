@@ -244,11 +244,11 @@ export const useFieldVisibility = (field: UnifiedParameterField, formValues: Rec
         });
 
         if (isValueMatched) {
-          console.log('🚫 [useFieldVisibility] hide条件匹配，隐藏字段:', {
-            fieldName: targetField.fieldName,
-            hideCondition: { [key]: values },
-            actualValue: formValue
-          });
+          // console.log('🚫 [useFieldVisibility] hide条件匹配，隐藏字段:', {
+          //   fieldName: targetField.fieldName,
+          //   hideCondition: { [key]: values },
+          //   actualValue: formValue
+          // });
           return false;
         }
       }
@@ -262,13 +262,13 @@ export const useFieldVisibility = (field: UnifiedParameterField, formValues: Rec
         // 🔥 关键改进：首先检查依赖字段本身是否可见
         const dependentField = allFields.find(f => f.fieldName === key);
         if (dependentField) {
-          const isDependentFieldVisible = checkFieldVisibility(dependentField, new Set(checkedFields));
+          const isDependentFieldVisible = checkFieldVisibility(dependentField, checkedFields);
           if (!isDependentFieldVisible) {
-            console.log('❌ [useFieldVisibility] 依赖字段不可见，隐藏当前字段:', {
-              fieldName: targetField.fieldName,
-              dependentField: key,
-              dependentFieldVisible: isDependentFieldVisible
-            });
+            // console.log('❌ [useFieldVisibility] 依赖字段不可见，隐藏当前字段:', {
+            //   fieldName: targetField.fieldName,
+            //   dependentField: key,
+            //   dependentFieldVisible: isDependentFieldVisible
+            // });
             return false;
           }
         }
@@ -279,35 +279,35 @@ export const useFieldVisibility = (field: UnifiedParameterField, formValues: Rec
           return formValue === expectedValue;
         });
 
-        console.log('🔍 [useFieldVisibility] showBy检查:', {
-          fieldName: targetField.fieldName,
-          dependentField: key,
-          dependentValue: formValue,
-          dependentValueType: typeof formValue,
-          expectedValues: values,
-          expectedValueTypes: (values as any[]).map(v => typeof v),
-          shouldShow: isValueMatched,
-          strictComparison: (values as any[]).map(v => ({ expected: v, actual: formValue, match: formValue === v }))
-        });
+        // console.log('🔍 [useFieldVisibility] showBy检查:', {
+        //   fieldName: targetField.fieldName,
+        //   dependentField: key,
+        //   dependentValue: formValue,
+        //   dependentValueType: typeof formValue,
+        //   expectedValues: values,
+        //   expectedValueTypes: (values as any[]).map(v => typeof v),
+        //   shouldShow: isValueMatched,
+        //   strictComparison: (values as any[]).map(v => ({ expected: v, actual: formValue, match: formValue === v }))
+        // });
 
         if (!isValueMatched) {
-          console.log('❌ [useFieldVisibility] showBy条件不匹配，隐藏字段:', {
-            fieldName: targetField.fieldName,
-            dependentField: key,
-            expectedValues: values,
-            actualValue: formValue
-          });
+          // console.log('❌ [useFieldVisibility] showBy条件不匹配，隐藏字段:', {
+          //   fieldName: targetField.fieldName,
+          //   dependentField: key,
+          //   expectedValues: values,
+          //   actualValue: formValue
+          // });
           return false;
         }
       }
       
-      console.log('✅ [useFieldVisibility] showBy条件全部匹配，显示字段:', {
-        fieldName: targetField.fieldName,
-        showByConditions: showBy,
-        currentFormValues: Object.fromEntries(
-          Object.keys(showBy).map(key => [key, formValues[key]])
-        )
-      });
+      // console.log('✅ [useFieldVisibility] showBy条件全部匹配，显示字段:', {
+      //   fieldName: targetField.fieldName,
+      //   showByConditions: showBy,
+      //   currentFormValues: Object.fromEntries(
+      //     Object.keys(showBy).map(key => [key, formValues[key]])
+      //   )
+      // });
     }
 
     // 检查 addBy 条件 - 累积显示逻辑
@@ -336,14 +336,14 @@ export const useFieldVisibility = (field: UnifiedParameterField, formValues: Rec
       }
 
       if (!shouldShowByAddBy) {
-        console.log('🔒 [useFieldVisibility] addBy条件不匹配，隐藏字段:', {
-          fieldName: targetField.fieldName,
-          addByConditions: addBy,
-          currentFormValues: Object.fromEntries(
-            Object.keys(addBy).map(key => [key, formValues[key]])
-          ),
-          isInAddedFields: addedFields.has(targetField.fieldName)
-        });
+        // console.log('🔒 [useFieldVisibility] addBy条件不匹配，隐藏字段:', {
+        //   fieldName: targetField.fieldName,
+        //   addByConditions: addBy,
+        //   currentFormValues: Object.fromEntries(
+        //     Object.keys(addBy).map(key => [key, formValues[key]])
+        //   ),
+        //   isInAddedFields: addedFields.has(targetField.fieldName)
+        // });
         return false;
       }
     }

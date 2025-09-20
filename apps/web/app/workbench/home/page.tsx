@@ -72,7 +72,9 @@ export default function HomePageContainer() {
    * @param workflowId 工作流ID
    */
   const handleWorkflowClick = (workflowId: string) => {
-    router.push(`/workbench/flow?workflowID=${workflowId}`);
+    // 添加时间戳参数强制刷新，避免缓存问题
+    const timestamp = Date.now();
+    router.push(`/workbench/flow?workflowID=${workflowId}&t=${timestamp}`);
   };
 
   /**

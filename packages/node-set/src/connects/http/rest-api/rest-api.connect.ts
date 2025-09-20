@@ -121,24 +121,6 @@ export class RestApiConnect extends BaseHttpConnect {
                     validation: { required: true }
                 }
             },
-            // JSON认证字段
-            // {
-            //     label: 'Digest认证',
-            //     fieldName: 'digestAuth',
-            //     description: '密码传输方式哈希值（如MD5）',
-            //     conditionRules: {
-            //         showBy: {
-            //             authType: ['json']
-            //         }
-            //     },
-            //     control: {
-            //         name: 'textarea' as const,
-            //         dataType: 'string' as const,
-            //         defaultValue: '',
-            //         placeholder: '{"username": "your_username", "password": "your_password"}',
-            //         validation: { required: true }
-            //     }
-            // },
             // Header认证字段
             {
                 label: '认证Header名称',

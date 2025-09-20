@@ -8,7 +8,7 @@ export const fetchConnectInstances = async (connectType?: string) => {
     const { ConnectConfigService } = await import('@/services/connectConfigService');
     // 判断connectType如果是llm，则使用mtype参数，否则使用ctype参数
     const queryParam = connectType ?
-      (connectType === 'llm' ? { mType: connectType } : { cType: connectType }) :
+      (connectType === 'db' ? { cType: connectType }:{ mType: connectType } ) :
       undefined;
     const result = await ConnectConfigService.getConnectConfigs(queryParam);
 

@@ -135,9 +135,9 @@ const SwitchText = styled.span<{ $disabled?: boolean }>`
   font-size: 12px;
   color: ${({ theme, $disabled }) => {
     if ($disabled) {
-      return theme.mode === 'dark' ? 'rgba(148, 163, 184, 0.5)' : '#ffffff';
+      return theme.mode === 'dark' ? 'rgba(148, 163, 184, 0.5)' : '#bfbfbf';
     }
-    return theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : '#ffffff';
+    return theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : '#bfbfbf';
   }};
   user-select: none;
 `;

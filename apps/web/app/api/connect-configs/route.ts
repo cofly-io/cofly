@@ -47,8 +47,7 @@ export async function GET(request: NextRequest) {
         if (configData[field] !== undefined) {
           safeConfig[field] = configData[field];
         }
-      });
-      
+      });      
       return safeConfig;
     };
 

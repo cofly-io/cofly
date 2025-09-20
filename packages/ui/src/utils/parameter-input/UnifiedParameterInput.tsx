@@ -81,7 +81,7 @@ export const UnifiedParameterInput: React.FC<UnifiedParameterInputProps> = ({
     const { isAddedByField, handleDeleteField } = useAddByField(field, formValues, addedFields, setAddedFields);
 
     // 字段显示逻辑
-    const { shouldShow, shouldEnable } = useFieldVisibility(field, formValues, addedFields);
+    const { shouldShow, shouldEnable } = useFieldVisibility(field, formValues, addedFields, allFields);
 
     // 联动数据管理
     const { linkageData, linkageLoading, linkageError } = useLinkageData(field, formValues, allFields, linkageCallbacks);

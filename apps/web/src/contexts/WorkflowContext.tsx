@@ -13,6 +13,7 @@ interface WorkflowContextType {
   workflowName: string;
   nodesDetailsMap: Record<string, any>;
   nodesTestResultsMap: Record<string, any>; // 新增：专门存储测试结果的状态
+  isLoading: boolean; // 新增：加载状态
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
   setWorkflowId: (id: string | null) => void;
@@ -81,31 +82,24 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
     isInitialized: false
   });
 
-  // 生成16位随机ID的函数
-  const generateWorkflowId = () => {
-    return Array.from({ length: 16 }, () => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      return chars.charAt(Math.floor(Math.random() * chars.length));
-    }).join('');
-  };
-
-  // 创建新工作流的方法
-  const createNewWorkflow = () => {
-    const newId = generateWorkflowId();
-    setWorkflowId(newId);
-    setWorkflowName('我的业务流');
-    setNodes([]);
-    setEdges([]);
-    setNodesDetailsMap({});
-    setNodesTestResultsMap({});
-    return newId; // 返回生成的ID
-  };
+  // 添加一个ref来跟踪正在进行的请求，避免重复请求
+  const loadingRequestsRef = useRef<Set<string>>(new Set());
 
   /**
    * 从数据库加载工作流数据
    * @param workflowId 工作流ID
    */
   const loadWorkflowFromDatabase = useCallback(async (workflowId: string) => {
+    // 检查是否已经有相同ID的请求正在进行
+    if (loadingRequestsRef.current.has(workflowId)) {
+      console.log('🔄 [WorkflowContext] 工作流加载请求已在进行中:', workflowId);
+      return;
+    }
+
+    // 标记请求开始
+    loadingRequestsRef.current.add(workflowId);
+    console.log('📥 [WorkflowContext] 开始加载工作流数据:', workflowId);
+
     try {
       // 调用API获取工作流配置
       const response = await fetch(`/api/workflow-config/${workflowId}`);
@@ -191,11 +185,20 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
         // 3. 当前实现会忽略多余字段，保证兼容性。
         // =============================
         if (nodesInfoArray && Array.isArray(nodesInfoArray)) {
+          console.log('📋 [WorkflowContext] 解析到节点数据:', nodesInfoArray);
+          console.log('📋 [WorkflowContext] 节点数组长度:', nodesInfoArray.length);
           // ====== 中文注释：批量获取节点link信息 ======
           // 为了让节点能正确渲染连接点，需要获取每个节点的link信息
           // 优先使用数据库中保存的link信息，如果没有再从API获取
           // =============================
-          const nodePromises = nodesInfoArray.map(async (nodeInfo) => {
+          const nodePromises = nodesInfoArray.map(async (nodeInfo, index) => {
+            console.log(`🔧 [WorkflowContext] 处理节点 ${index}:`, {
+              id: nodeInfo.id,
+              kind: nodeInfo.kind,
+              type: nodeInfo.type,
+              hasPosition: !!nodeInfo.position,
+              hasInputs: !!nodeInfo.inputs
+            });
             try {
               let linkInfo = nodeInfo.link || null; // 优先使用数据库中的link信息
 
@@ -257,6 +260,14 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
               const inputs = nodeInfo.inputs || {};
               const agentResources = inputs.agentResources || null;
               
+              console.log(`✅ [WorkflowContext] 节点创建成功:`, {
+                id: reactFlowNode.id,
+                type: reactFlowNode.type,
+                kind: reactFlowNode.data.kind,
+                position: reactFlowNode.position,
+                hasLink: !!linkInfo
+              });
+              
               return {
                 node: reactFlowNode,
                 detailsMap: {
@@ -304,6 +315,13 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
                 // =============================
               };
 
+              console.log(`⚠️ [WorkflowContext] 节点创建(fallback):`, {
+                id: reactFlowNode.id,
+                type: reactFlowNode.type,
+                kind: reactFlowNode.data.kind,
+                position: reactFlowNode.position
+              });
+
               return {
                 node: reactFlowNode,
                 detailsMap: {
@@ -319,7 +337,9 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
           });
 
           // 等待所有节点处理完成，添加错误处理
+          console.log('⏳ [WorkflowContext] 等待节点处理完成，总数:', nodePromises.length);
           const nodeResults = await Promise.allSettled(nodePromises);
+          console.log('✅ [WorkflowContext] 节点处理完成，结果:', nodeResults.map(r => r.status));
 
           // 处理结果，过滤掉失败的请求
           const successfulResults = nodeResults
@@ -327,6 +347,13 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
             .map(result => result.value);
 
           const failedResults = nodeResults.filter(result => result.status === 'rejected');
+          
+          console.log('📊 [WorkflowContext] 节点处理统计:', {
+            total: nodeResults.length,
+            successful: successfulResults.length,
+            failed: failedResults.length
+          });
+
           if (failedResults.length > 0) {
             console.warn('🔗 部分节点处理失败:', failedResults.length, '个');
             failedResults.forEach((result, index) => {
@@ -335,10 +362,13 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
           }
 
           // 合并结果
-          successfulResults.forEach(result => {
+          successfulResults.forEach((result, index) => {
+            console.log(`🔧 [WorkflowContext] 合并节点 ${index}:`, result.node?.id);
             loadedNodes.push(result.node);
             Object.assign(loadedNodesDetailsMap, result.detailsMap);
           });
+          
+          console.log('📋 [WorkflowContext] 最终节点列表:', loadedNodes.map(n => ({ id: n.id, type: n.type, kind: n.data?.kind })));
         }
 
         // 处理边数据 - 先解析 JSON 字符串
@@ -417,6 +447,13 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
             loadedEdges.push(reactFlowEdge);
           }
         }
+        console.log('📊 [WorkflowContext] 准备设置节点状态:', {
+          loadedNodesCount: loadedNodes.length,
+          loadedEdgesCount: loadedEdges.length,
+          loadedNodesIds: loadedNodes.map(n => n.id),
+          loadedNodesDetailsMapKeys: Object.keys(loadedNodesDetailsMap)
+        });
+
         setNodes(loadedNodes);
         setEdges(loadedEdges);
 
@@ -430,6 +467,11 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
         });
 
         setNodesDetailsMap(cleanedNodesDetailsMap);
+        console.log('🏁 [WorkflowContext] 工作流加载完成:', { 
+          loadedNodesCount: loadedNodes.length,
+          loadedEdgesCount: loadedEdges.length,
+          cleanedNodesDetailsMapKeys: Object.keys(cleanedNodesDetailsMap)
+        });
         // 🧪 注意：不重置测试结果状态，保留用户的测试数据
       } else {
         // 如果数据库中没有数据，初始化为空的工作流
@@ -450,34 +492,74 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
       setEdges([]);
       setNodesDetailsMap({});
       setNodesTestResultsMap({});
+    } finally {
+      // 标记请求结束
+      loadingRequestsRef.current.delete(workflowId);
+      console.log('🏁 [WorkflowContext] 工作流加载请求结束:', workflowId);
     }
-  }, []); // 空依赖数组，确保函数引用稳定
+  }, []); // 空依赖数组，确保函数引用稳定，避免无限循环
 
-  // 初始化时检查URL参数 - 修复循环依赖问题
+  // 添加加载状态跟踪
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 初始化时检查URL参数 - 修复循环依赖问题和竞态条件
   useEffect(() => {
     const urlWorkflowId = searchParams?.get('workflowID');
-    if (urlWorkflowId) {
-      // 每次都重新加载工作流数据，不使用缓存
+    console.log('🔍 [WorkflowContext] URL参数检查:', { urlWorkflowId, searchParams: Object.fromEntries(searchParams?.entries() || []), currentWorkflowId: workflowId, isLoading });
+    
+    if (urlWorkflowId && urlWorkflowId !== workflowId && !isLoading) {
+      // 只有当URL中的ID与当前ID不同且不在加载中时才加载，避免无限循环和重复请求
+      console.log('📥 [WorkflowContext] 开始加载工作流:', urlWorkflowId);
+      setIsLoading(true);
       setWorkflowId(urlWorkflowId);
-      // loadWorkflowFromDatabase(urlWorkflowId)
-      //   .then(() => {
-      //     console.log('✅ [URL Check] 工作流加载成功');
-      //   })
-      //   .catch(error => {
-      //     console.error('❌ [URL Check] 加载工作流失败:', error);
-      //   });
-    } else if (!initializationRef.current.isInitialized) {
+      
+      // 清空当前状态，避免显示旧数据
+      setNodes([]);
+      setEdges([]);
+      setNodesDetailsMap({});
+      setNodesTestResultsMap({});
+      
+      loadWorkflowFromDatabase(urlWorkflowId)
+        .then(() => {
+          console.log('✅ [URL Check] 工作流加载成功');
+        })
+        .catch(error => {
+          console.error('❌ [URL Check] 加载工作流失败:', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else if (!urlWorkflowId && !initializationRef.current.isInitialized) {
       // 如果没有ID且未初始化过，创建一个新的
-      const newId = generateWorkflowId();
+      console.log('🆕 [WorkflowContext] 创建新的工作流');
+      const newId = Array.from({ length: 16 }, () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        return chars.charAt(Math.floor(Math.random() * chars.length));
+      }).join('');
       
       // 更新初始化状态
       initializationRef.current.isInitialized = true;
       
       setWorkflowId(newId);
     }
-  }, [searchParams]); // 移除 workflowId 依赖，避免循环更新
+  }, [searchParams, workflowId, loadWorkflowFromDatabase, isLoading]); // 添加 isLoading 依赖
 
-  const updateNodeDetails = (nodeId: string, details: any) => {
+  // 创建新工作流的方法
+  const createNewWorkflow = () => {
+    const newId = Array.from({ length: 16 }, () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      return chars.charAt(Math.floor(Math.random() * chars.length));
+    }).join('');
+    setWorkflowId(newId);
+    setWorkflowName('我的业务流');
+    setNodes([]);
+    setEdges([]);
+    setNodesDetailsMap({});
+    setNodesTestResultsMap({});
+    return newId; // 返回生成的ID
+  };
+
+  const updateNodeDetails = useCallback((nodeId: string, details: any) => {
     setNodesDetailsMap(prev => {
       const newMap = { ...prev };
 
@@ -491,9 +573,9 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
 
       return newMap;
     });
-  };
+  }, [setNodesDetailsMap]);
 
-  const updateNodeTestResult = (nodeId: string, rundata: any) => {
+  const updateNodeTestResult = useCallback((nodeId: string, rundata: any) => {
     // 🎯 直接存储 rundata 到 nodesTestResultsMap 中
     setNodesTestResultsMap(prev => {
       const newMap = {
@@ -502,14 +584,14 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
       };
       return newMap;
     });
-  };
+  }, [setNodesTestResultsMap]);
 
-  const clearAllTestResults = () => {
+  const clearAllTestResults = useCallback(() => {
     setNodesTestResultsMap({});
-  };
+  }, [setNodesTestResultsMap]);
 
   // 清理孤立的节点详情数据（不对应任何实际节点的数据）
-  const cleanOrphanedNodeDetails = () => {
+  const cleanOrphanedNodeDetails = useCallback(() => {
     const existingNodeIds = new Set(nodes.map(node => node.id));
 
     setNodesDetailsMap(prev => {
@@ -523,10 +605,10 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
 
       return cleanedMap;
     });
-  };
+  }, [nodes, setNodesDetailsMap]);
 
   // 完整删除节点的统一方法
-  const deleteNodeCompletely = (nodeId: string) => {
+  const deleteNodeCompletely = useCallback((nodeId: string) => {
     const deletionTimestamp = Date.now();
 
     // 1. 立即删除节点详情（不延迟）
@@ -567,7 +649,7 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
         return prevEdges;
       }
     });
-  };
+  }, [setNodesDetailsMap, setNodesTestResultsMap, setEdges]);
 
   return (
     <WorkflowContext.Provider
@@ -578,6 +660,7 @@ export function WorkflowProvider({ children }: WorkflowProviderProps) {
         workflowName,
         nodesDetailsMap,
         nodesTestResultsMap,
+        isLoading,
         setNodes,
         setEdges,
         setWorkflowId,

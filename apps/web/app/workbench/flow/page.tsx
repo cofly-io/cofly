@@ -43,6 +43,57 @@ import { AgentService } from '@/services/agentService';
 import 'reactflow/dist/style.css';
 import './nodeStyles.css';
 
+// 调试组件（开发环境）
+const WorkflowDebug: React.FC<{ workflowId: string | null }> = ({ workflowId }) => {
+  const [debugInfo, setDebugInfo] = useState<string>('');
+  const { nodes, edges, isLoading } = useWorkflow();
+
+  useEffect(() => {
+    if (!workflowId) return;
+
+    const checkWorkflow = async () => {
+      try {
+        const response = await fetch(`/api/workflow-config/${workflowId}`);
+        const result = await response.json();
+
+        let info = `WorkflowID: ${workflowId}\n`;
+        info += `Context Loading: ${isLoading}\n`;
+        info += `Context Nodes: ${nodes.length}\n`;
+        info += `Context Edges: ${edges.length}\n`;
+        info += `API Status: ${response.status}\n`;
+        info += `Success: ${result.success}\n`;
+
+        if (result.success && result.data) {
+          const data = result.data;
+          info += `Name: ${data.name}\n`;
+          info += `Has nodesInfo: ${!!data.nodesInfo}\n`;
+          info += `Has relation: ${!!data.relation}\n`;
+
+          if (data.nodesInfo) {
+            try {
+              const parsedNodes = JSON.parse(data.nodesInfo);
+              info += `DB Nodes count: ${parsedNodes.length}\n`;
+              info += `First node: ${parsedNodes[0]?.id} (${parsedNodes[0]?.kind})\n`;
+            } catch (e) {
+              info += `nodesInfo parse error: ${e}\n`;
+            }
+          }
+        } else {
+          info += `Error: ${result.error}\n`;
+        }
+
+        setDebugInfo(info);
+      } catch (error) {
+        setDebugInfo(`Request failed: ${error}`);
+      }
+    };
+
+    checkWorkflow();
+  }, [workflowId, nodes.length, edges.length, isLoading]);
+
+  if (process.env.NODE_ENV !== 'development') return null;
+};
+
 /**
  * 工作流页面内容组件
  */
@@ -59,6 +110,7 @@ const WorkflowPageContent: React.FC = () => {
   } | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [changeDetectionEnabled, setChangeDetectionEnabled] = useState(false);
 
   // 路由和确认对话框
   const router = useRouter();
@@ -88,7 +140,7 @@ const WorkflowPageContent: React.FC = () => {
   }, []);
 
   /**
-   * 检查状态是否有变化
+   * 检查状态是否有变化 - 修复版本，更准确的变化检测
    */
   const hasStateChanged = useCallback((currentNodes: any[], currentEdges: any[]) => {
     if (!lastSavedState) {
@@ -100,9 +152,25 @@ const WorkflowPageContent: React.FC = () => {
       return !isCanvasEmpty(currentNodes, currentEdges);
     }
 
-    // 比较当前状态和最后保存的状态
-    const nodesChanged = JSON.stringify(currentNodes) !== JSON.stringify(lastSavedState.nodes);
-    const edgesChanged = JSON.stringify(currentEdges) !== JSON.stringify(lastSavedState.edges);
+    // 更精确的比较：只比较关键字段，避免因为细微差异导致误判
+    const nodesChanged = currentNodes.length !== lastSavedState.nodes.length ||
+      currentNodes.some((node, index) => {
+        const savedNode = lastSavedState.nodes[index];
+        return !savedNode ||
+          node.id !== savedNode.id ||
+          node.type !== savedNode.type ||
+          JSON.stringify(node.position) !== JSON.stringify(savedNode.position) ||
+          JSON.stringify(node.data) !== JSON.stringify(savedNode.data);
+      });
+
+    const edgesChanged = currentEdges.length !== lastSavedState.edges.length ||
+      currentEdges.some((edge, index) => {
+        const savedEdge = lastSavedState.edges[index];
+        return !savedEdge ||
+          edge.id !== savedEdge.id ||
+          edge.source !== savedEdge.source ||
+          edge.target !== savedEdge.target;
+      });
 
     return nodesChanged || edgesChanged;
   }, [lastSavedState, isCanvasEmpty, isInitialLoad]);
@@ -131,8 +199,8 @@ const WorkflowPageContent: React.FC = () => {
     const isEmpty = isCanvasEmpty(updatedNodes, updatedEdges);
     const changed = hasStateChanged(updatedNodes, updatedEdges);
 
-    // 只有在画布不为空且有变化时才标记为未保存
-    setHasUnsavedChanges(!isEmpty && changed);
+    // 只有在画布不为空且有变化且启用了变化检测时才标记为未保存
+    setHasUnsavedChanges(changeDetectionEnabled && !isEmpty && changed);
   }, [isCanvasEmpty, hasStateChanged, isInitialLoad]);
 
   // Toast管理
@@ -281,6 +349,14 @@ const WorkflowPageContent: React.FC = () => {
         timestamp: Date.now()
       });
       setHasUnsavedChanges(false);
+      setChangeDetectionEnabled(false);
+
+      // 延迟启用变化检测，确保初始状态稳定
+      const timer = setTimeout(() => {
+        setChangeDetectionEnabled(true);
+      }, 2000);
+
+      return () => clearTimeout(timer);
     }
   }, [workflowId]); // 只在workflowId变化时执行
 
@@ -309,7 +385,7 @@ const WorkflowPageContent: React.FC = () => {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-        
+
         try {
           const confirmed = await showConfirm({
             title: '离开页面',
@@ -339,7 +415,7 @@ const WorkflowPageContent: React.FC = () => {
     if ((e.key === 'Enter' || e.key === ' ') && hasUnsavedChanges) {
       const target = e.target as HTMLElement;
       const navElement = target.closest('a[href], [data-nav="true"]');
-      
+
       if (navElement) {
         const href = navElement.getAttribute('href');
         const isPageNavigation = href &&
@@ -353,7 +429,7 @@ const WorkflowPageContent: React.FC = () => {
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
-          
+
           try {
             const confirmed = await showConfirm({
               title: '离开页面',
@@ -380,10 +456,10 @@ const WorkflowPageContent: React.FC = () => {
   useEffect(() => {
     // 监听浏览器刷新/关闭
     window.addEventListener('beforeunload', handleBeforeUnload);
-    
+
     // 监听导航点击事件
     document.addEventListener('click', handleNavigationClick, true);
-    
+
     // 监听键盘导航事件
     document.addEventListener('keydown', handleKeyDown, true);
 
@@ -407,6 +483,9 @@ const WorkflowPageContent: React.FC = () => {
 
   return (
     <>
+      {/* 调试组件 */}
+      <WorkflowDebug workflowId={workflowId} />
+
       {/* 工作流头部 */}
       <WorkflowHeader
         workflowId={workflowId || 'errorWorkflowId'}

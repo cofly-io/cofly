@@ -206,7 +206,6 @@ export class MySQL implements INode {
 
 	async execute(opts: IExecuteOptions): Promise<any> {
 		const operation = opts.inputs?.operation;
-		console.log("inputs.operation", operation);
 		let connection: mysql.Connection | null = null;
 
 		try {
@@ -263,7 +262,6 @@ export class MySQL implements INode {
 				}
 
 				const configData = connectConfig.config;
-
 				connectionConfig = {
 					host: configData.host || 'localhost',
 					port: configData.port || 3306,
