@@ -62,8 +62,21 @@ export const EDGE_STYLE_CONFIG = {
 };
 
 export function WorkflowProvider({ children }: WorkflowProviderProps) {
-  const [nodes, setNodes] = useState<Node[]>([]);
+  const [nodes, setNodesState] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+
+  // 包装 setNodes 以添加调试日志
+  const setNodes = useCallback((newNodes: Node[]) => {
+    console.log('🔄 [WorkflowContext] setNodes 被调用:', {
+      beforeCount: nodes.length,
+      afterCount: newNodes.length,
+      beforeIds: nodes.map(n => n.id),
+      afterIds: newNodes.map(n => n.id),
+      added: newNodes.filter(n => !nodes.some(existing => existing.id === n.id)).map(n => n.id),
+      removed: nodes.filter(n => !newNodes.some(updated => updated.id === n.id)).map(n => n.id)
+    });
+    setNodesState(newNodes);
+  }, [nodes]);
 
   // 移除不必要的边状态监听日志
   const [workflowId, setWorkflowId] = useState<string | null>(null);

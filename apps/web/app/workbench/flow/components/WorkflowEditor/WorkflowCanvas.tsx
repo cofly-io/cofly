@@ -146,13 +146,16 @@ export const WorkflowCanvas: React.FC<AppWorkflowCanvasProps> = ({
    * 处理拖拽放置 - 添加应用层逻辑
    */
   const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    // logger.debug('应用层处理拖拽放置');
+    console.log('📦 [WorkflowCanvas] handleDrop 被调用');
 
     // 这里可以添加应用层特定的拖拽逻辑
     // 例如：节点创建规则、位置计算等
 
     if (onDrop) {
+      console.log('🔄 [WorkflowCanvas] 调用 onDrop 回调');
       onDrop(event);
+    } else {
+      console.warn('⚠️ [WorkflowCanvas] onDrop 回调未定义');
     }
   }, [onDrop]);
 

@@ -191,6 +191,7 @@ export const useCanvasOperations = ({
 
     // 预先检查拖拽数据
     const data = event.dataTransfer.getData('application/reactflow');
+    
     if (!data) {
       showError('拖拽失败', '无效的拖拽数据');
       return { success: false, error: '无效的拖拽数据' };
@@ -284,12 +285,11 @@ export const useCanvasOperations = ({
       // 立即设置基本节点详情
       updateNodeDetails(nodeId, basicNodeDetails);
 
-      // 添加节点到画布
       onNodesChange([{
         type: 'add',
         item: newNode
       }]);
-
+      
       // 异步获取节点的完整定义（包括 parameters）
       const fetchAndUpdateNodeDetails = async (retryCount = 0) => {
         const maxRetries = 3;

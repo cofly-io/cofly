@@ -102,6 +102,8 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
     nodesDetailsMap,
     nodesTestResultsMap,
     isLoading,
+    setNodes,
+    setEdges,
     updateNodeDetails,
     updateNodeTestResult,
     deleteNodeCompletely
@@ -163,13 +165,92 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
         oldId: lastWorkflowId,
         newId: contextWorkflowId
       });
-      
+
       // 只清理UI状态，不干预数据状态
       setSelectedNodeDetails(null);
       setSelectedPreviousNodes({});
       setLastWorkflowId(contextWorkflowId);
     }
   }, [contextWorkflowId, lastWorkflowId]);
+
+  // 节点变更处理 - 处理移动、选择、删除、添加等所有变更
+  const handleNodesChange = useCallback((changes: NodeChange[]) => {
+    console.log('🔍 [WorkflowEditor] handleNodesChange 被调用:', {
+      changesCount: changes.length,
+      changes: changes.map(c => ({ type: c.type, id: 'id' in c ? c.id : 'no-id' })),
+      currentNodesCount: nodes.length
+    });
+
+    let updatedNodes = [...nodes];
+
+    // 处理所有类型的变更
+    for (const change of changes) {
+      console.log('🔍 [WorkflowEditor] 处理变更:', change.type, change);
+
+      if (change.type === 'add' && 'item' in change) {
+        // 处理节点添加
+        const newNode = change.item as Node;
+        updatedNodes = [...updatedNodes, newNode];
+        console.log('✅ [WorkflowEditor] 添加节点到画布:', {
+          nodeId: newNode.id,
+          nodeType: newNode.type,
+          position: newNode.position,
+          data: newNode.data,
+          beforeCount: nodes.length,
+          afterCount: updatedNodes.length
+        });
+      } else if (change.type === 'remove' && 'id' in change) {
+        // 处理节点删除
+        const nodeId = change.id;
+        updatedNodes = updatedNodes.filter(node => node.id !== nodeId);
+
+        // 清理删除节点的相关状态
+        if (selectedNodeDetails?.node?.id === nodeId) {
+          setSelectedNodeDetails(null);
+        }
+        deleteNodeCompletely(nodeId);
+        console.log('🗑️ [WorkflowEditor] 从画布删除节点:', nodeId);
+      } else if ('id' in change) {
+        // 处理其他类型的变更（位置、选择、尺寸等）
+        const nodeId = change.id;
+        console.log('🔄 [WorkflowEditor] 处理节点更新:', { type: change.type, nodeId });
+        updatedNodes = updatedNodes.map(node => {
+          if (node.id === nodeId) {
+            if (change.type === 'position' && 'position' in change && change.position) {
+              return { ...node, position: change.position };
+            } else if (change.type === 'select' && 'selected' in change) {
+              return { ...node, selected: change.selected };
+            } else if (change.type === 'dimensions' && 'dimensions' in change && change.dimensions) {
+              return {
+                ...node,
+                width: change.dimensions.width,
+                height: change.dimensions.height
+              };
+            }
+          }
+          return node;
+        });
+      } else {
+        console.warn('⚠️ [WorkflowEditor] 未处理的变更类型:', change);
+      }
+    }
+
+    console.log('🔍 [WorkflowEditor] 准备更新节点状态:', {
+      beforeCount: nodes.length,
+      afterCount: updatedNodes.length,
+      nodeIds: updatedNodes.map(n => n.id)
+    });
+
+    // 更新节点状态
+    setNodes(updatedNodes);
+
+    // 通知画布状态变化
+    if (onCanvasStateChange) {
+      onCanvasStateChange(updatedNodes, edges);
+    }
+
+    console.log('✅ [WorkflowEditor] handleNodesChange 完成');
+  }, [nodes, edges, setNodes, onCanvasStateChange, selectedNodeDetails, deleteNodeCompletely]);
 
   // 初始化hooks
   const nodeTestingHook = useNodeTesting({
@@ -190,10 +271,10 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
     nodes, // 直接使用 Context 的 nodes
     edges, // 直接使用 Context 的 edges
     nodesDetailsMap,
-    onNodesChange: () => {}, // 简化：不需要复杂的变更处理
-    onEdgesChange: () => {}, // 简化：不需要复杂的变更处理
-    setNodes: () => {}, // 由 Context 管理
-    setEdges: () => {}, // 由 Context 管理
+    onNodesChange: handleNodesChange, // 🔧 修复：使用正确的 handleNodesChange
+    onEdgesChange: () => { }, // 简化：不需要复杂的变更处理
+    setNodes, // 🔧 修复：使用 Context 的 setNodes
+    setEdges, // 🔧 修复：使用 Context 的 setEdges
     updateNodeDetails,
     deleteNodeCompletely,
     showError,
@@ -211,6 +292,32 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
       console.log(`✅ ${title}: ${message}`);
     }
   });
+
+  // 监听测试状态变化，主动更新selectedNodeDetails
+  useEffect(() => {
+    if (selectedNodeDetails && selectedNodeDetails.node) {
+      const nodeInstanceId = selectedNodeDetails.node.id;
+      const isCurrentlyTesting = nodeTestingHook.testingNodes?.has(nodeInstanceId) || false;
+      const currentEventId = nodeTestingHook.nodeTestEventIds?.[nodeInstanceId];
+
+      // 如果测试状态发生变化，更新selectedNodeDetails
+      if (selectedNodeDetails.isNodeTesting !== isCurrentlyTesting) {
+        setSelectedNodeDetails((prev: any) => {
+          const updated = {
+            ...prev,
+            isNodeTesting: isCurrentlyTesting,
+            nodeTestEventId: currentEventId
+          };
+          console.log('🔄 [WorkflowEditor] Updated selectedNodeDetails:', {
+            oldIsNodeTesting: prev?.isNodeTesting,
+            newIsNodeTesting: updated.isNodeTesting,
+            nodeInstanceId
+          });
+          return updated;
+        });
+      }
+    }
+  }, [nodeTestingHook.testingNodes, nodeTestingHook.nodeTestEventIds, selectedNodeDetails]);
 
   // 处理资源变化
   const handleResourcesChange = useCallback((nodeId: string, resources: any) => {
@@ -260,29 +367,6 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
     setIsAgentSelectorOpen(false);
   }, [pendingAgentNodeData, canvasOperationsHook.generateUniqueNodeId]);
 
-  // 简化的节点变更处理
-  const handleNodesChange = useCallback((changes: NodeChange[]) => {
-    // 直接通知画布状态变化，不做复杂的状态同步
-    if (onCanvasStateChange) {
-      onCanvasStateChange(nodes, edges);
-    }
-
-    // 处理删除事件
-    const deleteChanges = changes.filter((change): change is NodeChange & { type: 'remove'; id: string } =>
-      change.type === 'remove'
-    );
-    
-    if (deleteChanges.length > 0) {
-      deleteChanges.forEach((change) => {
-        const nodeId = change.id;
-        if (selectedNodeDetails?.node?.id === nodeId) {
-          setSelectedNodeDetails(null);
-        }
-        deleteNodeCompletely(nodeId);
-      });
-    }
-  }, [nodes, edges, onCanvasStateChange, selectedNodeDetails, deleteNodeCompletely]);
-
   // 处理节点双击
   const handleNodeDoubleClick = useCallback(async (event: React.MouseEvent, node: Node) => {
     const nodeInstanceId = node.id;
@@ -301,7 +385,7 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
         if (response.ok) {
           const nodeDefData = await response.json();
           parameters = nodeDefData.node?.fields || nodeDefData.node?.parameters || [];
-          
+
           updateNodeDetails(nodeInstanceId, {
             ...cachedDetails,
             parameters
@@ -372,7 +456,7 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
     if (nodeInstanceId) {
       const existingDetails = nodesDetailsMap[nodeInstanceId] || {};
       const potentialSavedValues = { ...nodeData.data };
-      
+
       // 清理系统属性
       delete potentialSavedValues.kind;
       delete potentialSavedValues.name;
@@ -383,8 +467,8 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
       delete potentialSavedValues.link;
       delete potentialSavedValues.parameters;
 
-      const finalSavedValues = Object.keys(potentialSavedValues).length > 0 
-        ? potentialSavedValues 
+      const finalSavedValues = Object.keys(potentialSavedValues).length > 0
+        ? potentialSavedValues
         : existingDetails.savedValues || {};
 
       updateNodeDetails(nodeInstanceId, {
@@ -405,8 +489,8 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
       nodes,
       edges,
       nodesDetailsMap,
-      () => {}, // 简化：由 Context 管理
-      () => {}, // 简化：由 Context 管理
+      () => { }, // 简化：由 Context 管理
+      () => { }, // 简化：由 Context 管理
       updateNodeDetails
     );
   }, [nodes, edges, nodesDetailsMap, updateNodeDetails]);
@@ -417,19 +501,87 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
     onMenuCollapseChange(collapsed);
   }, [onMenuCollapseChange]);
 
-  // Sticky Note 处理函数
+  /**
+   * 添加Sticky Note
+   */
   const handleAddStickyNote = useCallback((position: { x: number; y: number }) => {
-    // 简化：直接调用 canvasOperationsHook 的方法
-    console.log('添加 Sticky Note:', position);
-  }, []);
+    const newStickyNote: Node = {
+      id: `sticky-${Date.now()}`,
+      type: 'stickyNote',
+      position,
+      data: {
+        content: '',
+        color: '#8B7355'
+      },
+      style: {
+        width: 300,
+        height: 160,
+      },
+      draggable: true,
+      selectable: true,
+      zIndex: -1, // 设置为最底层
+    };
 
+    setNodes([...nodes, newStickyNote]);
+  }, [setNodes, nodes]);
+
+  /**
+   * 更新Sticky Note - 按照ReactFlow官方示例的方式
+   */
   const handleUpdateStickyNote = useCallback((id: string, updateData: any) => {
-    console.log('更新 Sticky Note:', id, updateData);
-  }, []);
+    console.log('🔄 [WorkflowEditor] 更新Sticky Note:', { id, updateData });
 
+    // 按照ReactFlow官方示例的方式更新节点
+    const updatedNodes = nodes.map((node) => {
+      if (node.id === id) {
+        // 重要：创建一个新的节点对象来通知ReactFlow变化
+        const updatedNode = {
+          ...node,
+          data: {
+            ...node.data,
+            ...updateData,
+          },
+        };
+        console.log('✅ [WorkflowEditor] 节点更新:', {
+          oldData: node.data,
+          newData: updatedNode.data,
+          updateData
+        });
+        return updatedNode;
+      }
+      return node;
+    });
+
+    setNodes(updatedNodes);
+
+    // 同时更新nodesDetailsMap，确保StickyNote内容能够被保存
+    const existingDetails = nodesDetailsMap[id];
+    if (existingDetails) {
+      updateNodeDetails(id, {
+        ...existingDetails,
+        savedValues: {
+          ...existingDetails.savedValues,
+          ...updateData
+        }
+      });
+    } else {
+      // 如果没有nodeDetails，创建一个新的
+      updateNodeDetails(id, {
+        nodeInfo: null,
+        savedValues: updateData,
+        parameters: null,
+        originalNodeKind: 'stickyNote',
+        lastSaved: new Date().toISOString()
+      });
+    }
+  }, [setNodes, nodes, nodesDetailsMap, updateNodeDetails]);
+
+  /**
+   * 删除Sticky Note
+   */
   const handleDeleteStickyNote = useCallback((id: string) => {
-    console.log('删除 Sticky Note:', id);
-  }, []);
+    setNodes(nodes.filter((node) => node.id !== id));
+  }, [setNodes, nodes]);
 
   // 使用connect config hook的函数
   const finalFetchConnectConfigs = onFetchConnectInstances || connectConfigHook.handleFetchConnectConfigs;
@@ -451,7 +603,7 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
             nodes={nodes} // 直接使用 Context 数据
             edges={edges} // 直接使用 Context 数据
             onNodesChange={handleNodesChange}
-            onEdgesChange={() => {}} // 简化：不需要复杂处理
+            onEdgesChange={() => { }} // 简化：不需要复杂处理
             onConnect={canvasOperationsHook.handleConnect}
             onDrop={canvasOperationsHook.handleDrop}
             onDragOver={(event) => {
@@ -463,7 +615,7 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
             selectedNodeDetails={selectedNodeDetails}
             onNodeIdChange={handleNodeIdChange}
             nodeWidth={selectedNodeDetails?.node?.data?.nodeWidth}
-            onAutoLayout={() => {}} // 简化
+            onAutoLayout={() => { }} // 简化
             onCopyNodes={canvasOperationsHook.handleCopyNodes}
             onPasteNodes={canvasOperationsHook.handlePasteNodes}
             nodesTestResultsMap={nodesTestResultsMap}
