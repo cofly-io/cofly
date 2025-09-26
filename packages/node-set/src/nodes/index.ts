@@ -27,6 +27,7 @@ export * from "./files/fileConverter/node";
 export * from "./files/fileExtracted/node";
 export * from "./files/filesRW/node";
 export * from "./files/markdown/node";
+export * from "./files/excel/node";
 
 // ==========================================
 // Flow - 流程控制相关节点
