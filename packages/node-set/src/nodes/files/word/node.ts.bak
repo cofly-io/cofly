@@ -502,7 +502,11 @@ export class WordNode implements INode {
 		markdown = markdown.replace(/<[^>]*>/g, '');
 		
 		// 清理多余的空行
-		markdown = markdown.replace(/\s*/g, '');
+		markdown = markdown.replace(/
+\s*
+/g, '
+
+');
 		
 		return markdown.trim();
 	}

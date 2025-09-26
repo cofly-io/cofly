@@ -180,11 +180,7 @@ export class ExcelNode implements INode {
 		const filePath = opts.inputs?.filePath;
 		const sheetName = opts.inputs?.sheetName;
 		const withHeader = opts.inputs?.withHeader || false; // 默认不包含表头
-		
-		console.log('🚀 [Excel Node] Starting read operation');
-		console.log('📂 [Excel Node] Input file path:', filePath);
-		console.log('📋 [Excel Node] With header:', withHeader);
-		
+				
 		if (!filePath) {
 			const errorMsg = '文件路径不能为空';
 			console.error('❌ [Excel Node] File path is empty');
@@ -193,68 +189,41 @@ export class ExcelNode implements INode {
 
 		// 处理文件路径，确保兼容Windows和Unix系统
 		const normalizedPath = this.normalizePath(filePath);
-		console.log('🔧 [Excel Node] Normalized path:', normalizedPath);
 		
-		// 检查文件是否存在
-		console.log('🔍 [Excel Node] Checking file existence...');
 		
 		// Check both original and normalized paths
 		const originalExists = fs.existsSync(filePath);
 		const normalizedExists = fs.existsSync(normalizedPath);
 		
-		console.log('📊 [Excel Node] File existence check:', {
-			originalPath: filePath,
-			originalExists: originalExists,
-			normalizedPath: normalizedPath,
-			normalizedExists: normalizedExists
-		});
 		
 		if (!originalExists && !normalizedExists) {
 			const errorMessage = `文件不存在: ${normalizedPath}`;
-			console.error('❌ [Excel Node] File not found at either path');
-			console.error('📂 [Excel Node] Original path:', filePath);
-			console.error('📂 [Excel Node] Normalized path:', normalizedPath);
 			throw new Error(errorMessage);
 		}
 		
 		// Use the path that exists
 		const actualPath = normalizedExists ? normalizedPath : filePath;
-		console.log('✅ [Excel Node] Using existing path:', actualPath);
 
 		try {
-			console.log('📖 [Excel Node] Attempting to read Excel file...');
 			
 			// Additional file info logging
 			try {
 				const stats = fs.statSync(actualPath);
-				console.log('📊 [Excel Node] File stats:', {
-					size: stats.size,
-					isFile: stats.isFile(),
-					created: stats.birthtime,
-					modified: stats.mtime
-				});
 			} catch (statError: any) {
 				console.warn('⚠️ [Excel Node] Could not get file stats:', statError.message);
 			}
 			
 			// Read file content first, then parse with xlsx library
-			console.log('📥 [Excel Node] Reading file content as buffer...');
 			const fileBuffer = fs.readFileSync(actualPath);
-			console.log('✅ [Excel Node] File content read, buffer size:', fileBuffer.length);
 			
 			// Parse the buffer with xlsx library
-			console.log('📖 [Excel Node] Parsing buffer with xlsx library...');
 			const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-			console.log('📚 [Excel Node] Workbook loaded successfully');
-			console.log('📋 [Excel Node] Available sheets:', workbook.SheetNames);
 			
 			// 获取工作表名称
 			const targetSheetName = sheetName || workbook.SheetNames[0];
-			console.log('🎯 [Excel Node] Target sheet name:', targetSheetName);
 			
 			if (!workbook.SheetNames.includes(targetSheetName)) {
 				const errorMsg = `工作表 "${targetSheetName}" 不存在`;
-				console.error('❌ [Excel Node] Sheet not found:', errorMsg);
 				throw new Error(errorMsg);
 			}
 			
@@ -266,38 +235,31 @@ export class ExcelNode implements INode {
 				throw new Error(errorMsg);
 			}
 			
-			console.log('📊 [Excel Node] Converting sheet to data...');
 			
 			// 根据是否包含表头来决定返回格式
 			let data: any[];
 			if (withHeader) {
 				// 包含表头，返回对象数组
 				const rawJsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-				console.log('📋 [Excel Node] Raw data with headers:', rawJsonData);
 				
 				// 处理合并单元格的情况
 				data = this.processMergedCellsData(rawJsonData);
-				console.log('✅ [Excel Node] Processed data with headers, rows:', data.length);
 			} else {
 				// 不包含表头，返回数组
 				data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-				console.log('✅ [Excel Node] Data as array, rows:', data.length);
 			}
 			
 			// 返回结果
-			const result = {
-				data: data,
-				sheetName: targetSheetName,
-				filePath: actualPath,
-				success: true
-			};
+			const result =  data;
+			// const result = {
+			// 	data: data,
+			// 	sheetName: targetSheetName,
+			// 	filePath: actualPath,
+			// 	success: true
+			// };
 			
-			console.log('🎉 [Excel Node] Read operation completed successfully');
 			return result;
 		} catch (error: any) {
-			console.error('💥 [Excel Node] Failed to read Excel file:', error.message);
-			console.error('📋 [Excel Node] Error stack:', error.stack);
-			console.error('📂 [Excel Node] File path that failed:', actualPath);
 			throw new Error(`读取Excel文件失败: ${error.message}`);
 		}
 	}
@@ -309,13 +271,6 @@ export class ExcelNode implements INode {
 		const includeHeader = opts.inputs?.includeHeader !== false; // 默认为true
 		const appendData = opts.inputs?.appendData || false; // 默认不追加
 		
-		console.log('💾 [Excel Node] Starting write operation');
-		console.log('📂 [Excel Node] Output file path:', outputFilePath);
-		console.log('📋 [Excel Node] Input data:', inputDataField);
-		console.log('📑 [Excel Node] Sheet name:', outputSheetName);
-		console.log('🏷️ [Excel Node] Include header:', includeHeader);
-		console.log('➕ [Excel Node] Append data:', appendData);
-		
 		if (!outputFilePath) {
 			const errorMsg = '输出文件路径不能为空';
 			console.error('❌ [Excel Node] Output file path is empty');
@@ -324,7 +279,6 @@ export class ExcelNode implements INode {
 
 		// 获取要写入的数据 (直接使用inputDataField作为数据)
 		const data = inputDataField;
-		console.log('📥 [Excel Node] Raw input data:', data);
 		
 		if (data === undefined || data === null) {
 			const errorMsg = '输入数据不能为空';
@@ -336,12 +290,10 @@ export class ExcelNode implements INode {
 		let parsedData: any;
 		try {
 			if (typeof data === 'string') {
-				console.log('🔍 [Excel Node] Parsing JSON string data');
 				parsedData = JSON.parse(data);
 			} else {
 				parsedData = data;
 			}
-			console.log('✅ [Excel Node] Data parsed successfully');
 		} catch (parseError: any) {
 			console.error('❌ [Excel Node] Failed to parse JSON data:', parseError.message);
 			throw new Error(`JSON数据解析失败: ${parseError.message}`);
@@ -349,24 +301,19 @@ export class ExcelNode implements INode {
 
 		// 处理文件路径，确保兼容Windows和Unix系统
 		const normalizedPath = this.normalizePath(outputFilePath);
-		console.log('🔧 [Excel Node] Normalized path:', normalizedPath);
 		
 		// 确保目录存在
 		const dir = path.dirname(normalizedPath);
-		console.log('📁 [Excel Node] Ensuring directory exists:', dir);
 		
 		try {
 			if (!fs.existsSync(dir)) {
-				console.log('🏗️ [Excel Node] Creating directory:', dir);
 				fs.mkdirSync(dir, { recursive: true });
 			}
 			
 			// Check if directory is writable
 			try {
 				fs.accessSync(dir, fs.constants.W_OK);
-				console.log('✅ [Excel Node] Directory is writable');
 			} catch (accessError: any) {
-				console.error('❌ [Excel Node] Directory is not writable:', accessError.message);
 				throw new Error(`目录无写入权限: ${dir}`);
 			}
 		} catch (dirError: any) {
@@ -379,7 +326,6 @@ export class ExcelNode implements INode {
 			
 			// 检查是否需要追加数据且文件已存在
 			if (appendData && fs.existsSync(normalizedPath)) {
-				console.log('🔄 [Excel Node] File exists and append mode enabled, loading existing workbook');
 				try {
 					const fileBuffer = fs.readFileSync(normalizedPath);
 					workbook = XLSX.read(fileBuffer, { type: 'buffer' });
@@ -388,57 +334,45 @@ export class ExcelNode implements INode {
 					throw new Error(`无法读取现有文件: ${readError.message}`);
 				}
 			} else {
-				console.log('🆕 [Excel Node] Creating new workbook');
 				workbook = XLSX.utils.book_new();
 			}
 			
 			// 转换数据为工作表
-			console.log('📋 [Excel Node] Converting data to sheet...');
 			let worksheet;
 			
 			// Handle different data types
 			if (Array.isArray(parsedData)) {
-				console.log('📊 [Excel Node] Data is array with', parsedData.length, 'items');
 				// 如果数据是数组，直接转换
 				if (parsedData.length > 0 && typeof parsedData[0] === 'object' && parsedData[0] !== null) {
 					// 对象数组，使用json_to_sheet
-					console.log('📦 [Excel Node] Array of objects detected');
 					worksheet = XLSX.utils.json_to_sheet(parsedData, { 
 						skipHeader: !includeHeader 
 					});
 				} else {
 					// 简单数组，使用aoa_to_sheet
-					console.log('🔢 [Excel Node] Simple array detected');
 					worksheet = XLSX.utils.aoa_to_sheet(parsedData);
 				}
 			} else if (typeof parsedData === 'object' && parsedData !== null) {
 				// 如果数据是对象，转换为单行对象数组
-				console.log('📦 [Excel Node] Single object detected, converting to array');
 				worksheet = XLSX.utils.json_to_sheet([parsedData], { 
 					skipHeader: !includeHeader 
 				});
 			} else {
 				// 其他类型数据，包装成数组
-				console.log('🔤 [Excel Node] Primitive data detected, wrapping in array');
 				worksheet = XLSX.utils.aoa_to_sheet([[parsedData]]);
 			}
-
-			console.log('📚 [Excel Node] Sheet created successfully');
 			
 			// 处理工作表名称
 			let finalSheetName = outputSheetName;
 			if (appendData && workbook.SheetNames.includes(outputSheetName)) {
 				// 如果追加模式且工作表已存在，我们需要合并数据
-				console.log('🔄 [Excel Node] Sheet exists in append mode, merging data');
 				const existingSheet = workbook.Sheets[outputSheetName];
 				
 				// 获取现有数据
 				const existingData = existingSheet ? XLSX.utils.sheet_to_json(existingSheet, { header: 1 }) : [];
-				console.log('📊 [Excel Node] Existing data rows:', existingData.length);
 				
 				// 获取新数据
 				const newData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-				console.log('🆕 [Excel Node] New data rows:', newData.length);
 				
 				// 合并数据（跳过表头）
 				const mergedData: any[] = [...existingData];
@@ -447,7 +381,6 @@ export class ExcelNode implements INode {
 					mergedData.push(newData[i]);
 				}
 				
-				console.log('🔗 [Excel Node] Merged data rows:', mergedData.length);
 				
 				// 创建新的工作表
 				worksheet = XLSX.utils.aoa_to_sheet(mergedData as any[][]);
@@ -456,16 +389,11 @@ export class ExcelNode implements INode {
 			
 			// 添加或更新工作表到工作簿
 			if (workbook.SheetNames.includes(finalSheetName)) {
-				console.log('🔄 [Excel Node] Replacing existing sheet:', finalSheetName);
 				workbook.Sheets[finalSheetName] = worksheet;
 			} else {
-				console.log('➕ [Excel Node] Adding new sheet:', finalSheetName);
 				XLSX.utils.book_append_sheet(workbook, worksheet, finalSheetName);
 			}
 			
-			// 写入文件
-			console.log('💾 [Excel Node] Writing file to disk...');
-			console.log('📂 [Excel Node] Final write path:', normalizedPath);
 			
 			// Check if the path is valid
 			if (!normalizedPath || normalizedPath.length === 0) {
@@ -474,33 +402,21 @@ export class ExcelNode implements INode {
 			
 			// Try to write the file
 			try {
-				console.log('📝 [Excel Node] Attempting to write with xlsx library...');
 				XLSX.writeFile(workbook, normalizedPath);
-				console.log('✅ [Excel Node] File written successfully with xlsx library');
 			} catch (writeError: any) {
-				console.error('❌ [Excel Node] Failed to write with xlsx library:', writeError.message);
-				console.error('📋 [Excel Node] Trying alternative write method...');
 				
 				// Alternative method: Write as buffer
 				try {
-					console.log('📝 [Excel Node] Attempting to write with buffer method...');
 					const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-					console.log('📤 [Excel Node] Buffer created, size:', buffer.length);
 					fs.writeFileSync(normalizedPath, buffer);
-					console.log('✅ [Excel Node] File written successfully with buffer method');
 				} catch (bufferError: any) {
-					console.error('❌ [Excel Node] Failed to write with buffer method:', bufferError.message);
-					console.error('📂 [Excel Node] Path that failed:', normalizedPath);
 					
 					// Additional debugging info
 					try {
 						const dir = path.dirname(normalizedPath);
-						console.log('📁 [Excel Node] Directory exists:', fs.existsSync(dir));
 						if (fs.existsSync(dir)) {
-							console.log('🔐 [Excel Node] Directory writable:', fs.constants.W_OK);
 							try {
 								fs.accessSync(dir, fs.constants.W_OK);
-								console.log('✅ [Excel Node] Directory access confirmed');
 							} catch (accessError) {
 								console.error('❌ [Excel Node] Directory access denied:', accessError);
 							}
@@ -515,17 +431,15 @@ export class ExcelNode implements INode {
 
 			// 获取文件信息
 			const stats = fs.statSync(normalizedPath);
-			console.log('✅ [Excel Node] File written successfully');
 			
 			const result = {
 				filePath: normalizedPath,
 				fileSize: stats.size,
 				sheetName: finalSheetName,
-				success: true,
+				//success: true,
 				message: `Excel文件${appendData ? '追加' : '写入'}成功`
 			};
 			
-			console.log('🎉 [Excel Node] Write operation completed successfully');
 			return result;
 		} catch (error: any) {
 			console.error('💥 [Excel Node] Failed to write Excel file:', error.message);
@@ -551,31 +465,23 @@ export class ExcelNode implements INode {
 	 * @returns 标准化后的文件路径
 	 */
 	private normalizePath(filePath: string): string {
-		console.log('🔧 [Excel Node] Starting path normalization');
-		console.log('📥 [Excel Node] Input path:', filePath);
-		console.log('📝 [Excel Node] Path length:', filePath.length);
-		
 		// Convert all backslashes to forward slashes for consistency
 		let normalized = filePath.replace(/\\/g, '/');
-		console.log('🔄 [Excel Node] After backslash conversion:', normalized);
 		
 		// Handle Windows drive letters (e.g., C:/path/to/file)
 		if (/^[a-zA-Z]:\//.test(normalized)) {
 			// Ensure drive letter is uppercase
 			const driveLetter = normalized.charAt(0).toUpperCase();
 			normalized = driveLetter + ':' + normalized.substring(2);
-			console.log('🚗 [Excel Node] Windows drive path detected, normalized to:', normalized);
 		}
 		
 		// Decode URI components to handle Chinese characters properly
 		try {
 			normalized = decodeURIComponent(normalized);
-			console.log('🔤 [Excel Node] After URI decoding:', normalized);
 		} catch (decodeError: any) {
 			console.warn('⚠️ [Excel Node] Failed to decode URI, using original path:', decodeError.message);
 		}
 		
-		console.log('✅ [Excel Node] Final normalized path:', normalized);
 		return normalized;
 	}
 
@@ -585,9 +491,6 @@ export class ExcelNode implements INode {
 	 * @returns 处理后的数据数组
 	 */
 	private processMergedCellsData(rawData: any[]): any[] {
-		console.log('🔧 [Excel Node] Processing merged cells data');
-		console.log('📊 [Excel Node] Raw data rows:', rawData.length);
-		
 		if (!rawData || rawData.length === 0) {
 			return [];
 		}
@@ -634,12 +537,8 @@ export class ExcelNode implements INode {
 				
 				result.push(obj);
 			}
-			
-			console.log('✅ [Excel Node] Converted to object array with headers');
 			return result;
 		}
-		
-		console.log('✅ [Excel Node] Processed merged cells data, rows:', processedData.length);
 		return processedData;
 	}
 }
