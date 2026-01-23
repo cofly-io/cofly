@@ -66,7 +66,7 @@ cofly/
 - **前端**: Next.js 15 + React 19 + TypeScript
 - **后端**: Next.js API Routes + Express.js
 - **数据库**: Prisma ORM + MySQL/SQLite
-- **UI**: Tailwind CSS + Styled Components
+- **UI**: styled CSS + Styled Components
 - **构建**: Turborepo + pnpm
 - **认证**: NextAuth.js
 
